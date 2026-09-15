@@ -4,8 +4,8 @@ namespace App\Models\Perfect10;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Fixture extends Model
 {
@@ -134,6 +134,4 @@ class Fixture extends Model
             ->orderByDesc('kickoff_at')
             ->first();
     }
-
-
 }

@@ -40,7 +40,7 @@ class Team extends Model
             'team_id'
         );
     }
-    
+
     public function nationalProfile(): HasOne
     {
         return $this->hasOne(
