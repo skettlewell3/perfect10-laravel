@@ -28,6 +28,9 @@ class Prediction extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Profile, $this>
+     */
     public function profile(): BelongsTo
     {
         return $this->belongsTo(
@@ -37,6 +40,9 @@ class Prediction extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Fixture, $this>
+     */
     public function fixture(): BelongsTo
     {
         return $this->belongsTo(
@@ -46,6 +52,9 @@ class Prediction extends Model
         );
     }
 
+    /**
+     * @return HasOne<PredictionScore, $this>
+     */
     public function score(): HasOne
     {
         return $this->hasOne(

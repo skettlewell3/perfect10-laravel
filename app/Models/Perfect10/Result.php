@@ -29,6 +29,9 @@ class Result extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Fixture, $this>
+     */
     public function fixture(): BelongsTo
     {
         return $this->belongsTo(

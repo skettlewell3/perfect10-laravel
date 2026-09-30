@@ -26,6 +26,9 @@ class Profile extends Model
         ];
     }
 
+    /**
+     * @return HasMany<Prediction, $this>
+     */
     public function predictions(): HasMany
     {
         return $this->hasMany(
@@ -35,6 +38,9 @@ class Profile extends Model
         );
     }
 
+    /**
+     * @return HasOne<UserProfile, $this>
+     */
     public function userProfile(): HasOne
     {
         return $this->hasOne(
@@ -44,6 +50,9 @@ class Profile extends Model
         );
     }
 
+    /**
+     * @return HasOne<ClubProfile, $this>
+     */
     public function clubProfile(): HasOne
     {
         return $this->hasOne(
@@ -53,6 +62,9 @@ class Profile extends Model
         );
     }
 
+    /**
+     * @return HasOne<BotProfile, $this>
+     */
     public function botProfile(): HasOne
     {
         return $this->hasOne(
@@ -62,6 +74,9 @@ class Profile extends Model
         );
     }
 
+    /**
+     * @return HasMany<PredictionScore, $this>
+     */
     public function predictionScores(): HasMany
     {
         return $this->hasMany(

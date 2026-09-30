@@ -30,6 +30,9 @@ class Gameweek extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Stage, $this>
+     */
     public function stage(): BelongsTo
     {
         return $this->belongsTo(
@@ -39,6 +42,9 @@ class Gameweek extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Campaign, $this>
+     */
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(

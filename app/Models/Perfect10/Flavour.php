@@ -5,6 +5,7 @@ namespace App\Models\Perfect10;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Flavour extends Model
 {
@@ -25,6 +26,9 @@ class Flavour extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<PredictionFormat, $this>
+     */
     public function format(): BelongsTo
     {
         return $this->belongsTo(
@@ -34,6 +38,9 @@ class Flavour extends Model
         );
     }
 
+    /**
+     * @return BelongsToMany<Competition, $this, Pivot>
+     */
     public function competitionLink(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -46,6 +53,9 @@ class Flavour extends Model
 
     public function competition(): ?Competition
     {
-        return $this->competitionLink()->first();
+        /** @var Competition|null $competition */
+        $competition = $this->competitionLink()->first();
+
+        return $competition;
     }
 }

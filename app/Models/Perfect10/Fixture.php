@@ -6,7 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $fixture_id
+ * @property int $campaign_id
+ * @property int $stage_id
+ * @property int $venue_id
+ * @property int|null $home_team_id
+ * @property int|null $away_team_id
+ * @property Carbon $kickoff_at
+ */
 class Fixture extends Model
 {
     protected $table = 'fixtures';
@@ -31,6 +41,9 @@ class Fixture extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Team, $this>
+     */
     public function homeTeam(): BelongsTo
     {
         return $this->belongsTo(
@@ -40,6 +53,9 @@ class Fixture extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Team, $this>
+     */
     public function awayTeam(): BelongsTo
     {
         return $this->belongsTo(
@@ -49,6 +65,9 @@ class Fixture extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Stage, $this>
+     */
     public function stage(): BelongsTo
     {
         return $this->belongsTo(
@@ -58,6 +77,9 @@ class Fixture extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Campaign, $this>
+     */
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(
@@ -67,6 +89,9 @@ class Fixture extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Venue, $this>
+     */
     public function venue(): BelongsTo
     {
         return $this->belongsTo(
@@ -76,6 +101,9 @@ class Fixture extends Model
         );
     }
 
+    /**
+     * @return HasOne<Result, $this>
+     */
     public function result(): HasOne
     {
         return $this->hasOne(
@@ -85,6 +113,9 @@ class Fixture extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Tie, $this>
+     */
     public function tie(): BelongsTo
     {
         return $this->belongsTo(
@@ -94,6 +125,9 @@ class Fixture extends Model
         );
     }
 
+    /**
+     * @return HasMany<Prediction, $this>
+     */
     public function predictions(): HasMany
     {
         return $this->hasMany(
@@ -103,6 +137,9 @@ class Fixture extends Model
         );
     }
 
+    /**
+     * @return HasMany<PredictionScore, $this>
+     */
     public function predictionScores(): HasMany
     {
         return $this->hasMany(

@@ -16,6 +16,9 @@ class Venue extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return HasMany<Fixture, $this>
+     */
     public function fixtures(): HasMany
     {
         return $this->hasMany(
@@ -25,6 +28,9 @@ class Venue extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<City, $this>
+     */
     public function city(): BelongsTo
     {
         return $this->belongsTo(

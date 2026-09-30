@@ -23,6 +23,9 @@ class Tie extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Stage, $this>
+     */
     public function stage(): BelongsTo
     {
         return $this->belongsTo(
@@ -32,6 +35,9 @@ class Tie extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Team, $this>
+     */
     public function teamA(): BelongsTo
     {
         return $this->belongsTo(
@@ -41,6 +47,9 @@ class Tie extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Team, $this>
+     */
     public function teamB(): BelongsTo
     {
         return $this->belongsTo(
@@ -50,6 +59,9 @@ class Tie extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Team, $this>
+     */
     public function winner(): BelongsTo
     {
         return $this->belongsTo(
@@ -59,6 +71,9 @@ class Tie extends Model
         );
     }
 
+    /**
+     * @return HasMany<Fixture, $this>
+     */
     public function fixtures(): HasMany
     {
         return $this->hasMany(

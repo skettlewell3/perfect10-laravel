@@ -15,6 +15,9 @@ class PredictionFormat extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return HasMany<Flavour, $this>
+     */
     public function flavours(): HasMany
     {
         return $this->hasMany(
