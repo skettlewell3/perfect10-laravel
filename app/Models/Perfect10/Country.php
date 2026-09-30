@@ -15,6 +15,9 @@ class Country extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return HasMany<City, $this>
+     */
     public function cities(): HasMany
     {
         return $this->hasMany(
@@ -24,6 +27,9 @@ class Country extends Model
         );
     }
 
+    /**
+     * @return HasMany<FootballAssociation, $this>
+     */
     public function footballAssociations(): HasMany
     {
         return $this->hasMany(

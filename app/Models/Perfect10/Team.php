@@ -14,6 +14,9 @@ class Team extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return HasMany<Fixture, $this>
+     */
     public function homeFixtures(): HasMany
     {
         return $this->hasMany(
@@ -23,6 +26,9 @@ class Team extends Model
         );
     }
 
+    /**
+     * @return HasMany<Fixture, $this>
+     */
     public function awayFixtures(): HasMany
     {
         return $this->hasMany(
@@ -32,6 +38,9 @@ class Team extends Model
         );
     }
 
+    /**
+     * @return HasOne<DomesticTeam, $this>
+     */
     public function domesticProfile(): HasOne
     {
         return $this->hasOne(
@@ -41,6 +50,9 @@ class Team extends Model
         );
     }
 
+    /**
+     * @return HasOne<NationalTeam, $this>
+     */
     public function nationalProfile(): HasOne
     {
         return $this->hasOne(

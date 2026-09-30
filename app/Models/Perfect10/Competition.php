@@ -5,6 +5,7 @@ namespace App\Models\Perfect10;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Competition extends Model
 {
@@ -16,6 +17,9 @@ class Competition extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return BelongsToMany<Flavour, $this, Pivot>
+     */
     public function flavourLink(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -28,9 +32,15 @@ class Competition extends Model
 
     public function flavour(): ?Flavour
     {
-        return $this->flavourLink()->first();
+        /** @var Flavour|null $flavour */
+        $flavour = $this->flavourLink()->first();
+
+        return $flavour;
     }
 
+    /**
+     * @return HasMany<Campaign, $this>
+     */
     public function campaigns(): HasMany
     {
         return $this->hasMany(
@@ -40,6 +50,9 @@ class Competition extends Model
         );
     }
 
+    /**
+     * @return HasMany<Stage, $this>
+     */
     public function stages(): HasMany
     {
         return $this->hasMany(

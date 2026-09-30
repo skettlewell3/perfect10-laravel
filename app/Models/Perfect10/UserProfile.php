@@ -25,6 +25,9 @@ class UserProfile extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Profile, $this>
+     */
     public function profile(): BelongsTo
     {
         return $this->belongsTo(

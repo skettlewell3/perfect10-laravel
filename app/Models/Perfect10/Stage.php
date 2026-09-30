@@ -17,6 +17,9 @@ class Stage extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return HasMany<Fixture, $this>
+     */
     public function fixtures(): HasMany
     {
         return $this->hasMany(
@@ -26,6 +29,9 @@ class Stage extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Campaign, $this>
+     */
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(
@@ -35,6 +41,9 @@ class Stage extends Model
         );
     }
 
+    /**
+     * @return HasOne<Gameweek, $this>
+     */
     public function gameweek(): HasOne
     {
         return $this->hasOne(
@@ -44,6 +53,9 @@ class Stage extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Competition, $this>
+     */
     public function competition(): BelongsTo
     {
         return $this->belongsTo(
@@ -53,6 +65,9 @@ class Stage extends Model
         );
     }
 
+    /**
+     * @return HasMany<Tie, $this>
+     */
     public function ties(): HasMany
     {
         return $this->hasMany(

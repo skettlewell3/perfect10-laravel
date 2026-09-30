@@ -23,6 +23,9 @@ class FootballAssociation extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Country, $this>
+     */
     public function country(): BelongsTo
     {
         return $this->belongsTo(
@@ -32,6 +35,9 @@ class FootballAssociation extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<Confederation, $this>
+     */
     public function confederation(): BelongsTo
     {
         return $this->belongsTo(
@@ -41,6 +47,9 @@ class FootballAssociation extends Model
         );
     }
 
+    /**
+     * @return HasMany<DomesticTeam, $this>
+     */
     public function domesticTeams(): HasMany
     {
         return $this->hasMany(
@@ -50,6 +59,9 @@ class FootballAssociation extends Model
         );
     }
 
+    /**
+     * @return HasMany<NationalTeam, $this>
+     */
     public function nationalTeams(): HasMany
     {
         return $this->hasMany(

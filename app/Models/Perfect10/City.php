@@ -16,6 +16,9 @@ class City extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return BelongsTo<Country, $this>
+     */
     public function country(): BelongsTo
     {
         return $this->belongsTo(
@@ -25,6 +28,9 @@ class City extends Model
         );
     }
 
+    /**
+     * @return HasMany<Venue, $this>
+     */
     public function venues(): HasMany
     {
         return $this->hasMany(

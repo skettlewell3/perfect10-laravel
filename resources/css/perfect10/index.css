@@ -1,0 +1,85 @@
+:root {
+    --blue: rgb(28, 44, 91);
+    --green: rgb(32, 100, 60);
+    --bkgrey: #555;
+    --gtable: rgba(50, 153, 91, 0.3);
+    --gold: #ccaa39;
+    --silver: #b0b8c0;
+    --bronze: #8c5a2c;
+    --tpblue: rgb(28, 44, 91, 0.9);
+
+    --bg: rgba(138, 137, 136, 0.5);
+
+    --text: #fff;
+    --text-h: #08060d;
+
+    --border: #000;
+    --code-bg: #f4f3ec;
+    --accent: #aa3bff;
+    --accent-bg: rgba(170, 59, 255, 0.1);
+    --accent-border: rgba(170, 59, 255, 0.5);
+    --social-bg: rgba(244, 243, 236, 0.5);
+    --shadow:
+        rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+    --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+    --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, Consolas, monospace;
+
+    font: 18px/145% var(--sans);
+    letter-spacing: 0.18px;
+    color-scheme: light;
+    color: var(--text);
+    background: var(--bg);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    @media (max-width: 1024px) {
+        font-size: 16px;
+    }
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+.perfect10Root {
+    width: 1126px;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    border-inline: 1px solid var(--border);
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* login */
+
+.logInContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    border: 1px solid white;
+    width: 80%;
+    padding: 1em;
+    margin: 7.5em auto;
+    border-radius: 10px;
+    background-color: var(--green);
+    box-shadow: 0 4px 6px var(--green);
+    max-height: 800px;
+    max-width: 426px;
+}
+
+#loginContainer input {
+    text-align: center;
+}

@@ -17,6 +17,9 @@ class NationalTeam extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return BelongsTo<Team, $this>
+     */
     public function team(): BelongsTo
     {
         return $this->belongsTo(
@@ -26,6 +29,9 @@ class NationalTeam extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<FootballAssociation, $this>
+     */
     public function fa(): BelongsTo
     {
         return $this->belongsTo(

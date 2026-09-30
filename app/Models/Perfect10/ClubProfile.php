@@ -29,6 +29,9 @@ class ClubProfile extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Profile, $this>
+     */
     public function profile(): BelongsTo
     {
         return $this->belongsTo(
@@ -38,6 +41,9 @@ class ClubProfile extends Model
         );
     }
 
+    /**
+     * @return BelongsTo<UserProfile, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(

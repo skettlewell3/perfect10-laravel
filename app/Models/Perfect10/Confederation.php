@@ -15,6 +15,9 @@ class Confederation extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return HasMany<FootballAssociation, $this>
+     */
     public function footballAssociations(): HasMany
     {
         return $this->hasMany(
