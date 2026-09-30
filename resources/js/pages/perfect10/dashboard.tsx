@@ -5,6 +5,16 @@ type Flavour = {
     flavour_name: string;
     flavour_code: string;
     is_default: boolean;
+
+    competition_id: number;
+    competition_name: string;
+    competition_code: string;
+
+    format_id: number;
+
+    active_campaign_id: number;
+    active_campaign_code: string;
+    active_campaign_label: string;
 };
 
 type Competition = {
