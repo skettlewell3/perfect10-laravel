@@ -1,47 +1,12 @@
 import { Head } from '@inertiajs/react';
-
-type Flavour = {
-    flavour_id: number;
-    flavour_name: string;
-    flavour_code: string;
-    is_default: boolean;
-
-    competition_id: number;
-    competition_name: string;
-    competition_code: string;
-
-    format_id: number;
-
-    active_campaign_id: number;
-    active_campaign_code: string;
-    active_campaign_label: string;
-};
-
-type Competition = {
-    competition_id: number;
-    competition_name: string;
-    competition_code: string;
-};
-
-type Campaign = {
-    campaign_id: number;
-    label: string;
-    code: string;
-};
-
-type DashboardProps = {
-    flavours: Flavour[];
-    flavour: Flavour;
-    competition: Competition;
-    campaign: Campaign;
-};
+import type { Perfect10PageProps } from '@/types/perfect10';
 
 export default function Dashboard({
     flavours,
     flavour,
     competition,
     campaign,
-}: DashboardProps) {
+}: Perfect10PageProps) {
     return (
         <>
             <Head title={`Perfect10: ${flavour.flavour_name}`} />

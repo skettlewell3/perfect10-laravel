@@ -1,27 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-
-type Flavour = {
-    flavour_id: number;
-    flavour_name: string;
-    flavour_code: string;
-    is_default: boolean;
-
-    competition_id: number;
-    competition_name: string;
-    competition_code: string;
-
-    format_id: number;
-
-    active_campaign_id: number;
-    active_campaign_code: string;
-    active_campaign_label: string;
-};
-
-type Perfect10PageProps = {
-    flavours: Flavour[];
-    flavour: Flavour;
-};
+import type { Flavour, Perfect10PageProps } from '@/types/perfect10';
 
 export default function FlavourDropdown() {
     const [open, setOpen] = useState(false);

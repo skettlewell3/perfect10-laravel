@@ -5,6 +5,7 @@ namespace App\Services\Perfect10;
 use App\Models\Perfect10\Campaign;
 use App\Models\Perfect10\Competition;
 use App\Models\Perfect10\Flavour;
+use App\Models\Perfect10\PredictionFormat;
 use Illuminate\Support\Collection;
 use RuntimeException;
 
@@ -23,6 +24,21 @@ class FlavourContextService
         }
 
         return $competitions->first();
+    }
+
+    public function predictionFormatFor(Flavour $flavour): PredictionFormat
+    {
+        $format = $flavour
+            ->format()
+            ->first();
+
+        if ($format === null) {
+            throw new RuntimeException(
+                "Flavour {$flavour->flavour_id} must resolve to a prediction format."
+            );
+        }
+
+        return $format;
     }
 
     public function activeCampaignFor(Flavour $flavour): Campaign
@@ -53,6 +69,8 @@ class FlavourContextService
      *     competition_name: string,
      *     competition_code: string,
      *     format_id: int,
+     *     format_name: string,
+     *     format_code: string,
      *     active_campaign_id: int,
      *     active_campaign_code: string,
      *     active_campaign_label: string
@@ -68,6 +86,7 @@ class FlavourContextService
             ->toBase()
             ->map(function (Flavour $flavour): array {
                 $competition = $this->competitionFor($flavour);
+                $format = $this->predictionFormatFor($flavour);
                 $campaign = $this->activeCampaignFor($flavour);
 
                 return [
@@ -80,7 +99,9 @@ class FlavourContextService
                     'competition_name' => (string) $competition->getAttribute('competition_name'),
                     'competition_code' => (string) $competition->getAttribute('competition_code'),
 
-                    'format_id' => (int) $flavour->getAttribute('format_id'),
+                    'format_id' => (int) $format->getAttribute('format_id'),
+                    'format_name' => (string) $format->getAttribute('format_name'),
+                    'format_code' => (string) $format->getAttribute('format_code'),
 
                     'active_campaign_id' => (int) $campaign->getAttribute('campaign_id'),
                     'active_campaign_code' => (string) $campaign->getAttribute('code'),
