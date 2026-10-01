@@ -3,6 +3,7 @@
 use App\Models\Perfect10\Campaign;
 use App\Models\Perfect10\Competition;
 use App\Models\Perfect10\Flavour;
+use App\Models\Perfect10\PredictionFormat;
 use App\Services\Perfect10\FlavourContextService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,6 +13,7 @@ beforeEach(function () {
     Schema::create('prediction_formats', function (Blueprint $table) {
         $table->id('format_id');
         $table->string('format_code');
+        $table->string('format_name');
     });
 
     Schema::create('flavours', function (Blueprint $table) {
@@ -209,4 +211,46 @@ test('multiple active campaigns throws', function () {
 
     expect(fn () => $service->activeCampaignFor($flavour))
         ->toThrow(RuntimeException::class);
+});
+
+test('available flavours remove trailing whitespace from fixed-length codes', function () {
+    $flavour = Flavour::create([
+        'flavour_code' => 'WC ',
+        'flavour_name' => 'World Cup',
+        'is_active' => true,
+        'is_default' => true,
+        'format_id' => 1,
+    ]);
+
+    $competition = Competition::create([
+        'competition_code' => 'WC ',
+        'competition_name' => 'FIFA World Cup',
+    ]);
+
+    $flavour->competitionLink()->attach(
+        $competition->competition_id
+    );
+
+    PredictionFormat::create([
+        'format_id' => 1,
+        'format_code' => 'PFX',
+        'format_name' => 'Per Fixture',
+    ]);
+
+    Campaign::create([
+        'competition_id' => $competition->competition_id,
+        'label' => 'World Cup 2026',
+        'code' => 'WC2026',
+        'is_active' => true,
+    ]);
+
+    $service = app(FlavourContextService::class);
+
+    $result = $service->availableFlavours()->first();
+
+    expect($result)
+        ->not->toBeNull()
+        ->and($result['flavour_code'])->toBe('WC')
+        ->and($result['competition_code'])->toBe('WC')
+        ->and($result['format_code'])->toBe('PFX');
 });

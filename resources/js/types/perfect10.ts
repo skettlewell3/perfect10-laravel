@@ -1,3 +1,13 @@
+export type Perfect10PageProps = {
+    flavours: Flavour[];
+    flavour: Flavour;
+    competition: Competition;
+    campaign: Campaign;
+
+    stageContext: StageContext;
+    gameweekContext: GameweekContext | null;
+};
+
 export type Flavour = {
     flavour_id: number;
     flavour_name: string;
@@ -29,9 +39,37 @@ export type Campaign = {
     code: string;
 };
 
-export type Perfect10PageProps = {
-    flavours: Flavour[];
-    flavour: Flavour;
-    competition: Competition;
-    campaign: Campaign;
+export type Stage = {
+    stage_id: number;
+    campaign_id: number;
+    competition_id: number;
+    stage_name: string;
+    stage_code: string;
+    stage_type: string;
+    order_index: number;
+    is_active: boolean;
+    is_live: boolean;
+    is_finished: boolean;
+};
+
+export type Gameweek = {
+    gameweek_id: number;
+    campaign_id: number;
+    stage_id: number;
+    gameweek_number: number;
+    status: string;
+    prediction_open_at: string | null;
+    prediction_close_at: string | null;
+};
+
+export type StageContext = {
+    stages: Stage[];
+    activeStage: Stage | null;
+    tickerStage: Stage | null;
+};
+
+export type GameweekContext = {
+    gameweeks: Gameweek[];
+    activeGameweek: Gameweek | null;
+    nextGameweek: Gameweek | null;
 };
