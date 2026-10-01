@@ -6,6 +6,8 @@ export default function Dashboard({
     flavour,
     competition,
     campaign,
+    stageContext,
+    gameweekContext,
 }: Perfect10PageProps) {
     return (
         <>
@@ -20,6 +22,34 @@ export default function Dashboard({
                     <p>{campaign.label}</p>
 
                     <p>{flavours.length} active flavour(s)</p>
+
+                    <p>Format: {flavour.format_code}</p>
+
+                    <p>
+                        Active stage:{' '}
+                        {stageContext.activeStage?.stage_name ?? 'None'}
+                    </p>
+
+                    <p>
+                        Ticker stage:{' '}
+                        {stageContext.tickerStage?.stage_code ?? 'None'}
+                    </p>
+
+                    {gameweekContext && (
+                        <>
+                            <p>
+                                Active gameweek:{' '}
+                                {gameweekContext.activeGameweek
+                                    ?.gameweek_number ?? 'None'}
+                            </p>
+
+                            <p>
+                                Next gameweek:{' '}
+                                {gameweekContext.nextGameweek
+                                    ?.gameweek_number ?? 'None'}
+                            </p>
+                        </>
+                    )}
                 </div>
             </div>
         </>

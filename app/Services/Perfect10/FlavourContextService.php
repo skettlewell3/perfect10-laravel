@@ -92,16 +92,16 @@ class FlavourContextService
                 return [
                     'flavour_id' => (int) $flavour->getAttribute('flavour_id'),
                     'flavour_name' => (string) $flavour->getAttribute('flavour_name'),
-                    'flavour_code' => (string) $flavour->getAttribute('flavour_code'),
+                    'flavour_code' => trim((string) $flavour->getAttribute('flavour_code')),
                     'is_default' => (bool) $flavour->getAttribute('is_default'),
 
                     'competition_id' => (int) $competition->getAttribute('competition_id'),
                     'competition_name' => (string) $competition->getAttribute('competition_name'),
-                    'competition_code' => (string) $competition->getAttribute('competition_code'),
+                    'competition_code' => trim((string) $competition->getAttribute('competition_code')),
 
                     'format_id' => (int) $format->getAttribute('format_id'),
                     'format_name' => (string) $format->getAttribute('format_name'),
-                    'format_code' => (string) $format->getAttribute('format_code'),
+                    'format_code' => trim((string) $format->getAttribute('format_code')),
 
                     'active_campaign_id' => (int) $campaign->getAttribute('campaign_id'),
                     'active_campaign_code' => (string) $campaign->getAttribute('code'),
