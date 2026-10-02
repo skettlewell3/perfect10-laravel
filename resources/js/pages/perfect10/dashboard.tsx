@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import type { Perfect10PageProps } from '@/types/perfect10';
+import DashButtonFixture from '@/components/perfect10/dashboard/DashButtonFixture';
 
 export default function Dashboard({
     flavours,
@@ -8,6 +9,7 @@ export default function Dashboard({
     campaign,
     stageContext,
     gameweekContext,
+    fixtures,
 }: Perfect10PageProps) {
     return (
         <>
@@ -15,6 +17,10 @@ export default function Dashboard({
 
             <div className="pageShell">
                 <div className="scrollArea dashboardScroll">
+                    <div id="dashboardContainer">
+                        <DashButtonFixture fixtures={fixtures} />
+                    </div>
+
                     <h1>Perfect10 Dashboard</h1>
 
                     <p>{flavour.flavour_name}</p>

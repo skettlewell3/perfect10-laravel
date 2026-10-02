@@ -1,0 +1,17 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+>
+    <!-- Center person -->
+    <circle cx="12" cy="8" r="3"></circle>
+    <path d="M12 12c-2.5 0-5 1.2-5 3v2h10v-2c0-1.8-2.5-3-5-3z"></path>
+
+    <!-- Left person -->
+    <circle cx="6" cy="9" r="2.5" opacity="0.8"></circle>
+    <path d="M6 12c-2 0-4 0.8-4 2.2V15h4.5v-0.8c0-1 0.7-1.7 1.5-2.2H6z" opacity="0.8"></path>
+
+    <!-- Right person -->
+    <circle cx="18" cy="9" r="2.5" opacity="0.8"></circle>
+    <path d="M18 12c2 0 4 0.8 4 2.2V15h-4.5v-0.8c0-1 0.7-1.7 1.5-2.2H18z" opacity="0.8"></path>
+</svg>
