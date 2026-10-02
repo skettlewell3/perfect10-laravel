@@ -24,18 +24,11 @@ class FixturesController extends Controller
             'No active Perfect10 flavour is available.'
         );
 
-        $requestedCode = trim(
-            $request->string('flavour')->toString()
-        );
-
-        $selected = $flavours->firstWhere(
-            'flavour_code',
-            $requestedCode
-        );
-
-        $selected ??=
-            $flavours->firstWhere('is_default', true)
-            ?? $flavours->first();
+        $selected = $this->flavourContext
+            ->selectFlavour(
+                $flavours,
+                $request->string('flavour')->toString()
+            );
 
         return Inertia::render('perfect10/fixtures', [
             'flavours' => $flavours,

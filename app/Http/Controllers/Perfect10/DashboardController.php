@@ -31,20 +31,11 @@ class DashboardController extends Controller
             'No active Perfect10 flavour is available.'
         );
 
-        $requestedFlavourCode = trim(
-            $request->string('flavour')->toString()
-        );
-
-        $selectedFlavourData = $requestedFlavourCode !== ''
-            ? $flavours->firstWhere(
-                'flavour_code',
-                $requestedFlavourCode
-            )
-            : null;
-
-        $selectedFlavourData ??=
-            $flavours->firstWhere('is_default', true)
-            ?? $flavours->first();
+        $selectedFlavourData = $this->flavourContext
+            ->selectFlavour(
+                $flavours,
+                $request->string('flavour')->toString()
+            );
 
         $flavourId = (int) $selectedFlavourData['flavour_id'];
 

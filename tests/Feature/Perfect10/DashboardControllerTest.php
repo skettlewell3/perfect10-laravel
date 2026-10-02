@@ -120,6 +120,12 @@ test('dashboard resolves the appropriate context for each prediction format', fu
         ->andReturn($competition);
 
     $flavourService
+        ->shouldReceive('selectFlavour')
+        ->once()
+        ->with($flavours, trim($requestedCode))
+        ->andReturn($selected);
+
+    $flavourService
         ->shouldReceive('activeCampaignFor')
         ->once()
         ->andReturn($campaign);
