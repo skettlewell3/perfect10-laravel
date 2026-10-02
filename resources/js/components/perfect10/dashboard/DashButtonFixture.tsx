@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import { router } from '@inertiajs/react';
 
+import type { Flavour } from '@/types/perfect10';
 import type { Fixture } from '@/types/perfect10';
+import { FixturesLogo } from './DashboardLogos';
 
 import DashboardSnapshot from './DashboardSnapshot';
-import { FixturesLogo } from './DashboardLogos';
 import FixtureSnapshot from './FixtureSnapshot';
 
 type Props = {
     fixtures: Fixture[];
+    flavour: Flavour;
 };
 
-export default function DashButtonFixture({ fixtures }: Props) {
+export default function DashButtonFixture({ fixtures, flavour }: Props) {
     const [showLogo, setShowLogo] = useState(true);
 
     const snapshotFixtures = useMemo(() => {
@@ -56,7 +59,15 @@ export default function DashButtonFixture({ fixtures }: Props) {
     }, [snapshotFixtures]);
 
     return (
-        <button type="button" className="dashboardButton" disabled>
+        <button
+            type="button"
+            className="dashboardButton"
+            onClick={() => {
+                router.get('/fixtures', {
+                    flavour: flavour.flavour_code,
+                });
+            }}
+        >
             <div className="dashContent">
                 <div className="dashButtonLabel">
                     <span>Fixtures</span>

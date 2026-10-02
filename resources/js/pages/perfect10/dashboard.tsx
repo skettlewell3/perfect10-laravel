@@ -18,7 +18,10 @@ export default function Dashboard({
             <div className="pageShell">
                 <div className="scrollArea dashboardScroll">
                     <div id="dashboardContainer">
-                        <DashButtonFixture fixtures={fixtures} />
+                        <DashButtonFixture
+                            fixtures={fixtures}
+                            flavour={flavour}
+                        />
                     </div>
 
                     <h1>Perfect10 Dashboard</h1>
