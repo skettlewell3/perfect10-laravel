@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Perfect10;
 
 use App\Http\Controllers\Controller;
 use App\Models\Perfect10\Flavour;
+use App\Services\Perfect10\FixtureContextService;
 use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\GameweekContextService;
 use App\Services\Perfect10\StageContextService;
@@ -15,6 +16,7 @@ class DashboardController extends Controller
 {
     public function __construct(
         private FlavourContextService $flavourContext,
+        private FixtureContextService $fixtureContext,
         private StageContextService $stageContext,
         private GameweekContextService $gameweekContext,
     ) {}
@@ -29,25 +31,19 @@ class DashboardController extends Controller
             'No active Perfect10 flavour is available.'
         );
 
-        $requestedFlavourCode = trim(
-            $request->string('flavour')->toString()
-        );
-
-        $selectedFlavourData = $requestedFlavourCode !== ''
-            ? $flavours->firstWhere(
-                'flavour_code',
-                $requestedFlavourCode
-            )
-            : null;
-
-        $selectedFlavourData ??=
-            $flavours->firstWhere('is_default', true)
-            ?? $flavours->first();
+        $selectedFlavourData = $this->flavourContext
+            ->selectFlavour(
+                $flavours,
+                $request->string('flavour')->toString()
+            );
 
         $flavourId = (int) $selectedFlavourData['flavour_id'];
 
         $flavour = Flavour::query()
             ->findOrFail($flavourId);
+
+        $fixtures = $this->fixtureContext
+            ->fixturesForFlavour($flavour);
 
         $competition = $this->flavourContext
             ->competitionFor($flavour);
@@ -91,6 +87,7 @@ class DashboardController extends Controller
             'flavour' => $selectedFlavourData,
             'competition' => $competition,
             'campaign' => $campaign,
+            'fixtures' => $fixtures,
 
             'stageContext' => [
                 'stages' => $stages,

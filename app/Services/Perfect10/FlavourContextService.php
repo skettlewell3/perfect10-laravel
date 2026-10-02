@@ -110,4 +110,34 @@ class FlavourContextService
             })
             ->values();
     }
+
+    /**
+     * @template TFlavour of array<string, mixed>
+     *
+     * @param  Collection<int, TFlavour>  $flavours
+     * @return TFlavour
+     */
+    public function selectFlavour(
+        Collection $flavours,
+        ?string $requestedCode = null
+    ): array {
+        if ($flavours->isEmpty()) {
+            throw new RuntimeException(
+                'No active Perfect10 flavour is available.'
+            );
+        }
+
+        $requestedCode = trim($requestedCode ?? '');
+
+        $selected = $requestedCode !== ''
+            ? $flavours->firstWhere(
+                'flavour_code',
+                $requestedCode
+            )
+            : null;
+
+        return $selected
+            ?? $flavours->firstWhere('is_default', true)
+            ?? $flavours->first();
+    }
 }

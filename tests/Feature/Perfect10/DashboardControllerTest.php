@@ -5,6 +5,7 @@ use App\Models\Perfect10\Campaign;
 use App\Models\Perfect10\Competition;
 use App\Models\Perfect10\Gameweek;
 use App\Models\Perfect10\Stage;
+use App\Services\Perfect10\FixtureContextService;
 use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\GameweekContextService;
 use App\Services\Perfect10\StageContextService;
@@ -119,6 +120,12 @@ test('dashboard resolves the appropriate context for each prediction format', fu
         ->andReturn($competition);
 
     $flavourService
+        ->shouldReceive('selectFlavour')
+        ->once()
+        ->with($flavours, trim($requestedCode))
+        ->andReturn($selected);
+
+    $flavourService
         ->shouldReceive('activeCampaignFor')
         ->once()
         ->andReturn($campaign);
@@ -206,6 +213,21 @@ test('dashboard resolves the appropriate context for each prediction format', fu
         $gameweekService
     );
 
+    // Mock the fixture context service.
+    $fixtureService = Mockery::mock(
+        FixtureContextService::class
+    );
+
+    $fixtureService
+        ->shouldReceive('fixturesForFlavour')
+        ->once()
+        ->andReturn([]);
+
+    $this->app->instance(
+        FixtureContextService::class,
+        $fixtureService
+    );
+
     // Exercise the real dashboard route and controller.
     $response = $this->get(
         route('dashboard', ['flavour' => $requestedCode])
@@ -221,6 +243,7 @@ test('dashboard resolves the appropriate context for each prediction format', fu
             ->component('perfect10/dashboard')
             ->where('flavour.flavour_code', trim($requestedCode))
             ->where('flavour.format_code', $expectedFormat)
+            ->has('fixtures', 0)
             ->has('stageContext.stages', 1)
             ->where('stageContext.activeStage.stage_id', 50)
             ->where('stageContext.tickerStage.stage_id', 50);

@@ -6,10 +6,20 @@ use App\Models\Perfect10\Flavour;
 use App\Models\Perfect10\PredictionFormat;
 use App\Services\Perfect10\FlavourContextService;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 
 beforeEach(function () {
+    if (
+        DB::connection()->getDriverName() !== 'sqlite' ||
+        DB::connection()->getDatabaseName() !== ':memory:'
+    ) {
+        throw new RuntimeException(
+            'FlavourContextService tests require in-memory SQLite.'
+        );
+    }
+
     Schema::create('prediction_formats', function (Blueprint $table) {
         $table->id('format_id');
         $table->string('format_code');
@@ -253,4 +263,53 @@ test('available flavours remove trailing whitespace from fixed-length codes', fu
         ->and($result['flavour_code'])->toBe('WC')
         ->and($result['competition_code'])->toBe('WC')
         ->and($result['format_code'])->toBe('PFX');
+});
+
+test('select flavour resolves requested, default and whitespace codes', function () {
+    $flavours = collect([
+        [
+            'flavour_code' => 'EPL',
+            'is_default' => true,
+        ],
+        [
+            'flavour_code' => 'WC',
+            'is_default' => false,
+        ],
+    ]);
+
+    $service = app(FlavourContextService::class);
+
+    expect($service->selectFlavour($flavours, 'WC')['flavour_code'])
+        ->toBe('WC')
+        ->and($service->selectFlavour($flavours, 'WC ')['flavour_code'])
+        ->toBe('WC')
+        ->and($service->selectFlavour($flavours)['flavour_code'])
+        ->toBe('EPL')
+        ->and($service->selectFlavour($flavours, 'INVALID')['flavour_code'])
+        ->toBe('EPL');
+});
+
+test('select flavour falls back to the first available flavour', function () {
+    $flavours = collect([
+        [
+            'flavour_code' => 'EPL',
+            'is_default' => false,
+        ],
+        [
+            'flavour_code' => 'WC',
+            'is_default' => false,
+        ],
+    ]);
+
+    $service = app(FlavourContextService::class);
+
+    expect($service->selectFlavour($flavours)['flavour_code'])
+        ->toBe('EPL');
+});
+
+test('select flavour rejects an empty collection', function () {
+    $service = app(FlavourContextService::class);
+
+    expect(fn () => $service->selectFlavour(collect()))
+        ->toThrow(RuntimeException::class);
 });
