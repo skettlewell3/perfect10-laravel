@@ -2202,6 +2202,8 @@ input[type='number'] {
 }
 
 #scopeIdFilter option {
+    background: none;
+    color: var(--blue);
     letter-spacing: 0.025rem;
 }
 
