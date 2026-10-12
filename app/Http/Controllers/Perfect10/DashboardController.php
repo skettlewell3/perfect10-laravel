@@ -32,10 +32,10 @@ class DashboardController extends Controller
         );
 
         $selectedFlavourData = $this->flavourContext
-            ->selectFlavour(
-                $flavours,
-                $request->string('flavour')->toString()
-            );
+        ->selectFlavour(
+            $flavours,
+            (string) $request->route('flavour')
+        );
 
         $flavourId = (int) $selectedFlavourData['flavour_id'];
 

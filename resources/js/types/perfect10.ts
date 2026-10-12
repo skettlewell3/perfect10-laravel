@@ -1,4 +1,6 @@
-export type Perfect10PageProps = {
+import type { PageProps } from '@inertiajs/core';
+
+export interface Perfect10PageProps extends PageProps {
     flavours: Flavour[];
     flavour: Flavour;
     competition: Competition;
@@ -7,7 +9,7 @@ export type Perfect10PageProps = {
     stageContext: StageContext;
     gameweekContext: GameweekContext | null;
     fixtures: Fixture[];
-};
+}
 
 export type Flavour = {
     flavour_id: number;

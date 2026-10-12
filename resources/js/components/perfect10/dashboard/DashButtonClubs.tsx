@@ -14,9 +14,9 @@ export default function DashButtonClubs({ flavour }: Props) {
             type="button"
             className="dashboardButton"
             onClick={() => {
-                router.get('/clubs', {
-                    flavour: flavour.flavour_code,
-                });
+                router.get(
+                    `/${flavour.flavour_code.toLowerCase()}/clubs`
+                );
             }}
         >
             <div className="dashContent">

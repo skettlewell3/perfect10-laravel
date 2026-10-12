@@ -4,6 +4,7 @@ namespace App\Models\Perfect10;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClubProfile extends Model
 {
@@ -49,6 +50,18 @@ class ClubProfile extends Model
         return $this->belongsTo(
             UserProfile::class,
             'created_by',
+            'profile_id'
+        );
+    }
+
+    /**
+     * @return HasMany<ClubMembership, $this>
+     */
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(
+            ClubMembership::class,
+            'club_id',
             'profile_id'
         );
     }

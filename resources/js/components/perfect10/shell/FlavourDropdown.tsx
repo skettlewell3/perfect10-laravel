@@ -15,15 +15,35 @@ export default function FlavourDropdown() {
 
         setOpen(false);
 
-        router.get(
-            '/',
-            {
-                flavour: selectedFlavour.flavour_code,
-            },
-            {
-                preserveScroll: true,
-            },
-        );
+        const currentPath = window.location.pathname;
+        const currentParams = new URLSearchParams(window.location.search);
+
+        const nextParams: Record<string, string> = {
+            flavour: selectedFlavour.flavour_code,
+        };
+
+        /*
+         * Preserve filters that are meaningful across flavours.
+         *
+         * Stage IDs are flavour-specific, so deliberately do not
+         * carry the current stage across.
+         */
+        if (currentPath === '/leaderboards') {
+            const scope = currentParams.get('scope');
+            const population = currentParams.get('population');
+
+            if (scope) {
+                nextParams.scope = scope;
+            }
+
+            if (population) {
+                nextParams.population = population;
+            }
+        }
+
+        router.get(currentPath, nextParams, {
+            preserveScroll: true,
+        });
     }
 
     return (
