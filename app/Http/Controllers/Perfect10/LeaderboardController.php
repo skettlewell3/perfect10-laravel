@@ -34,7 +34,7 @@ class LeaderboardController extends Controller
         $selectedFlavourData = $this->flavourContext
             ->selectFlavour(
                 $flavours,
-                $request->string('flavour')->toString()
+                (string) $request->route('flavour')
             );
 
         $flavourId = (int) $selectedFlavourData['flavour_id'];

@@ -85,4 +85,16 @@ class Profile extends Model
             'profile_id'
         );
     }
+
+    /**
+     * @return HasMany<ClubMembership, $this>
+     */
+    public function clubMemberships(): HasMany
+    {
+        return $this->hasMany(
+            ClubMembership::class,
+            'profile_id',
+            'profile_id'
+        );
+    }
 }

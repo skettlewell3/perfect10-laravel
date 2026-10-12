@@ -27,7 +27,7 @@ class FixturesController extends Controller
         $selected = $this->flavourContext
             ->selectFlavour(
                 $flavours,
-                $request->string('flavour')->toString()
+                (string) $request->route('flavour')
             );
 
         return Inertia::render('perfect10/fixtures', [

@@ -47,9 +47,9 @@ export default function DashButtonGameweek({
             type="button"
             className="dashboardButton"
             onClick={() => {
-                router.get('/gameweek', {
-                    flavour: flavour.flavour_code,
-                });
+                router.get(
+                    `/${flavour.flavour_code.toLowerCase()}/gameweek`
+                );
             }}
         >
             <div className="dashContent">
