@@ -1,4 +1,4 @@
-interface LeaderboardRowData {
+export interface LeaderboardRowData {
     rank: number;
     profile_id: string;
     display_name: string;

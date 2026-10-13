@@ -46,6 +46,46 @@ Route::prefix('{flavour}')->group(function () {
     Route::get('/clubs/{club}', [ClubsController::class, 'show'])
         ->name('clubs.show');
 
+    Route::post(
+        '/clubs/{club}/invites',
+        [ClubsController::class, 'sendInvite']
+    )->name('clubs.invites.send');
+
+    Route::post(
+        '/clubs/invites/accept',
+        [ClubsController::class, 'acceptInvite']
+    )->name('clubs.invites.accept');
+
+    Route::post(
+        '/clubs/invites/decline',
+        [ClubsController::class, 'declineInvite']
+    )->name('clubs.invites.decline');
+    
+    Route::patch(
+        '/clubs/{club}/members/role',
+        [ClubsController::class, 'updateMemberRole']
+    )->name('clubs.members.role');
+    
+    Route::delete(
+        '/clubs/{club}/members',
+        [ClubsController::class, 'removeMember']
+    )->name('clubs.members.remove');
+
+    Route::post(
+        '/clubs/{club}/ownership-transfer',
+        [ClubsController::class, 'requestOwnershipTransfer']
+    )->name('clubs.ownership-transfer.request');
+        
+    Route::post(
+        '/clubs/ownership-transfer/accept',
+        [ClubsController::class, 'acceptOwnershipTransfer']
+    )->name('clubs.ownership-transfer.accept');
+    
+    Route::post(
+        '/clubs/ownership-transfer/decline',
+        [ClubsController::class, 'declineOwnershipTransfer']
+    )->name('clubs.ownership-transfer.decline');
+
     Route::get('/gameweek', function (
         Request $request,
         PlaceholderPageController $controller

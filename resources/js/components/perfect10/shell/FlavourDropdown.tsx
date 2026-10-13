@@ -1,5 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+
 import type { Flavour, Perfect10PageProps } from '@/types/perfect10';
 
 export default function FlavourDropdown() {
@@ -18,9 +19,15 @@ export default function FlavourDropdown() {
         const currentPath = window.location.pathname;
         const currentParams = new URLSearchParams(window.location.search);
 
-        const nextParams: Record<string, string> = {
-            flavour: selectedFlavour.flavour_code,
-        };
+        const segments = currentPath
+            .split('/')
+            .filter(Boolean);
+
+        segments[0] = selectedFlavour.flavour_code.toLowerCase();
+
+        const nextPath = `/${segments.join('/')}`;
+
+        const nextParams: Record<string, string> = {};
 
         /*
          * Preserve filters that are meaningful across flavours.
@@ -28,7 +35,7 @@ export default function FlavourDropdown() {
          * Stage IDs are flavour-specific, so deliberately do not
          * carry the current stage across.
          */
-        if (currentPath === '/leaderboards') {
+        if (segments[1] === 'leaderboards') {
             const scope = currentParams.get('scope');
             const population = currentParams.get('population');
 
@@ -41,7 +48,7 @@ export default function FlavourDropdown() {
             }
         }
 
-        router.get(currentPath, nextParams, {
+        router.get(nextPath, nextParams, {
             preserveScroll: true,
         });
     }
