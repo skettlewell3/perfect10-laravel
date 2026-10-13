@@ -31,7 +31,7 @@ export default function UserClubList({ memberships, flavour, }: Props) {
                         className="clubListRow"
                     >
                         <Link
-                            href={`/${flavour.flavour_code.toLowerCase()}/clubs/${club.club_id}`}
+                            href={`/${flavour.flavour_code.toLowerCase()}/clubs/${club.club_code}`}
                             className="clubListLink"
                         >
                             <div className="clubListMain">

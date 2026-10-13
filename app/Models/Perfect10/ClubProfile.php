@@ -30,6 +30,11 @@ class ClubProfile extends Model
         ];
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'club_code';
+    }
+
     /**
      * @return BelongsTo<Profile, $this>
      */
@@ -61,6 +66,30 @@ class ClubProfile extends Model
     {
         return $this->hasMany(
             ClubMembership::class,
+            'club_id',
+            'profile_id'
+        );
+    }
+
+    /**
+     * @return HasMany<ClubInvite, $this>
+     */
+    public function invites(): HasMany
+    {
+        return $this->hasMany(
+            ClubInvite::class,
+            'club_id',
+            'profile_id'
+        );
+    }
+
+    /**
+     * @return HasMany<ClubOwnershipTransferRequest, $this>
+     */
+    public function ownershipTransferRequests(): HasMany
+    {
+        return $this->hasMany(
+            ClubOwnershipTransferRequest::class,
             'club_id',
             'profile_id'
         );
