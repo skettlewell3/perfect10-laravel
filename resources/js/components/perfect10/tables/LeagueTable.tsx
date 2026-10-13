@@ -20,9 +20,7 @@ type Props = {
     data: LeagueTableRowData[];
 };
 
-export default function LeagueTable({
-    data,
-}: Props) {
+export default function LeagueTable({ data }: Props) {
     return (
         <div className="leagueTableScroll">
             <table className="leagueTable">
@@ -43,10 +41,7 @@ export default function LeagueTable({
 
                 <tbody>
                     {data.map((row) => (
-                        <LeagueTableRow
-                            key={row.team_id}
-                            row={row}
-                        />
+                        <LeagueTableRow key={row.team_id} row={row} />
                     ))}
                 </tbody>
             </table>

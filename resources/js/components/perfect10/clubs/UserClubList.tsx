@@ -8,17 +8,14 @@ type Props = {
     flavour: Flavour;
 };
 
-export default function UserClubList({ memberships, flavour, }: Props) {
+export default function UserClubList({ memberships, flavour }: Props) {
     return (
         <section className="accountCard">
             <div className="cardHeader">
                 <h2>My Clubs</h2>
 
                 {memberships.length > 0 && (
-                    <button
-                        type="button"
-                        className="textButton"
-                    >
+                    <button type="button" className="textButton">
                         Manage Clubs
                     </button>
                 )}
@@ -26,10 +23,7 @@ export default function UserClubList({ memberships, flavour, }: Props) {
 
             <div className="clubList">
                 {memberships.map((club) => (
-                    <div
-                        key={club.club_id}
-                        className="clubListRow"
-                    >
+                    <div key={club.club_id} className="clubListRow">
                         <Link
                             href={`/${flavour.flavour_code.toLowerCase()}/clubs/${club.club_code}`}
                             className="clubListLink"

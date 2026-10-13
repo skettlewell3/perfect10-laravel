@@ -4,6 +4,7 @@ namespace App\Services\Perfect10;
 
 use App\Models\Perfect10\ClubInvite;
 use App\Models\Perfect10\ClubMembership;
+use App\Models\Perfect10\ClubOwnershipTransferRequest;
 use App\Models\Perfect10\ClubProfile;
 use App\Models\Perfect10\UserProfile;
 use Illuminate\Support\Facades\DB;

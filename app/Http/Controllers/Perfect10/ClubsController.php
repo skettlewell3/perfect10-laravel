@@ -12,6 +12,7 @@ use App\Services\Perfect10\CurrentProfileService;
 use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\LeaderboardContextService;
 use App\Services\Perfect10\LeagueTableContextService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -237,7 +238,7 @@ class ClubsController extends Controller
         string $flavour,
         ClubProfile $club,
         CurrentProfileService $currentProfile
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate([
             'username' => [
                 'required',
@@ -266,7 +267,7 @@ class ClubsController extends Controller
         Request $request,
         string $flavour,
         CurrentProfileService $currentProfile
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate([
             'invite_id' => [
                 'required',
@@ -294,7 +295,7 @@ class ClubsController extends Controller
         Request $request,
         string $flavour,
         CurrentProfileService $currentProfile
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate([
             'invite_id' => [
                 'required',
@@ -323,7 +324,7 @@ class ClubsController extends Controller
         string $flavour,
         ClubProfile $club,
         CurrentProfileService $currentProfile
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate([
             'target_profile_id' => [
                 'required',
@@ -352,7 +353,7 @@ class ClubsController extends Controller
         Request $request,
         string $flavour,
         CurrentProfileService $currentProfile
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate([
             'request_id' => [
                 'required',
@@ -380,7 +381,7 @@ class ClubsController extends Controller
         Request $request,
         string $flavour,
         CurrentProfileService $currentProfile
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate([
             'request_id' => [
                 'required',
@@ -409,7 +410,7 @@ class ClubsController extends Controller
         string $flavour,
         ClubProfile $club,
         CurrentProfileService $currentProfile
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate([
             'member_profile_id' => [
                 'required',
@@ -444,7 +445,7 @@ class ClubsController extends Controller
         string $flavour,
         ClubProfile $club,
         CurrentProfileService $currentProfile
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate([
             'member_profile_id' => [
                 'required',

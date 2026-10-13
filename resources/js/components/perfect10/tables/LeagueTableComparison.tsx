@@ -7,10 +7,7 @@ type Props = {
     predicted: LeagueTableRowData[];
 };
 
-export default function LeagueTableComparison({
-    actual,
-    predicted,
-}: Props) {
+export default function LeagueTableComparison({ actual, predicted }: Props) {
     return (
         <div className="leagueTableComparison">
             <div className="comparisonHeaders">

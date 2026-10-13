@@ -14,7 +14,7 @@ export default function ClubOwnershipTransferCard({
 }: Props) {
     const handleAccept = (requestId: string) => {
         const confirmed = window.confirm(
-            'Are you sure you want to become the owner of this club?'
+            'Are you sure you want to become the owner of this club?',
         );
 
         if (!confirmed) {
@@ -50,9 +50,7 @@ export default function ClubOwnershipTransferCard({
 
     return (
         <section className="accountCard">
-            <h2>
-                Ownership Requests
-            </h2>
+            <h2>Ownership Requests</h2>
 
             <div className="ownershipTransferList">
                 {ownershipTransferRequests.map((request) => (
@@ -66,7 +64,8 @@ export default function ClubOwnershipTransferCard({
                             </span>
 
                             <span className="clubRole">
-                                Ownership offered by {request.owner_display_name}
+                                Ownership offered by{' '}
+                                {request.owner_display_name}
                             </span>
                         </div>
 
@@ -74,9 +73,7 @@ export default function ClubOwnershipTransferCard({
                             <button
                                 type="button"
                                 className="ownershipTransferAccept"
-                                onClick={() =>
-                                    handleAccept(request.request_id)
-                                }
+                                onClick={() => handleAccept(request.request_id)}
                             >
                                 Accept
                             </button>

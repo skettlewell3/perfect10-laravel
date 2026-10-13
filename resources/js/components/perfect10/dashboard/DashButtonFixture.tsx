@@ -63,9 +63,7 @@ export default function DashButtonFixture({ fixtures, flavour }: Props) {
             type="button"
             className="dashboardButton"
             onClick={() => {
-                router.get(
-                    `/${flavour.flavour_code.toLowerCase()}/fixtures`
-                );
+                router.get(`/${flavour.flavour_code.toLowerCase()}/fixtures`);
             }}
         >
             <div className="dashContent">

@@ -19,9 +19,7 @@ export default function FlavourDropdown() {
         const currentPath = window.location.pathname;
         const currentParams = new URLSearchParams(window.location.search);
 
-        const segments = currentPath
-            .split('/')
-            .filter(Boolean);
+        const segments = currentPath.split('/').filter(Boolean);
 
         segments[0] = selectedFlavour.flavour_code.toLowerCase();
 

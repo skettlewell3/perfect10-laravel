@@ -8,10 +8,7 @@ type Props = {
     flavour: Flavour;
 };
 
-export default function SendClubInviteForm({
-    clubCode,
-    flavour,
-}: Props) {
+export default function SendClubInviteForm({ clubCode, flavour }: Props) {
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('');
 
@@ -38,9 +35,7 @@ export default function SendClubInviteForm({
                 },
 
                 onError: (errors) => {
-                    setMessage(
-                        errors.username ?? 'Unable to send invite'
-                    );
+                    setMessage(errors.username ?? 'Unable to send invite');
                 },
             },
         );
@@ -48,33 +43,20 @@ export default function SendClubInviteForm({
 
     return (
         <>
-            <form
-                className="clubInviteForm"
-                onSubmit={handleSubmit}
-            >
-                <label>
-                    Invite Users
-                </label>
+            <form className="clubInviteForm" onSubmit={handleSubmit}>
+                <label>Invite Users</label>
 
                 <input
                     type="text"
                     value={username}
-                    onChange={(event) =>
-                        setUsername(event.target.value)
-                    }
+                    onChange={(event) => setUsername(event.target.value)}
                     placeholder="Insert Username e.g user_########"
                 />
 
-                <button type="submit">
-                    Send Invite
-                </button>
+                <button type="submit">Send Invite</button>
             </form>
 
-            {message && (
-                <p>
-                    {message}
-                </p>
-            )}
+            {message && <p>{message}</p>}
         </>
     );
 }

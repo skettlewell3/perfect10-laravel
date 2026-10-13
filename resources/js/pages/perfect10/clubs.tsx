@@ -44,12 +44,8 @@ interface ClubsPageProps extends Perfect10PageProps {
 }
 
 export default function ClubsPage() {
-    const {
-        memberships,
-        invites,
-        ownershipTransferRequests,
-        flavour,
-    } = usePage<ClubsPageProps>().props;
+    const { memberships, invites, ownershipTransferRequests, flavour } =
+        usePage<ClubsPageProps>().props;
 
     return (
         <>
@@ -62,15 +58,9 @@ export default function ClubsPage() {
                 />
 
                 <div className="scrollArea dashboardScroll">
-                    <ClubInvitesCard
-                        invites={invites}
-                        flavour={flavour}
-                    />
+                    <ClubInvitesCard invites={invites} flavour={flavour} />
 
-                    <UserClubList
-                        memberships={memberships}
-                        flavour={flavour}
-                    />
+                    <UserClubList memberships={memberships} flavour={flavour} />
 
                     <ClubOwnershipTransferCard
                         ownershipTransferRequests={ownershipTransferRequests}

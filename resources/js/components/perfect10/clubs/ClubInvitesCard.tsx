@@ -8,10 +8,7 @@ type Props = {
     flavour: Flavour;
 };
 
-export default function ClubInvitesCard({
-    invites,
-    flavour,
-}: Props) {
+export default function ClubInvitesCard({ invites, flavour }: Props) {
     const handleAccept = (inviteId: string) => {
         router.post(
             `/${flavour.flavour_code.toLowerCase()}/clubs/invites/accept`,
@@ -42,20 +39,13 @@ export default function ClubInvitesCard({
 
     return (
         <section className="accountCard">
-            <h2>
-                Club Invites
-            </h2>
+            <h2>Club Invites</h2>
 
             <div className="clubInviteList">
                 {invites.map((invite) => (
-                    <div
-                        key={invite.invite_id}
-                        className="clubInviteRow"
-                    >
+                    <div key={invite.invite_id} className="clubInviteRow">
                         <div className="clubInviteMain">
-                            <span className="clubName">
-                                {invite.club_name}
-                            </span>
+                            <span className="clubName">{invite.club_name}</span>
 
                             <span className="clubRole">
                                 Invited by {invite.sender_name}
@@ -66,9 +56,7 @@ export default function ClubInvitesCard({
                             <button
                                 type="button"
                                 className="clubInviteAccept"
-                                onClick={() =>
-                                    handleAccept(invite.invite_id)
-                                }
+                                onClick={() => handleAccept(invite.invite_id)}
                             >
                                 Accept
                             </button>
@@ -76,9 +64,7 @@ export default function ClubInvitesCard({
                             <button
                                 type="button"
                                 className="clubInviteDecline"
-                                onClick={() =>
-                                    handleDecline(invite.invite_id)
-                                }
+                                onClick={() => handleDecline(invite.invite_id)}
                             >
                                 Decline
                             </button>

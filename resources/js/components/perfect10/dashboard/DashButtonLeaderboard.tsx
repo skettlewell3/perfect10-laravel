@@ -15,7 +15,7 @@ export default function DashButtonLeaderboard({ flavour }: Props) {
             className="dashboardButton"
             onClick={() => {
                 router.get(
-                    `/${flavour.flavour_code.toLowerCase()}/leaderboards`
+                    `/${flavour.flavour_code.toLowerCase()}/leaderboards`,
                 );
             }}
         >

@@ -27,10 +27,7 @@ export default function ClubMembersList({
 }: Props) {
     const [editing, setEditing] = useState(false);
 
-    const handleRoleChange = (
-        memberProfileId: string,
-        role: string
-    ) => {
+    const handleRoleChange = (memberProfileId: string, role: string) => {
         router.patch(
             `/${flavour.flavour_code.toLowerCase()}/clubs/${clubCode}/members/role`,
             {
@@ -45,10 +42,10 @@ export default function ClubMembersList({
 
     const handleRemoveMember = (
         memberProfileId: string,
-        displayName: string
+        displayName: string,
     ) => {
         const confirmed = window.confirm(
-            `Are you sure you want to remove ${displayName} from this club?`
+            `Are you sure you want to remove ${displayName} from this club?`,
         );
 
         if (!confirmed) {
@@ -68,10 +65,10 @@ export default function ClubMembersList({
 
     const handleTransferOwnership = (
         memberProfileId: string,
-        displayName: string
+        displayName: string,
     ) => {
         const confirmed = window.confirm(
-            `Send an ownership transfer request to ${displayName}?`
+            `Send an ownership transfer request to ${displayName}?`,
         );
 
         if (!confirmed) {
@@ -106,20 +103,12 @@ export default function ClubMembersList({
             </div>
 
             {editing && canManageClub && (
-                <SendClubInviteForm
-                    clubCode={clubCode}
-                    flavour={flavour}
-                />
+                <SendClubInviteForm clubCode={clubCode} flavour={flavour} />
             )}
 
             {clubMates.map((member) => (
-                <div
-                    key={member.member_profile_id}
-                    className="clubMemberRow"
-                >
-                    <span className="displayName">
-                        {member.display_name}
-                    </span>
+                <div key={member.member_profile_id} className="clubMemberRow">
+                    <span className="displayName">{member.display_name}</span>
 
                     {editing &&
                     canManageRoles &&
@@ -134,13 +123,9 @@ export default function ClubMembersList({
                                 )
                             }
                         >
-                            <option value="member">
-                                Member
-                            </option>
+                            <option value="member">Member</option>
 
-                            <option value="captain">
-                                Captain
-                            </option>
+                            <option value="captain">Captain</option>
                         </select>
                     ) : (
                         <span className="clubMemberRole">
@@ -149,39 +134,39 @@ export default function ClubMembersList({
                     )}
 
                     {editing &&
-                    canManageRoles &&
-                    member.club_role !== 'owner' && (
-                        <button
-                            type="button"
-                            className="clubTransferButton"
-                            onClick={() =>
-                                handleTransferOwnership(
-                                    member.member_profile_id,
-                                    member.display_name,
-                                )
-                            }
-                        >
-                            Transfer
-                        </button>
-                    )}
-                    
+                        canManageRoles &&
+                        member.club_role !== 'owner' && (
+                            <button
+                                type="button"
+                                className="clubTransferButton"
+                                onClick={() =>
+                                    handleTransferOwnership(
+                                        member.member_profile_id,
+                                        member.display_name,
+                                    )
+                                }
+                            >
+                                Transfer
+                            </button>
+                        )}
+
                     {editing &&
-                    canManageClub &&
-                    member.club_role !== 'owner' && (
-                        <button
-                            type="button"
-                            className="iconButton redBG"
-                            onClick={() =>
-                                handleRemoveMember(
-                                    member.member_profile_id,
-                                    member.display_name,
-                                )
-                            }
-                            title="Remove member"
-                        >
-                            <RemoveIcon />
-                        </button>
-                    )}
+                        canManageClub &&
+                        member.club_role !== 'owner' && (
+                            <button
+                                type="button"
+                                className="iconButton redBG"
+                                onClick={() =>
+                                    handleRemoveMember(
+                                        member.member_profile_id,
+                                        member.display_name,
+                                    )
+                                }
+                                title="Remove member"
+                            >
+                                <RemoveIcon />
+                            </button>
+                        )}
                 </div>
             ))}
         </section>

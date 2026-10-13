@@ -4,29 +4,15 @@ type Props = {
     row: LeagueTableRowData;
 };
 
-export default function LeagueTableRow({
-    row,
-}: Props) {
-    const {
-        pos,
-        team_name,
-        played,
-        won,
-        drawn,
-        lost,
-        gf,
-        ga,
-        gd,
-        points,
-    } = row;
+export default function LeagueTableRow({ row }: Props) {
+    const { pos, team_name, played, won, drawn, lost, gf, ga, gd, points } =
+        row;
 
     return (
         <tr>
             <td>{pos}</td>
 
-            <td className="teamCell">
-                {team_name}
-            </td>
+            <td className="teamCell">{team_name}</td>
 
             <td>{played}</td>
             <td>{won}</td>
