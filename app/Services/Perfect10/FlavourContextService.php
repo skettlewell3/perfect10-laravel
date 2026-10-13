@@ -126,11 +126,11 @@ class FlavourContextService
                 'No active Perfect10 flavour is available.'
             );
         }
-    
+
         $requestedCode = strtoupper(
             trim($requestedCode ?? '')
         );
-    
+
         $selected = $requestedCode !== ''
             ? $flavours->first(
                 fn (array $flavour) => strtoupper(
@@ -138,7 +138,7 @@ class FlavourContextService
                 ) === $requestedCode
             )
             : null;
-                
+
         return $selected
             ?? $flavours->firstWhere('is_default', true)
             ?? $flavours->first();

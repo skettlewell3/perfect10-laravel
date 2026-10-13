@@ -200,47 +200,47 @@ class ClubManagementService
             ->where('club_id', $club->profile_id)
             ->where('profile_id', $currentProfileId)
             ->first();
-    
+
         if ($currentMembership === null) {
             throw ValidationException::withMessages([
                 'ownership' => 'You are not a member of this club.',
             ]);
         }
-    
+
         if ($currentMembership->club_role !== 'owner') {
             throw ValidationException::withMessages([
                 'ownership' => 'Only the owner can request an ownership transfer.',
             ]);
         }
-    
+
         if ($targetProfileId === $currentProfileId) {
             throw ValidationException::withMessages([
                 'ownership' => 'You are already the owner.',
             ]);
         }
-    
+
         $targetMembership = ClubMembership::query()
             ->where('club_id', $club->profile_id)
             ->where('profile_id', $targetProfileId)
             ->first();
-    
+
         if ($targetMembership === null) {
             throw ValidationException::withMessages([
                 'ownership' => 'New owner must already be a club member.',
             ]);
         }
-    
+
         $pendingRequestExists = ClubOwnershipTransferRequest::query()
             ->where('club_id', $club->profile_id)
             ->where('status', 'pending')
             ->exists();
-    
+
         if ($pendingRequestExists) {
             throw ValidationException::withMessages([
                 'ownership' => 'This club already has a pending ownership transfer.',
             ]);
         }
-    
+
         ClubOwnershipTransferRequest::query()->create([
             'club_id' => $club->profile_id,
             'owner_profile_id' => $currentProfileId,
@@ -248,7 +248,7 @@ class ClubManagementService
             'status' => 'pending',
         ]);
     }
-    
+
     public function acceptOwnershipTransfer(
         string $currentProfileId,
         string $requestId
@@ -263,55 +263,55 @@ class ClubManagementService
                 ->where('status', 'pending')
                 ->where('expires_at', '>', now())
                 ->first();
-        
+
             if ($request === null) {
                 throw ValidationException::withMessages([
                     'ownership' => 'Ownership transfer request not found or expired.',
                 ]);
             }
-        
+
             $ownerMembership = ClubMembership::query()
                 ->where('club_id', $request->club_id)
                 ->where('profile_id', $request->owner_profile_id)
                 ->first();
-        
+
             if ($ownerMembership?->club_role !== 'owner') {
                 throw ValidationException::withMessages([
                     'ownership' => 'The ownership transfer is no longer valid.',
                 ]);
             }
-        
+
             $targetMembership = ClubMembership::query()
                 ->where('club_id', $request->club_id)
                 ->where('profile_id', $currentProfileId)
                 ->first();
-        
+
             if ($targetMembership === null) {
                 throw ValidationException::withMessages([
                     'ownership' => 'You are no longer a member of this club.',
                 ]);
             }
-        
+
             ClubMembership::query()
                 ->where('club_id', $request->club_id)
                 ->where('profile_id', $request->owner_profile_id)
                 ->update([
                     'club_role' => 'member',
                 ]);
-            
+
             ClubMembership::query()
                 ->where('club_id', $request->club_id)
                 ->where('profile_id', $currentProfileId)
                 ->update([
                     'club_role' => 'owner',
                 ]);
-            
+
             ClubOwnershipTransferRequest::query()
                 ->where('request_id', $requestId)
                 ->update([
                     'status' => 'accepted',
                 ]);
-            
+
             ClubOwnershipTransferRequest::query()
                 ->where('club_id', $request->club_id)
                 ->where('status', 'pending')
@@ -321,7 +321,7 @@ class ClubManagementService
                 ]);
         });
     }
-    
+
     public function declineOwnershipTransfer(
         string $currentProfileId,
         string $requestId
@@ -331,13 +331,13 @@ class ClubManagementService
             ->where('target_profile_id', $currentProfileId)
             ->where('status', 'pending')
             ->first();
-    
+
         if ($request === null) {
             throw ValidationException::withMessages([
                 'ownership' => 'Ownership transfer request not found.',
             ]);
         }
-    
+
         ClubOwnershipTransferRequest::query()
             ->where('request_id', $requestId)
             ->update([

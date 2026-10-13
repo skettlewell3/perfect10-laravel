@@ -14,8 +14,7 @@ class CurrentProfileService
 
     public function __construct(
         private readonly CurrentAuthIdentity $identity
-    ) {
-    }
+    ) {}
 
     public function authId(): ?string
     {

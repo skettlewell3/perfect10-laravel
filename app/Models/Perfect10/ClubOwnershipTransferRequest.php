@@ -2,7 +2,6 @@
 
 namespace App\Models\Perfect10;
 
-use App\Models\Perfect10\Profile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

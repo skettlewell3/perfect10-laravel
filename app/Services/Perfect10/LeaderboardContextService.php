@@ -117,11 +117,11 @@ class LeaderboardContextService
                 $flavourId,
             ]
         );
-    
+
         $result = collect($rows)
             ->map(fn (object $row): array => get_object_vars($row))
             ->values();
-    
+
         /** @var Collection<int, array<string, mixed>> $result */
         return $result;
     }

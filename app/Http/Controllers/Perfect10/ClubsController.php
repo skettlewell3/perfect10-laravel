@@ -109,8 +109,7 @@ class ClubsController extends Controller
                     'club_name' => $request->club->club_name,
                     'club_code' => $request->club->club_code,
                     'owner_profile_id' => $request->owner_profile_id,
-                    'owner_display_name' =>
-                        $request->ownerProfile->display_name,
+                    'owner_display_name' => $request->ownerProfile->display_name,
                     'created_at' => $request->created_at,
                     'expires_at' => $request->expires_at,
                 ])
@@ -121,8 +120,7 @@ class ClubsController extends Controller
             'flavour' => $selectedFlavourData,
             'memberships' => $memberships,
             'invites' => $invites,
-            'ownershipTransferRequests' =>
-                $ownershipTransferRequests,
+            'ownershipTransferRequests' => $ownershipTransferRequests,
         ]);
     }
 
@@ -135,44 +133,44 @@ class ClubsController extends Controller
             $club->is_deleted,
             404
         );
-    
+
         $flavours = $this->flavourContext->availableFlavours();
-    
+
         abort_if(
             $flavours->isEmpty(),
             404,
             'No active Perfect10 flavour is available.'
         );
-    
+
         $selectedFlavourData = $this->flavourContext
             ->selectFlavour(
                 $flavours,
                 $flavour
             );
-        
+
         $flavourId = (int) $selectedFlavourData['flavour_id'];
-        
+
         $profileId = $currentProfile->profileId();
-        
+
         abort_if(
             $profileId === null,
             403,
             'Perfect10 profile not found.'
         );
-    
+
         $club->load([
             'memberships.profile.userProfile',
         ]);
-    
+
         $currentMembership = $club->memberships
             ->firstWhere('profile_id', $profileId);
-    
+
         abort_if(
             $currentMembership === null,
             403,
             'You are not a member of this club.'
         );
-    
+
         $members = $club->memberships
             ->map(fn (ClubMembership $membership) => [
                 'member_profile_id' => $membership->profile_id,
@@ -181,31 +179,31 @@ class ClubsController extends Controller
                 'club_role' => $membership->club_role,
             ])
             ->values();
-            
+
         $clubLeaderboard = $this->leaderboardContext
             ->clubLeaderboard(
                 $club->profile_id,
                 $flavourId
             );
-        
+
         $actualTable = collect();
         $predictedTable = collect();
-        
+
         if ($selectedFlavourData['format_code'] === 'GWK') {
             $actualTable = $this->leagueTableContext
                 ->actualTable($flavourId);
-        
+
             $predictedTable = $this->leagueTableContext
                 ->predictedTable(
                     $flavourId,
                     $club->profile_id
                 );
         }
-    
+
         return Inertia::render('perfect10/clubhouse', [
             'flavours' => $flavours,
             'flavour' => $selectedFlavourData,
-        
+
             'club' => [
                 'club_id' => $club->profile_id,
                 'club_name' => $club->club_name,
@@ -215,14 +213,14 @@ class ClubsController extends Controller
                 'is_active' => $club->is_active,
                 'invite_only' => $club->invite_only,
             ],
-        
+
             'members' => $members,
-        
+
             'clubLeaderboard' => $clubLeaderboard,
-        
+
             'actualTable' => $actualTable,
             'predictedTable' => $predictedTable,
-        
+
             'permissions' => [
                 'can_manage_club' => in_array(
                     $currentMembership->club_role,
