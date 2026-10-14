@@ -140,10 +140,8 @@ input[type='number'] {
     position: relative;
     width: 428px;
     height: 926px;
-    /* background-color: var(--tpblue); */
     display: flex;
     flex-direction: column;
-    /* align-items: center; */
     outline: 8px solid #000;
     border-radius: 20px;
     box-shadow: 0 0 20px (rgba(223, 221, 221, 1));
@@ -151,22 +149,6 @@ input[type='number'] {
     overflow: hidden;
     padding-left: 0.3rem;
     padding-right: 0.3rem;
-    /* padding-bottom: 1rem; */
-
-    /* background: var(--appbg); */
-
-    /* background:
-    radial-gradient(
-      circle at top,
-      rgba(255, 255, 255, 0.08),
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      rgb(70, 75, 80),
-      rgb(40, 45, 50)
-    )
-  ; */
 
     background:
         radial-gradient(
@@ -504,6 +486,8 @@ input[type='number'] {
     justify-content: center;
     height: 3.7rem;
     width: 3.7rem;
+    padding: 0;
+    border: 0;
     border-radius: 50%;
     cursor: pointer;
     background: none;
@@ -511,56 +495,89 @@ input[type='number'] {
 
 #profileDropdownToggle img {
     height: inherit;
+    width: inherit;
     object-fit: contain;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     border-radius: 50%;
 }
 
 .profileDropdownMenu {
     position: absolute;
     top: 100%;
-    left: 0; /*left edge of button anchor*/
-    background: var(--green);
-    color: white;
-    border: 2px solid var(--bggreen);
-    border-radius: 4px;
-    min-width: 170px;
+    left: 0;
+    min-width: 180px;
+    margin-top: 0.4em;
+    padding: 0.25em 0;
+
+    background: #dadde0;
+    color: var(--green);
+
+    border: 2px solid black;
+    border-top: none;
+    border-radius: 0 0 6px 0;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+
     z-index: 1000;
-    padding-bottom: 0.2em;
-    margin-top: 0.5em;
+    overflow: hidden;
 }
 
 .profileDropdownMenu.left {
-    left: 0;
+    left: -6px;
     right: auto;
 }
 
 .profileDropdownItem {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding-left: 0.5em;
+    justify-content: space-between;
+
+    width: 100%;
+    min-height: 2.6rem;
+
+    padding: 0.45em 0.75em;
+
+    border: 0;
+    border-radius: 0;
+
+    background: transparent;
+    color: var(--green);
+
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1.2;
+    text-align: left;
+    text-decoration: none;
+
     cursor: pointer;
 }
 
+.profileDropdownItem:hover {
+    background: rgba(0, 128, 0, 0.08);
+    font-weight: bold;
+}
+
 .profileDropdownItem.disabled {
-    opacity: 0.5;
+    color: rgba(0, 100, 0, 0.45);
     cursor: not-allowed;
     pointer-events: none;
 }
 
-.profileDropdownItem:hover {
-    font-weight: bold;
-}
-
 .profileDropdownItem.logout {
-    font-size: 1.2em;
+    margin-top: 0.2em;
+    border-top: 1px solid rgba(0, 100, 0, 0.18);
+    font-size: 1.05em;
 }
 
 .tag {
+    margin-left: 1em;
+
     font-size: 0.7em;
-    margin-right: 1em;
-    color: rgb(160, 216, 235);
+    font-weight: bold;
+
+    color: var(--green);
+
+    opacity: 0.6;
 }
 
 /* Flavour Dropdown */

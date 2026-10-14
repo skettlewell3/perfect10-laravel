@@ -93,8 +93,7 @@ test('shell context builds profile ticker for requested flavour', function () {
         ->shouldReceive('activeCampaignFor')
         ->once()
         ->withArgs(
-            fn (Flavour $flavour) =>
-                $flavour->flavour_id === 1
+            fn (Flavour $flavour) => $flavour->flavour_id === 1
         )
         ->andReturn($campaign);
 
@@ -219,6 +218,7 @@ test('shell context returns empty ticker when profile is unavailable', function 
     $result = $service->profileTicker('EPL');
 
     expect($result)->toBe([
+        'tickerStageLabel' => null,
         'global' => null,
         'flavour' => null,
         'campaign' => null,
@@ -245,7 +245,7 @@ test('shell context returns empty ticker when ticker stage is unavailable', func
         'competition_id' => 10,
     ]);
 
-    $stages = new EloquentCollection();
+    $stages = new EloquentCollection;
 
     $currentProfile = Mockery::mock(
         CurrentProfileService::class
@@ -310,6 +310,7 @@ test('shell context returns empty ticker when ticker stage is unavailable', func
     $result = $service->profileTicker('EPL');
 
     expect($result)->toBe([
+        'tickerStageLabel' => null,
         'global' => null,
         'flavour' => null,
         'campaign' => null,

@@ -15,6 +15,7 @@ class Perfect10ShellContextService
 
     /**
      * @return array{
+     *     tickerStageLabel: string|null,
      *     global: object|null,
      *     flavour: object|null,
      *     campaign: object|null,
@@ -24,6 +25,7 @@ class Perfect10ShellContextService
     public function profileTicker(string $requestedFlavour): array
     {
         $emptyTicker = [
+            'tickerStageLabel' => null,
             'global' => null,
             'flavour' => null,
             'campaign' => null,
@@ -76,6 +78,7 @@ class Perfect10ShellContextService
             );
 
         return [
+            'tickerStageLabel' => $tickerStage->stage_name,
             'global' => $ticker->firstWhere(
                 'scope',
                 'global'

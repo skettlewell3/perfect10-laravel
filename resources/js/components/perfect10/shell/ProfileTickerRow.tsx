@@ -3,11 +3,7 @@ import { usePage } from '@inertiajs/react';
 import type { Perfect10PageProps } from '@/types/perfect10';
 
 export default function ProfileTickerRow() {
-    const {
-        flavour,
-        stageContext,
-        perfect10Shell,
-    } = usePage<Perfect10PageProps>().props;
+    const { flavour, perfect10Shell } = usePage<Perfect10PageProps>().props;
 
     const ticker = perfect10Shell?.profileTicker;
 
@@ -28,7 +24,7 @@ export default function ProfileTickerRow() {
             points: ticker?.campaign?.total_points,
         },
         {
-            label: stageContext.tickerStage?.stage_name ?? '-',
+            label: ticker?.tickerStageLabel ?? '-',
             rank: ticker?.stage?.rank_position,
             points: ticker?.stage?.total_points,
         },
@@ -38,19 +34,12 @@ export default function ProfileTickerRow() {
         <div className="profileTickerRow">
             <div className="tickerTrack">
                 {tickerItems.map((item) => (
-                    <div
-                        key={item.label}
-                        className="tickerStat"
-                    >
+                    <div key={item.label} className="tickerStat">
                         <span>{item.label}:</span>
 
-                        <strong>
-                            {item.points ?? 0} PTS
-                        </strong>
+                        <strong>{item.points ?? 0} PTS</strong>
 
-                        <p>
-                            #{item.rank ?? '-'}
-                        </p>
+                        <p>#{item.rank ?? '-'}</p>
                     </div>
                 ))}
             </div>
