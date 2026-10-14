@@ -1,5 +1,10 @@
 import type { PageProps } from '@inertiajs/core';
 
+export interface Perfect10ProfileData {
+    profile_id: string;
+    display_name: string;
+}
+
 export interface Perfect10PageProps extends PageProps {
     flavours: Flavour[];
     flavour: Flavour;
@@ -9,7 +14,10 @@ export interface Perfect10PageProps extends PageProps {
     stageContext: StageContext;
     gameweekContext: GameweekContext | null;
     fixtures: Fixture[];
+
+    perfect10Profile: Perfect10ProfileData | null;
 }
+
 
 export type Flavour = {
     flavour_id: number;

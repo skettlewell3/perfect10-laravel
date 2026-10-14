@@ -1,4 +1,5 @@
 import FlavourDropdown from './FlavourDropdown';
+import ProfileIdentity from './ProfileIdentity';
 
 export default function ShellHeader() {
     return (
@@ -19,11 +20,7 @@ export default function ShellHeader() {
 
             <div id="shellHeader">
                 <div className="profileRow">
-                    <div className="profileIdentity">
-                        <div className="profileName">&nbsp;</div>
-                        <div className="profilePoints">&nbsp;</div>
-                    </div>
-
+                    <ProfileIdentity />
                     <FlavourDropdown />
                 </div>
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Perfect10\CurrentProfileService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,13 +36,21 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $currentProfile = app(CurrentProfileService::class)
+            ->profile();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'perfect10Profile' => $currentProfile
+                ? [
+                    'profile_id' => $currentProfile->profile_id,
+                    'display_name' => $currentProfile->display_name,
+                ]
+                : null,
         ];
     }
 }
