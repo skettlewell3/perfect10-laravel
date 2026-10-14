@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Services\Perfect10\CurrentProfileService;
+use App\Services\Perfect10\Perfect10ShellContextService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -39,16 +40,29 @@ class HandleInertiaRequests extends Middleware
         $currentProfile = app(CurrentProfileService::class)
             ->profile();
 
+        $requestedFlavour = $request->route('flavour');
+
         return [
             ...parent::share($request),
+
             'name' => config('app.name'),
+
             'auth' => [
                 'user' => $request->user(),
             ],
+
             'perfect10Profile' => $currentProfile
                 ? [
                     'profile_id' => $currentProfile->profile_id,
                     'display_name' => $currentProfile->display_name,
+                ]
+                : null,
+
+            'perfect10Shell' => fn () => is_string($requestedFlavour)
+                ? [
+                    'profileTicker' => app(
+                        Perfect10ShellContextService::class
+                    )->profileTicker($requestedFlavour),
                 ]
                 : null,
         ];

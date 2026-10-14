@@ -16,8 +16,8 @@ export interface Perfect10PageProps extends PageProps {
     fixtures: Fixture[];
 
     perfect10Profile: Perfect10ProfileData | null;
+    perfect10Shell: Perfect10ShellData | null;
 }
-
 
 export type Flavour = {
     flavour_id: number;
@@ -102,4 +102,19 @@ export type Fixture = {
     venue_name: string;
     final_home_goals: number | null;
     final_away_goals: number | null;
+};
+
+export type ProfileTickerItem = {
+    scope: string;
+    rank_position: number | null;
+    total_points: number;
+};
+
+export type Perfect10ShellData = {
+    profileTicker: {
+        global: ProfileTickerItem | null;
+        flavour: ProfileTickerItem | null;
+        campaign: ProfileTickerItem | null;
+        stage: ProfileTickerItem | null;
+    };
 };
