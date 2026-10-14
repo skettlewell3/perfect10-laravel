@@ -6,6 +6,7 @@ use App\Services\Perfect10\CurrentProfileService;
 use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\LeaderboardContextService;
 use App\Services\Perfect10\LeagueTableContextService;
+use App\Services\Perfect10\Perfect10ShellContextService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +79,25 @@ beforeEach(function () {
             $table->timestamp('created_at')->nullable();
             $table->timestamp('expires_at')->nullable();
         }
+    );
+
+    $shellContext = Mockery::mock(
+        Perfect10ShellContextService::class
+    );
+
+    $shellContext
+        ->shouldReceive('profileTicker')
+        ->andReturn([
+            'tickerStageLabel' => null,
+            'global' => null,
+            'flavour' => null,
+            'campaign' => null,
+            'stage' => null,
+        ]);
+
+    $this->app->instance(
+        Perfect10ShellContextService::class,
+        $shellContext
     );
 });
 
@@ -244,6 +264,10 @@ test('clubs index returns memberships invites and ownership requests', function 
         ->once()
         ->andReturn($currentProfileId);
 
+    $currentProfile
+        ->shouldReceive('profile')
+        ->andReturn(null);
+
     $this->app->instance(
         CurrentProfileService::class,
         $currentProfile
@@ -339,6 +363,10 @@ test('gameweek clubhouse returns league table data', function () {
         ->shouldReceive('profileId')
         ->once()
         ->andReturn($currentProfileId);
+
+    $currentProfile
+        ->shouldReceive('profile')
+        ->andReturn(null);
 
     $this->app->instance(
         CurrentProfileService::class,
@@ -518,6 +546,10 @@ test('per fixture clubhouse does not load league tables', function () {
         ->once()
         ->andReturn($currentProfileId);
 
+    $currentProfile
+        ->shouldReceive('profile')
+        ->andReturn(null);
+
     $this->app->instance(
         CurrentProfileService::class,
         $currentProfile
@@ -620,6 +652,10 @@ test('remove member endpoint delegates to club management service', function () 
         ->shouldReceive('profileId')
         ->once()
         ->andReturn($currentProfileId);
+
+    $currentProfile
+        ->shouldReceive('profile')
+        ->andReturn(null);
 
     $this->app->instance(
         CurrentProfileService::class,

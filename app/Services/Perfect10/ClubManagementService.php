@@ -13,6 +13,58 @@ use Illuminate\Validation\ValidationException;
 
 class ClubManagementService
 {
+    public function createClub(
+        string $currentProfileId,
+        string $clubName,
+        ?string $clubColour = null
+    ): ClubProfile {
+        return DB::transaction(function () use (
+            $currentProfileId,
+            $clubName,
+            $clubColour
+        ) {
+            $alreadyOwnsClub = ClubMembership::query()
+                ->where('profile_id', $currentProfileId)
+                ->where('club_role', 'owner')
+                ->exists();
+
+            if ($alreadyOwnsClub) {
+                throw ValidationException::withMessages([
+                    'club_name' => 'You already own a club.',
+                ]);
+            }
+
+            $clubProfileId = (string) Str::uuid();
+
+            $clubCode = (string) DB::scalar(
+                'select public.generate_club_code()'
+            );
+
+            DB::table('profiles')->insert([
+                'profile_id' => $clubProfileId,
+                'profile_type' => 'club',
+                'display_name' => $clubName,
+            ]);
+
+            $club = ClubProfile::query()->create([
+                'profile_id' => $clubProfileId,
+                'club_name' => $clubName,
+                'club_code' => $clubCode,
+                'club_colour' => $clubColour,
+                'created_by' => $currentProfileId,
+                'is_active' => false,
+            ]);
+
+            ClubMembership::query()->create([
+                'club_id' => $clubProfileId,
+                'profile_id' => $currentProfileId,
+                'club_role' => 'owner',
+            ]);
+
+            return $club;
+        });
+    }
+
     public function changeMemberRole(
         ClubProfile $club,
         string $currentProfileId,

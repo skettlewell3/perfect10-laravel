@@ -112,6 +112,7 @@ export type ProfileTickerItem = {
 
 export type Perfect10ShellData = {
     profileTicker: {
+        tickerStageLabel: string | null;
         global: ProfileTickerItem | null;
         flavour: ProfileTickerItem | null;
         campaign: ProfileTickerItem | null;

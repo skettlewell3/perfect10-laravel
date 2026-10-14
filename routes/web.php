@@ -5,6 +5,7 @@ use App\Http\Controllers\Perfect10\DashboardController;
 use App\Http\Controllers\Perfect10\FixturesController;
 use App\Http\Controllers\Perfect10\LeaderboardController;
 use App\Http\Controllers\Perfect10\PlaceholderPageController;
+use App\Http\Controllers\Perfect10\ProfileController;
 use App\Services\Perfect10\FlavourContextService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,15 @@ Route::get('/', function (
 });
 
 Route::prefix('{flavour}')->group(function () {
+
+    Route::get('/profile', [ProfileController::class, 'index'])
+        ->name('perfect10.profile');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('perfect10.profile.update');
+
+    Route::post('/profile/club', [ProfileController::class, 'createClub'])
+        ->name('perfect10.profile.club.store');
 
     Route::get('/', [DashboardController::class, 'index'])
         ->name('dashboard');

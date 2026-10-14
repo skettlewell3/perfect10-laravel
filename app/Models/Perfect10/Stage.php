@@ -7,6 +7,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property int $stage_id
+ * @property int $competition_id
+ * @property string $stage_name
+ * @property int|null $order_index
+ * @property string $stage_type
+ * @property string|null $stage_code
+ * @property bool $is_active
+ * @property bool $is_finished
+ * @property bool $is_live
+ * @property int|null $first_fixture_id
+ * @property int|null $last_fixture_id
+ * @property int $campaign_id
+ */
 class Stage extends Model
 {
     protected $table = 'stages';
