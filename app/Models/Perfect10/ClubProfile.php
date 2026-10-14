@@ -5,7 +5,21 @@ namespace App\Models\Perfect10;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property string $profile_id
+ * @property string $club_name
+ * @property string $club_code
+ * @property string|null $club_colour
+ * @property bool $invite_only
+ * @property bool $is_active
+ * @property string $created_by
+ * @property bool $is_deleted
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
+ */
 class ClubProfile extends Model
 {
     protected $table = 'club_profiles';

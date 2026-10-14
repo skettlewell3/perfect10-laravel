@@ -4,7 +4,16 @@ namespace App\Models\Perfect10;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property string $invite_id
+ * @property string $club_id
+ * @property string $sender_profile_id
+ * @property string $recipient_profile_id
+ * @property string $invite_status
+ * @property Carbon $created_at
+ */
 class ClubInvite extends Model
 {
     protected $table = 'club_invites';

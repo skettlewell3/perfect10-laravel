@@ -4,7 +4,15 @@ namespace App\Models\Perfect10;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property string $auth_id
+ * @property string $profile_id
+ * @property string $username
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ */
 class UserProfile extends Model
 {
     protected $table = 'user_profiles';

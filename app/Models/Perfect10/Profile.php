@@ -5,7 +5,15 @@ namespace App\Models\Perfect10;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property string $profile_id
+ * @property string $profile_type
+ * @property string $display_name
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ */
 class Profile extends Model
 {
     protected $table = 'profiles';

@@ -122,7 +122,7 @@ test('dashboard resolves the appropriate context for each prediction format', fu
     $flavourService
         ->shouldReceive('selectFlavour')
         ->once()
-        ->with($flavours, trim($requestedCode))
+        ->with($flavours, $requestedCode)
         ->andReturn($selected);
 
     $flavourService
