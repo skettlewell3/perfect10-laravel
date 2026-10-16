@@ -1,4 +1,5 @@
 import type { PageProps } from '@inertiajs/core';
+import type { Fixture } from './perfect10/fixture';
 
 export interface Perfect10ProfileData {
     profile_id: string;
@@ -83,25 +84,6 @@ export type GameweekContext = {
     gameweeks: Gameweek[];
     activeGameweek: Gameweek | null;
     nextGameweek: Gameweek | null;
-};
-
-export type Fixture = {
-    fixture_id: number;
-    kickoff_at: string;
-
-    fixture_status:
-        | 'upcoming'
-        | 'live_90'
-        | 'live_et'
-        | 'finished'
-        | 'postponed';
-
-    home_team_name: string | null;
-    away_team_name: string | null;
-
-    venue_name: string;
-    final_home_goals: number | null;
-    final_away_goals: number | null;
 };
 
 export type ProfileTickerItem = {

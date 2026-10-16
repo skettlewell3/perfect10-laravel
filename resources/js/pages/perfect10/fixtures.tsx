@@ -3,17 +3,19 @@ import { Head, usePage } from '@inertiajs/react';
 
 import ContentBanner from '@/components/perfect10/app/ContentBanner';
 import FixtureCard from '@/components/perfect10/fixtures/FixtureCard';
-import type { Perfect10PageProps } from '@/types/perfect10';
 import type { Fixture } from '@/types/perfect10/fixture';
 import type { FixtureTeam } from '@/components/perfect10/fixtures/FixtureCard';
+import type { Perfect10PageProps } from '@/types/perfect10';
+import type { PredictionsMap } from '@/types/perfect10/prediction';
 
 type FixturesPageProps = Perfect10PageProps & {
     fixtures: Fixture[];
     teamsMap: Record<number, FixtureTeam>;
+    predictionsMap: PredictionsMap;
 };
 
 export default function FixturesPage() {
-    const { flavour, fixtures, teamsMap } = usePage<FixturesPageProps>().props;
+    const { flavour, fixtures, teamsMap, predictionsMap } = usePage<FixturesPageProps>().props;
 
     const displayFixtures = [...fixtures]
         .sort((a, b) => {
@@ -58,6 +60,7 @@ export default function FixturesPage() {
                             fixture={fixture}
                             formatCode={flavour.format_code}
                             teamsMap={teamsMap}
+                            prediction={predictionsMap[fixture.fixture_id] ?? null}
                         />
                     ))}
                 </div>

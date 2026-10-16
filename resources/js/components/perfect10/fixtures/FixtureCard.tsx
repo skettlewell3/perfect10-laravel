@@ -1,15 +1,14 @@
 
 import type { Fixture } from '@/types/perfect10/fixture';
+import type {
+    FixturePrediction,
+    PredictionDraft,
+} from '@/types/perfect10/prediction';
 
 import FixtureCardHeader from './FixtureCardHeader';
 import FixtureDetails from './FixtureDetails';
 import FixtureScorePanel from './FixtureScorePanel';
 import TeamDisplay from './TeamDisplay';
-
-import type {
-    FixturePrediction,
-    PredictionDraft,
-} from './PredictionScore';
 
 export type FixtureTeam = {
     team_id: number;

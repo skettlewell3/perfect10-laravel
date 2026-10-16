@@ -3,8 +3,10 @@
 use App\Http\Controllers\Perfect10\ClubsController;
 use App\Http\Controllers\Perfect10\DashboardController;
 use App\Http\Controllers\Perfect10\FixturesController;
+use App\Http\Controllers\Perfect10\GameweekController;
 use App\Http\Controllers\Perfect10\LeaderboardController;
 use App\Http\Controllers\Perfect10\PlaceholderPageController;
+use App\Http\Controllers\Perfect10\PredictionSubmissionController;
 use App\Http\Controllers\Perfect10\ProfileController;
 use App\Services\Perfect10\FlavourContextService;
 use Illuminate\Http\Request;
@@ -45,10 +47,18 @@ Route::prefix('{flavour}')->group(function () {
     Route::get('/fixtures', [FixturesController::class, 'index'])
         ->name('fixtures');
 
-    Route::get(
-        '/leaderboards',
-        [LeaderboardController::class, 'index']
-    )->name('leaderboards');
+    Route::get('/gameweek', [GameweekController::class, 'index'])
+        ->name('gameweek');
+
+    Route::post(
+        '/predictions',
+        [PredictionSubmissionController::class, 'store']
+    )
+        ->middleware('auth')
+        ->name('predictions.store');
+
+    Route::get('/leaderboards', [LeaderboardController::class, 'index'])
+        ->name('leaderboards');
 
     Route::get('/clubs', [ClubsController::class, 'index'])
         ->name('clubs');
@@ -95,13 +105,6 @@ Route::prefix('{flavour}')->group(function () {
         '/clubs/ownership-transfer/decline',
         [ClubsController::class, 'declineOwnershipTransfer']
     )->name('clubs.ownership-transfer.decline');
-
-    Route::get('/gameweek', function (
-        Request $request,
-        PlaceholderPageController $controller
-    ) {
-        return $controller->show($request, 'gameweek');
-    })->name('gameweek');
 
     Route::get('/stats', function (
         Request $request,

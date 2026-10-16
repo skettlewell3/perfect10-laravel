@@ -1,16 +1,8 @@
-
 import type { Fixture } from '@/types/perfect10/fixture';
-
-export type PredictionDraft = {
-    home: string;
-    away: string;
-};
-
-export type FixturePrediction = {
-    fixture_id: number;
-    pred_home_goals: number;
-    pred_away_goals: number;
-};
+import type {
+    FixturePrediction,
+    PredictionDraft,
+} from '@/types/perfect10/prediction';
 
 type PredictionScoreProps = {
     fixture: Fixture;
@@ -66,7 +58,7 @@ export default function PredictionScore({
                     className="predInput home"
                     aria-label={`${fixture.home_team_name ?? 'Home'} predicted goals`}
                     min={0}
-                    max={10}
+                    max={9}
                     step={1}
                     value={homeValue}
                     style={{ color: inputColor }}
@@ -83,7 +75,7 @@ export default function PredictionScore({
                     className="predInput away"
                     aria-label={`${fixture.away_team_name ?? 'Away'} predicted goals`}
                     min={0}
-                    max={10}
+                    max={9}
                     step={1}
                     value={awayValue}
                     style={{ color: inputColor }}

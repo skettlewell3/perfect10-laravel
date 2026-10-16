@@ -1,13 +1,13 @@
 
 import type { Fixture } from '@/types/perfect10/fixture';
+import type {
+    FixturePrediction,
+    PredictionDraft,
+} from '@/types/perfect10/prediction';
 
 import MatchScore from './MatchScore';
 import PredictionScore from './PredictionScore';
 
-import type {
-    FixturePrediction,
-    PredictionDraft,
-} from './PredictionScore';
 
 type FixtureScorePanelProps = {
     fixture: Fixture;

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Perfect10;
 use App\Http\Controllers\Controller;
 use App\Models\Perfect10\Flavour;
 use App\Models\Perfect10\Team;
+use App\Services\Perfect10\CurrentProfileService;
 use App\Services\Perfect10\FixtureContextService;
 use App\Services\Perfect10\FlavourContextService;
+use App\Services\Perfect10\PredictionContextService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,6 +18,8 @@ class FixturesController extends Controller
     public function __construct(
         private FlavourContextService $flavourContext,
         private FixtureContextService $fixtureContext,
+        private PredictionContextService $predictionContext,
+        private CurrentProfileService $currentProfile,
     ) {}
 
     public function index(Request $request): Response
@@ -38,6 +42,11 @@ class FixturesController extends Controller
 
         $fixtures = $this->fixtureContext
             ->fixturesForFlavour($flavour);
+
+        $predictionsMap = $this->predictionContext->predictionsForFlavour(
+            $flavour,
+            $this->currentProfile->profileId()
+        );
 
         // Collect unique team IDs referenced by the fixtures.
         $teamIds = collect($fixtures)
@@ -80,6 +89,7 @@ class FixturesController extends Controller
             'flavour' => $selected,
             'fixtures' => $fixtures,
             'teamsMap' => $teamsMap,
+            'predictionsMap' => $predictionsMap,
         ]);
     }
 }
