@@ -2,6 +2,7 @@
 
 use App\Models\Perfect10\Campaign;
 use App\Models\Perfect10\Competition;
+use App\Models\Perfect10\Flavour;
 use App\Models\Perfect10\Gameweek;
 use App\Models\Perfect10\Stage;
 use App\Services\Perfect10\FlavourContextService;
@@ -164,6 +165,15 @@ test('gameweek leaderboard only exposes stages that also belong to gameweeks', f
         ->once()
         ->with($flavours, 'EPL')
         ->andReturn($selected);
+    
+    $flavourService
+        ->shouldReceive('activeFlavourModel')
+        ->once()
+        ->with(1)
+        ->andReturn(new Flavour([
+            'flavour_id' => 1,
+            'flavour_code' => 'EPL',
+        ]));    
 
     $flavourService
         ->shouldReceive('competitionFor')
@@ -326,7 +336,16 @@ test('per fixture leaderboard uses visible stages without gameweek filtering', f
         ->shouldReceive('selectFlavour')
         ->once()
         ->with($flavours, 'WC')
-        ->andReturn($selected);
+        ->andReturn($selected);    
+    
+    $flavourService
+        ->shouldReceive('activeFlavourModel')
+        ->once()
+        ->with(2)
+        ->andReturn(new Flavour([
+            'flavour_id' => 2,
+            'flavour_code' => 'WC',
+        ]));
 
     $flavourService
         ->shouldReceive('competitionFor')
@@ -467,6 +486,15 @@ test('leaderboard accepts campaign scope and population filters', function () {
         ->andReturn($selected);
 
     $flavourService
+        ->shouldReceive('activeFlavourModel')
+        ->once()
+        ->with(1)
+        ->andReturn(new Flavour([
+            'flavour_id' => 1,
+            'flavour_code' => 'EPL',
+        ]));
+
+    $flavourService
         ->shouldReceive('competitionFor')
         ->once()
         ->andReturn($competition);
@@ -603,6 +631,15 @@ test('invalid leaderboard filters fall back to safe defaults', function () {
         ->once()
         ->with($flavours, 'EPL')
         ->andReturn($selected);
+
+    $flavourService
+        ->shouldReceive('activeFlavourModel')
+        ->once()
+        ->with(1)
+        ->andReturn(new Flavour([
+            'flavour_id' => 1,
+            'flavour_code' => 'EPL',
+        ]));
 
     $flavourService
         ->shouldReceive('competitionFor')

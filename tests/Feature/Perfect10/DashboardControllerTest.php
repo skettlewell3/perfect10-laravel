@@ -3,6 +3,7 @@
 
 use App\Models\Perfect10\Campaign;
 use App\Models\Perfect10\Competition;
+use App\Models\Perfect10\Flavour;
 use App\Models\Perfect10\Gameweek;
 use App\Models\Perfect10\Stage;
 use App\Services\Perfect10\FixtureContextService;
@@ -114,11 +115,7 @@ test('dashboard resolves the appropriate context for each prediction format', fu
         ->once()
         ->andReturn($flavours);
 
-    $flavourService
-        ->shouldReceive('competitionFor')
-        ->once()
-        ->andReturn($competition);
-
+    
     $flavourService
         ->shouldReceive('selectFlavour')
         ->once()
@@ -126,9 +123,24 @@ test('dashboard resolves the appropriate context for each prediction format', fu
         ->andReturn($selected);
 
     $flavourService
+        ->shouldReceive('activeFlavourModel')
+        ->once()
+        ->with((int) $selected['flavour_id'])
+        ->andReturn(new Flavour([
+            'flavour_id' => $selected['flavour_id'],
+            'flavour_code' => $selected['flavour_code'],
+        ]));
+
+    $flavourService
+        ->shouldReceive('competitionFor')
+        ->once()
+        ->andReturn($competition);
+
+    $flavourService
         ->shouldReceive('activeCampaignFor')
         ->once()
         ->andReturn($campaign);
+
 
     $this->app->instance(
         FlavourContextService::class,

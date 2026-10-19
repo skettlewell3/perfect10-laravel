@@ -1,3 +1,4 @@
+
 import { router } from '@inertiajs/react';
 
 type Props = {
@@ -5,14 +6,17 @@ type Props = {
     fallbackUrl?: string;
 };
 
-export default function ContentBanner({ title, fallbackUrl = '/' }: Props) {
+export default function ContentBanner({ title, fallbackUrl }: Props) {
     const handleBack = () => {
-        if (window.history.length > 1) {
-            window.history.back();
-            return;
-        }
+        const flavour = window.location.pathname.split('/')[1];
 
-        router.visit(fallbackUrl);
+        const dashboardUrl = fallbackUrl ?? (
+            flavour ? `/${flavour}` : '/'
+        );
+
+        router.visit(dashboardUrl, {
+            replace: true,
+        });
     };
 
     return (
@@ -21,7 +25,7 @@ export default function ContentBanner({ title, fallbackUrl = '/' }: Props) {
                 type="button"
                 className="backButton"
                 onClick={handleBack}
-                aria-label="Go Back"
+                aria-label="Go to Dashboard"
             >
                 <img src="/assets/svg/backArrow.svg" alt="" />
             </button>
