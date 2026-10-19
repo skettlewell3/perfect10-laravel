@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Services\Perfect10;
@@ -92,7 +91,7 @@ class PredictionSubmissionService
                     'gw.prediction_close_at as gw_close_at',
                 ])
                 ->orderBy('f.fixture_id')
-                ->lockForUpdate()
+                ->lock('FOR UPDATE OF f, s')
                 ->get();
 
             if ($fixtures->count() !== count($predictions)) {
