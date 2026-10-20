@@ -1,5 +1,6 @@
+import { router, usePage } from '@inertiajs/react';
 
-import { router } from '@inertiajs/react';
+import type { Perfect10PageProps } from '@/types/perfect10';
 
 type Props = {
     title: string;
@@ -7,12 +8,11 @@ type Props = {
 };
 
 export default function ContentBanner({ title, fallbackUrl }: Props) {
-    const handleBack = () => {
-        const flavour = window.location.pathname.split('/')[1];
+    const { flavour } = usePage<Perfect10PageProps>().props;
 
-        const dashboardUrl = fallbackUrl ?? (
-            flavour ? `/${flavour}` : '/'
-        );
+    const handleBack = () => {
+        const dashboardUrl =
+            fallbackUrl ?? `/${flavour.flavour_code.toLowerCase()}`;
 
         router.visit(dashboardUrl, {
             replace: true,

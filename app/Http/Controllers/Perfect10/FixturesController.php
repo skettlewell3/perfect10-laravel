@@ -3,42 +3,30 @@
 namespace App\Http\Controllers\Perfect10;
 
 use App\Http\Controllers\Controller;
-use App\Models\Perfect10\Flavour;
 use App\Models\Perfect10\Team;
 use App\Services\Perfect10\CurrentProfileService;
 use App\Services\Perfect10\FixtureContextService;
-use App\Services\Perfect10\FlavourContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\PredictionContextService;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class FixturesController extends Controller
 {
     public function __construct(
-        private FlavourContextService $flavourContext,
+        private Perfect10RequestContext $context,
         private FixtureContextService $fixtureContext,
         private PredictionContextService $predictionContext,
         private CurrentProfileService $currentProfile,
     ) {}
 
-    public function index(Request $request): Response
+    public function index(): Response
     {
-        $flavours = $this->flavourContext->availableFlavours();
+        $flavours = $this->context->flavours();
 
-        abort_if(
-            $flavours->isEmpty(),
-            404,
-            'No active Perfect10 flavour is available.'
-        );
+        $selected = $this->context->selectedFlavourData();
 
-        $selected = $this->flavourContext->selectFlavour(
-            $flavours,
-            (string) $request->route('flavour')
-        );
-
-        $flavour = Flavour::query()
-            ->findOrFail($selected['flavour_id']);
+        $flavour = $this->context->flavour();
 
         $fixtures = $this->fixtureContext
             ->fixturesForFlavour($flavour);

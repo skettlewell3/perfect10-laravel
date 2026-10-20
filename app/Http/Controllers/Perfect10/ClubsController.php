@@ -9,9 +9,9 @@ use App\Models\Perfect10\ClubOwnershipTransferRequest;
 use App\Models\Perfect10\ClubProfile;
 use App\Services\Perfect10\ClubManagementService;
 use App\Services\Perfect10\CurrentProfileService;
-use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\LeaderboardContextService;
 use App\Services\Perfect10\LeagueTableContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,29 +20,20 @@ use Inertia\Response;
 class ClubsController extends Controller
 {
     public function __construct(
-        private FlavourContextService $flavourContext,
         private ClubManagementService $clubManagement,
         private LeaderboardContextService $leaderboardContext,
         private LeagueTableContextService $leagueTableContext,
+        private Perfect10RequestContext $context,
     ) {}
 
     public function index(
         string $flavour,
         CurrentProfileService $currentProfile
     ): Response {
-        $flavours = $this->flavourContext->availableFlavours();
+        $flavours = $this->context->flavours();
 
-        abort_if(
-            $flavours->isEmpty(),
-            404,
-            'No active Perfect10 flavour is available.'
-        );
-
-        $selectedFlavourData = $this->flavourContext
-            ->selectFlavour(
-                $flavours,
-                $flavour
-            );
+        $selectedFlavourData = $this->context
+            ->selectedFlavourData();
 
         $profileId = $currentProfile->profileId();
 
@@ -135,19 +126,10 @@ class ClubsController extends Controller
             404
         );
 
-        $flavours = $this->flavourContext->availableFlavours();
+        $flavours = $this->context->flavours();
 
-        abort_if(
-            $flavours->isEmpty(),
-            404,
-            'No active Perfect10 flavour is available.'
-        );
-
-        $selectedFlavourData = $this->flavourContext
-            ->selectFlavour(
-                $flavours,
-                $flavour
-            );
+        $selectedFlavourData = $this->context
+            ->selectedFlavourData();
 
         $flavourId = (int) $selectedFlavourData['flavour_id'];
 

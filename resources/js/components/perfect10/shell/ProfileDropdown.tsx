@@ -6,8 +6,6 @@ export default function ProfileDropdown() {
 
     const ref = useRef<HTMLDivElement>(null);
 
-    const flavour = window.location.pathname.split('/').filter(Boolean)[0];
-
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (ref.current && !ref.current.contains(event.target as Node)) {
@@ -41,7 +39,7 @@ export default function ProfileDropdown() {
                 <div className="profileDropdownMenu left">
                     <Link
                         className="profileDropdownItem"
-                        href={`/${flavour}/profile`}
+                        href="/profile"
                         onClick={() => setOpen(false)}
                     >
                         Profile

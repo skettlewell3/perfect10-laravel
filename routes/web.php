@@ -30,16 +30,16 @@ Route::get('/', function (
     ]);
 });
 
+Route::get('/profile', [ProfileController::class, 'index'])
+    ->name('perfect10.profile');
+
+Route::patch('/profile', [ProfileController::class, 'update'])
+    ->name('perfect10.profile.update');
+
+Route::post('/profile/club', [ProfileController::class, 'createClub'])
+    ->name('perfect10.profile.club.store');
+
 Route::prefix('{flavour}')->group(function () {
-
-    Route::get('/profile', [ProfileController::class, 'index'])
-        ->name('perfect10.profile');
-
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('perfect10.profile.update');
-
-    Route::post('/profile/club', [ProfileController::class, 'createClub'])
-        ->name('perfect10.profile.club.store');
 
     Route::get('/', [DashboardController::class, 'index'])
         ->name('dashboard');

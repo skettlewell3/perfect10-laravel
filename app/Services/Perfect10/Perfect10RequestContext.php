@@ -56,11 +56,36 @@ class Perfect10RequestContext
             'No active Perfect10 flavour is available.'
         );
 
-        return $this->selectedFlavourData = $this->flavourContext
+        $routeFlavour = $this->request->route('flavour');
+
+        $requestedCode = is_string($routeFlavour)
+            ? trim($routeFlavour)
+            : '';
+
+        if ($requestedCode === '') {
+            $requestedCode = (string) $this->request
+                ->session()
+                ->get('perfect10.last_flavour', '');
+        }
+
+        $selected = $this->flavourContext
             ->selectFlavour(
                 $flavours,
-                (string) $this->request->route('flavour')
+                $requestedCode
             );
+
+        if (
+            is_string($routeFlavour) &&
+            strtoupper(trim($routeFlavour)) ===
+                strtoupper($selected['flavour_code'])
+        ) {
+            $this->request->session()->put(
+                'perfect10.last_flavour',
+                $selected['flavour_code']
+            );
+        }
+
+        return $this->selectedFlavourData = $selected;
     }
 
     public function flavour(): Flavour
