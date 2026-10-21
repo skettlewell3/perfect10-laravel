@@ -181,7 +181,7 @@ class FlavourContextService
             ->toBase()
             ->map($mapFlavour)
             ->values();
-            
+
         $this->availableFlavours = $availableFlavours;
 
         return $this->availableFlavours;

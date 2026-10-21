@@ -228,13 +228,32 @@ export default function usePredictionDrafts({
         fixtures.length > 0 &&
         validChangedPredictions.length === fixtures.length;
 
+    const hasIncompleteDrafts = Object.entries(drafts).some(
+        ([id, draft]) => {
+            const fixtureId = Number(id);
+
+            if (!fixtureIds.has(fixtureId)) {
+                return false;
+            }
+
+            return (
+                isDirtyPrediction(
+                    draft,
+                    predictionsMap[fixtureId],
+                ) &&
+                !isValidPrediction(draft)
+            );
+        },
+    );
+
     // Once a complete set exists, individual changes are allowed.
     const isUpdating =
         hasExistingSet &&
         validChangedPredictions.length > 0;
 
     const canSubmitGameweek =
-        hasCompleteDraftSet || isUpdating;
+        !hasIncompleteDrafts &&
+        (hasCompleteDraftSet || isUpdating);
 
     return {
         drafts,

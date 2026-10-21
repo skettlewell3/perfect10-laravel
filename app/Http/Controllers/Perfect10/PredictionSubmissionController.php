@@ -19,7 +19,7 @@ class PredictionSubmissionController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // Identity comes from the authenticated Laravel session.
+        // Resolve the Perfect10 profile through the current auth identity.
         $profileId = $this->currentProfile->profileId();
 
         abort_unless(

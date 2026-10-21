@@ -4,14 +4,9 @@ use App\Services\Perfect10\CurrentProfileService;
 use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\Perfect10ShellContextService;
 use App\Services\Perfect10\PredictionSubmissionService;
-use Illuminate\Auth\Middleware\Authenticate;
 
 beforeEach(function () {
     $this->withoutVite();
-
-    // Authentication is tested separately. These tests isolate
-    // the controller's Perfect10 profile identity requirements.
-    $this->withoutMiddleware(Authenticate::class);
 
     $shellContext = Mockery::mock(
         Perfect10ShellContextService::class
@@ -105,9 +100,16 @@ function predictionSubmissionMockProfile(
         CurrentProfileService::class
     );
 
+    $hasProfile = $profileId !== null;
+
+    $currentProfile
+        ->shouldReceive('check')
+        ->once()
+        ->andReturn($hasProfile);
+
     $currentProfile
         ->shouldReceive('profileId')
-        ->once()
+        ->times($hasProfile ? 1 : 0)
         ->andReturn($profileId);
 
     $currentProfile

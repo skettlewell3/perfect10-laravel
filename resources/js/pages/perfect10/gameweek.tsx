@@ -1,11 +1,12 @@
-
 import { useMemo, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 
 import ContentBanner from '@/components/perfect10/app/ContentBanner';
 import StageFixturesCard from '@/components/perfect10/fixtures/StageFixturesCard';
 import SubmitSlideUp from '@/components/perfect10/predictions/SubmitSlideUp';
+import PredictionNotification from '@/components/perfect10/predictions/PredictionNotification';
 
+import type { PredictionNotificationData } from '@/components/perfect10/predictions/PredictionNotification';
 import type { FixtureTeam } from '@/components/perfect10/fixtures/FixtureCard';
 import type { Perfect10PageProps } from '@/types/perfect10';
 import type { Fixture } from '@/types/perfect10/fixture';
@@ -32,9 +33,9 @@ export default function GameweekPage() {
     } = usePage<GameweekPageProps>().props;
 
     const [processing, setProcessing] = useState(false);
-    const [submissionError, setSubmissionError] = useState<string | null>(
-        null,
-    );
+
+    const [notification, setNotification] =
+        useState<PredictionNotificationData | null>(null);
 
     const groupedFixtures = useMemo(() => {
         const groups = new Map<string, Fixture[]>();
@@ -70,7 +71,6 @@ export default function GameweekPage() {
         updateDraft,
         clearDrafts,
         validChangedPredictions,
-        hasExistingSet,
         isUpdating,
         canSubmitGameweek,
     } = usePredictionDrafts({
@@ -96,7 +96,9 @@ export default function GameweekPage() {
     const handleSubmit = () => {
         if (!canSubmit || processing) return;
 
-        setSubmissionError(null);
+        const wasUpdating = isUpdating;
+
+        setNotification(null);
         setProcessing(true);
 
         router.post(
@@ -109,14 +111,21 @@ export default function GameweekPage() {
 
                 onSuccess: () => {
                     clearDrafts();
-                    setSubmissionError(null);
+
+                    setNotification({
+                        type: 'success',
+                        isUpdating: wasUpdating,
+                    });
                 },
 
                 onError: (errors) => {
-                    setSubmissionError(
-                        errors.predictions ??
-                        'Unable to submit predictions. Please try again.',
-                    );
+                    setNotification({
+                        type: 'error',
+                        isUpdating: wasUpdating,
+                        message:
+                            Object.values(errors)[0] ??
+                            "Couldn't submit your predictions. Please try again.",
+                    });
                 },
 
                 onFinish: () => {
@@ -165,36 +174,19 @@ export default function GameweekPage() {
                             ))}
                         </div>
                     )}
-
-                    <div>
-                        <p>
-                            Existing complete set:{' '}
-                            {hasExistingSet ? 'Yes' : 'No'}
-                        </p>
-
-                        <p>
-                            Valid changed predictions:{' '}
-                            {validChangedPredictions.length}
-                            {' / '}
-                            {fixtures.length}
-                        </p>
-
-                        <p>
-                            Can submit gameweek:{' '}
-                            {canSubmitGameweek ? 'Yes' : 'No'}
-                        </p>
-                    </div>
                 </div>
 
                 <SubmitSlideUp
                     visible={showSubmitSlideUp}
                     canSubmit={canSubmit}
                     isUpdating={isUpdating}
-                    changedCount={validChangedPredictions.length}
-                    totalCount={fixtures.length}
                     processing={processing}
-                    error={submissionError}
                     onSubmit={handleSubmit}
+                />
+
+                <PredictionNotification
+                    notification={notification}
+                    onClose={() => setNotification(null)}
                 />
             </div>
         </>

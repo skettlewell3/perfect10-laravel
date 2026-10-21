@@ -8,6 +8,7 @@ use App\Http\Controllers\Perfect10\LeaderboardController;
 use App\Http\Controllers\Perfect10\PlaceholderPageController;
 use App\Http\Controllers\Perfect10\PredictionSubmissionController;
 use App\Http\Controllers\Perfect10\ProfileController;
+use App\Http\Middleware\EnsurePerfect10Profile;
 use App\Services\Perfect10\FlavourContextService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -54,7 +55,7 @@ Route::prefix('{flavour}')->group(function () {
         '/predictions',
         [PredictionSubmissionController::class, 'store']
     )
-        ->middleware('auth')
+        ->middleware(EnsurePerfect10Profile::class)
         ->name('predictions.store');
 
     Route::get('/leaderboards', [LeaderboardController::class, 'index'])
