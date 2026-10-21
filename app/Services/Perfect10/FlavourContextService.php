@@ -11,10 +11,33 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use RuntimeException;
 
+/**
+ * @phpstan-type FlavourData array{
+ *     flavour_id: int,
+ *     flavour_name: string,
+ *     flavour_code: string,
+ *     is_default: bool,
+ *     competition_id: int,
+ *     competition_name: string,
+ *     competition_code: string,
+ *     format_id: int,
+ *     format_name: string,
+ *     format_code: string,
+ *     active_campaign_id: int|null,
+ *     active_campaign_code: string,
+ *     active_campaign_label: string
+ * }
+ */
 class FlavourContextService
 {
+    /**
+     * @var Collection<int, FlavourData>|null
+     */
     private ?Collection $availableFlavours = null;
 
+    /**
+     * @var EloquentCollection<int, Flavour>|null
+     */
     private ?EloquentCollection $flavourModels = null;
 
     public function competitionFor(Flavour $flavour): Competition
@@ -103,8 +126,7 @@ class FlavourContextService
     {
         $flavour = $this->loadFlavourModels()
             ->first(
-                fn (Flavour $flavour): bool =>
-                    (int) $flavour->getKey() === $flavourId
+                fn (Flavour $flavour): bool => (int) $flavour->getKey() === $flavourId
             );
 
         if ($flavour === null) {
@@ -116,7 +138,7 @@ class FlavourContextService
     }
 
     /**
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, FlavourData>
      */
     public function availableFlavours(): Collection
     {
@@ -124,35 +146,43 @@ class FlavourContextService
             return $this->availableFlavours;
         }
 
-        $this->availableFlavours = $this->loadFlavourModels()
+        /**
+         * @return FlavourData
+         */
+        $mapFlavour = function (Flavour $flavour): array {
+            $competition = $this->competitionFor($flavour);
+
+            $format = $this->predictionFormatFor($flavour);
+
+            $campaign = $this->activeCampaignFor($flavour);
+
+            return [
+                'flavour_id' => (int) $flavour->getAttribute('flavour_id'),
+                'flavour_name' => (string) $flavour->getAttribute('flavour_name'),
+                'flavour_code' => trim((string) $flavour->getAttribute('flavour_code')),
+                'is_default' => (bool) $flavour->getAttribute('is_default'),
+
+                'competition_id' => (int) $competition->getAttribute('competition_id'),
+                'competition_name' => (string) $competition->getAttribute('competition_name'),
+                'competition_code' => trim((string) $competition->getAttribute('competition_code')),
+
+                'format_id' => (int) $format->getAttribute('format_id'),
+                'format_name' => (string) $format->getAttribute('format_name'),
+                'format_code' => trim((string) $format->getAttribute('format_code')),
+
+                'active_campaign_id' => (int) $campaign->getAttribute('campaign_id'),
+                'active_campaign_code' => (string) $campaign->getAttribute('code'),
+                'active_campaign_label' => (string) $campaign->getAttribute('label'),
+            ];
+        };
+
+        /** @var Collection<int, FlavourData> $availableFlavours */
+        $availableFlavours = $this->loadFlavourModels()
             ->toBase()
-            ->map(function (Flavour $flavour): array {
-                $competition = $this->competitionFor($flavour);
-
-                $format = $this->predictionFormatFor($flavour);
-
-                $campaign = $this->activeCampaignFor($flavour);
-
-                return [
-                    'flavour_id' => (int) $flavour->getAttribute('flavour_id'),
-                    'flavour_name' => (string) $flavour->getAttribute('flavour_name'),
-                    'flavour_code' => trim((string) $flavour->getAttribute('flavour_code')),
-                    'is_default' => (bool) $flavour->getAttribute('is_default'),
-
-                    'competition_id' => (int) $competition->getAttribute('competition_id'),
-                    'competition_name' => (string) $competition->getAttribute('competition_name'),
-                    'competition_code' => trim((string) $competition->getAttribute('competition_code')),
-
-                    'format_id' => (int) $format->getAttribute('format_id'),
-                    'format_name' => (string) $format->getAttribute('format_name'),
-                    'format_code' => trim((string) $format->getAttribute('format_code')),
-
-                    'active_campaign_id' => (int) $campaign->getAttribute('campaign_id'),
-                    'active_campaign_code' => (string) $campaign->getAttribute('code'),
-                    'active_campaign_label' => (string) $campaign->getAttribute('label'),
-                ];
-            })
+            ->map($mapFlavour)
             ->values();
+            
+        $this->availableFlavours = $availableFlavours;
 
         return $this->availableFlavours;
     }
@@ -160,7 +190,7 @@ class FlavourContextService
     /**
      * @template TFlavour of array<string, mixed>
      *
-     * @param Collection<int, TFlavour> $flavours
+     * @param  Collection<int, TFlavour>  $flavours
      * @return TFlavour
      */
     public function selectFlavour(

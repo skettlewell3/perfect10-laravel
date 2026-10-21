@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Perfect10;
 
 use App\Http\Controllers\Controller;
 use App\Services\Perfect10\CurrentProfileService;
-use App\Services\Perfect10\FlavourContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\PredictionSubmissionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class PredictionSubmissionController extends Controller
 {
     public function __construct(
-        private FlavourContextService $flavourContext,
+        private Perfect10RequestContext $context,
         private CurrentProfileService $currentProfile,
         private PredictionSubmissionService $submissionService,
     ) {}
@@ -28,12 +28,9 @@ class PredictionSubmissionController extends Controller
             'A Perfect10 profile is required to submit predictions.'
         );
 
-        $flavours = $this->flavourContext->availableFlavours();
+        $flavours = $this->context->flavours();
 
-        $flavour = $this->flavourContext->selectFlavour(
-            $flavours,
-            (string) $request->route('flavour')
-        );
+        $flavour = $this->context->selectedFlavourData();
 
         abort_unless(
             ! $flavours->isEmpty() &&

@@ -1,6 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
-
-import type { Flavour } from '@/types/perfect10';
+import { Head } from '@inertiajs/react';
 
 import ContentBanner from './ContentBanner';
 
@@ -9,9 +7,6 @@ type Props = {
 };
 
 export default function PlaceholderPage({ title }: Props) {
-    const { flavour } = usePage<{
-        flavour: Flavour;
-    }>().props;
 
     return (
         <>
@@ -20,7 +15,6 @@ export default function PlaceholderPage({ title }: Props) {
             <div className="pageShell">
                 <ContentBanner
                     title={title}
-                    fallbackUrl={`/?flavour=${encodeURIComponent(flavour.flavour_code)}`}
                 />
             </div>
         </>

@@ -137,7 +137,6 @@ export default function GameweekPage() {
                             ? `Gameweek ${activeGameweek.gameweek_number}`
                             : 'Gameweek'
                     }
-                    fallbackUrl={`/?flavour=${encodeURIComponent(flavour.flavour_code)}`}
                 />
 
                 <div className="scrollArea activeStageScroll">

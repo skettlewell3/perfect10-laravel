@@ -115,7 +115,6 @@ test('dashboard resolves the appropriate context for each prediction format', fu
         ->once()
         ->andReturn($flavours);
 
-    
     $flavourService
         ->shouldReceive('selectFlavour')
         ->once()
@@ -140,7 +139,6 @@ test('dashboard resolves the appropriate context for each prediction format', fu
         ->shouldReceive('activeCampaignFor')
         ->once()
         ->andReturn($campaign);
-
 
     $this->app->instance(
         FlavourContextService::class,

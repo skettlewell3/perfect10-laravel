@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Perfect10\ProfileController;
 use App\Models\Perfect10\ClubProfile;
 use App\Models\Perfect10\Profile;
 use App\Models\Perfect10\UserProfile;

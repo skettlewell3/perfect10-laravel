@@ -5,6 +5,10 @@ namespace App\Models\Perfect10;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $team_id
+ * @property string|null $flag_code
+ */
 class NationalTeam extends Model
 {
     protected $table = 'teams_national';

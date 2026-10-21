@@ -10,10 +10,19 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
+/**
+ * @phpstan-import-type FlavourData from FlavourContextService
+ */
 class Perfect10RequestContext
 {
+    /**
+     * @var Collection<int, FlavourData>|null
+     */
     private ?Collection $flavours = null;
 
+    /**
+     * @var FlavourData|null
+     */
     private ?array $selectedFlavourData = null;
 
     private ?Flavour $flavour = null;
@@ -22,6 +31,9 @@ class Perfect10RequestContext
 
     private ?Campaign $campaign = null;
 
+    /**
+     * @var EloquentCollection<int, Stage>|null
+     */
     private ?EloquentCollection $stages = null;
 
     public function __construct(
@@ -31,7 +43,7 @@ class Perfect10RequestContext
     ) {}
 
     /**
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, FlavourData>
      */
     public function flavours(): Collection
     {
@@ -40,7 +52,7 @@ class Perfect10RequestContext
     }
 
     /**
-     * @return array<string, mixed>
+     * @return FlavourData
      */
     public function selectedFlavourData(): array
     {

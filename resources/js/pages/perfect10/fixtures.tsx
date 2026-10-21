@@ -50,7 +50,6 @@ export default function FixturesPage() {
             <div className="pageShell">
                 <ContentBanner
                     title="Fixtures"
-                    fallbackUrl={`/?flavour=${encodeURIComponent(flavour.flavour_code)}`}
                 />
 
                 <div className="scrollArea fixturesList">

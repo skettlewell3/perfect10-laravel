@@ -165,7 +165,7 @@ test('gameweek leaderboard only exposes stages that also belong to gameweeks', f
         ->once()
         ->with($flavours, 'EPL')
         ->andReturn($selected);
-    
+
     $flavourService
         ->shouldReceive('activeFlavourModel')
         ->once()
@@ -173,7 +173,7 @@ test('gameweek leaderboard only exposes stages that also belong to gameweeks', f
         ->andReturn(new Flavour([
             'flavour_id' => 1,
             'flavour_code' => 'EPL',
-        ]));    
+        ]));
 
     $flavourService
         ->shouldReceive('competitionFor')
@@ -336,8 +336,8 @@ test('per fixture leaderboard uses visible stages without gameweek filtering', f
         ->shouldReceive('selectFlavour')
         ->once()
         ->with($flavours, 'WC')
-        ->andReturn($selected);    
-    
+        ->andReturn($selected);
+
     $flavourService
         ->shouldReceive('activeFlavourModel')
         ->once()
