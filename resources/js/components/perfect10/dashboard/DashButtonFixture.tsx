@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 
 import type { Flavour } from '@/types/perfect10';
-import type { Fixture } from '@/types/perfect10';
+import type { Fixture } from '@/types/perfect10/fixture';
 import { FixturesLogo } from './DashboardLogos';
 
 import DashboardSnapshot from './DashboardSnapshot';

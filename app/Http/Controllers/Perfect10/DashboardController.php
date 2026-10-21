@@ -3,58 +3,41 @@
 namespace App\Http\Controllers\Perfect10;
 
 use App\Http\Controllers\Controller;
-use App\Models\Perfect10\Flavour;
 use App\Services\Perfect10\FixtureContextService;
-use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\GameweekContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\StageContextService;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
     public function __construct(
-        private FlavourContextService $flavourContext,
+        private Perfect10RequestContext $context,
         private FixtureContextService $fixtureContext,
         private StageContextService $stageContext,
         private GameweekContextService $gameweekContext,
     ) {}
 
-    public function index(Request $request): Response
+    public function index(): Response
     {
-        $flavours = $this->flavourContext->availableFlavours();
+        $flavours = $this->context->flavours();
 
-        abort_if(
-            $flavours->isEmpty(),
-            404,
-            'No active Perfect10 flavour is available.'
-        );
+        $selectedFlavourData = $this->context
+            ->selectedFlavourData();
 
-        $selectedFlavourData = $this->flavourContext
-            ->selectFlavour(
-                $flavours,
-                (string) $request->route('flavour')
-            );
+        $flavour = $this->context->flavour();
 
-        $flavourId = (int) $selectedFlavourData['flavour_id'];
+        $competition = $this->context->competition();
 
-        $flavour = Flavour::query()
-            ->findOrFail($flavourId);
+        $campaign = $this->context->campaign();
+
+        $stages = $this->context->stages();
 
         $fixtures = $this->fixtureContext
             ->fixturesForFlavour($flavour);
 
-        $competition = $this->flavourContext
-            ->competitionFor($flavour);
-
-        $campaign = $this->flavourContext
-            ->activeCampaignFor($flavour);
-
         // Universal stage context: both prediction formats.
-
-        $stages = $this->stageContext
-            ->stagesForCampaign($campaign);
 
         $activeStage = $this->stageContext
             ->activeStage($stages);

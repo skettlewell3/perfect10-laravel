@@ -4,7 +4,17 @@ namespace App\Models\Perfect10;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $gameweek_id
+ * @property int $campaign_id
+ * @property int $stage_id
+ * @property int $gameweek_number
+ * @property string $status
+ * @property Carbon|null $prediction_open_at
+ * @property Carbon|null $prediction_close_at
+ */
 class Gameweek extends Model
 {
     protected $table = 'gameweeks';

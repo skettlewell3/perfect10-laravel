@@ -54,7 +54,6 @@ export default function ClubsPage() {
             <div className="pageShell">
                 <ContentBanner
                     title="Clubs"
-                    fallbackUrl={`/${flavour.flavour_code.toLowerCase()}`}
                 />
 
                 <div className="scrollArea dashboardScroll">

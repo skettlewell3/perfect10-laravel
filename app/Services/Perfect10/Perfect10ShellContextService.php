@@ -2,13 +2,11 @@
 
 namespace App\Services\Perfect10;
 
-use App\Models\Perfect10\Flavour;
-
 class Perfect10ShellContextService
 {
     public function __construct(
         private CurrentProfileService $currentProfile,
-        private FlavourContextService $flavourContext,
+        private Perfect10RequestContext $context,
         private StageContextService $stageContext,
         private ProfileTickerContextService $profileTickerContext,
     ) {}
@@ -38,63 +36,31 @@ class Perfect10ShellContextService
             return $emptyTicker;
         }
 
-        $flavours = $this->flavourContext
-            ->availableFlavours();
-
-        if ($flavours->isEmpty()) {
-            return $emptyTicker;
-        }
-
-        $selectedFlavourData = $this->flavourContext
-            ->selectFlavour(
-                $flavours,
-                $requestedFlavour
-            );
+        $selectedFlavourData = $this->context->selectedFlavourData();
 
         $flavourId = (int) $selectedFlavourData['flavour_id'];
+        $campaign = $this->context->campaign();
+        $stages = $this->context->stages();
 
-        $flavour = Flavour::query()
-            ->findOrFail($flavourId);
-
-        $campaign = $this->flavourContext
-            ->activeCampaignFor($flavour);
-
-        $stages = $this->stageContext
-            ->stagesForCampaign($campaign);
-
-        $tickerStage = $this->stageContext
-            ->tickerStage($stages);
+        $tickerStage = $this->stageContext->tickerStage($stages);
 
         if ($tickerStage === null) {
             return $emptyTicker;
         }
 
-        $ticker = $this->profileTickerContext
-            ->ticker(
-                $profileId,
-                $flavourId,
-                $campaign->campaign_id,
-                $tickerStage->stage_id
-            );
+        $ticker = $this->profileTickerContext->ticker(
+            $profileId,
+            $flavourId,
+            (int) $campaign->campaign_id,
+            (int) $tickerStage->stage_id
+        );
 
         return [
             'tickerStageLabel' => $tickerStage->stage_name,
-            'global' => $ticker->firstWhere(
-                'scope',
-                'global'
-            ),
-            'flavour' => $ticker->firstWhere(
-                'scope',
-                'flavour'
-            ),
-            'campaign' => $ticker->firstWhere(
-                'scope',
-                'campaign'
-            ),
-            'stage' => $ticker->firstWhere(
-                'scope',
-                'stage'
-            ),
+            'global' => $ticker->firstWhere('scope', 'global'),
+            'flavour' => $ticker->firstWhere('scope', 'flavour'),
+            'campaign' => $ticker->firstWhere('scope', 'campaign'),
+            'stage' => $ticker->firstWhere('scope', 'stage'),
         ];
     }
 }

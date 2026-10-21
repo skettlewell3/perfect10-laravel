@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Perfect10;
 use App\Http\Controllers\Controller;
 use App\Services\Perfect10\ClubManagementService;
 use App\Services\Perfect10\CurrentProfileService;
-use App\Services\Perfect10\FlavourContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,26 +15,16 @@ class ProfileController extends Controller
 {
     public function __construct(
         private CurrentProfileService $currentProfile,
-        private FlavourContextService $flavourContext,
+        private Perfect10RequestContext $context,
         private ClubManagementService $clubManagement,
     ) {}
 
-    public function index(Request $request): Response
+    public function index(): Response
     {
-        $flavours = $this->flavourContext
-            ->availableFlavours();
+        $flavours = $this->context->flavours();
 
-        abort_if(
-            $flavours->isEmpty(),
-            404,
-            'No active Perfect10 flavour is available.'
-        );
-
-        $selectedFlavourData = $this->flavourContext
-            ->selectFlavour(
-                $flavours,
-                (string) $request->route('flavour')
-            );
+        $selectedFlavourData = $this->context
+            ->selectedFlavourData();
 
         $userProfile = $this->currentProfile
             ->userProfile();
@@ -111,7 +101,6 @@ class ProfileController extends Controller
 
     public function createClub(
         Request $request,
-        string $flavour
     ): RedirectResponse {
         $validated = $request->validate([
             'club_name' => [
@@ -140,7 +129,9 @@ class ProfileController extends Controller
         return redirect()->route(
             'clubs.show',
             [
-                'flavour' => $flavour,
+                'flavour' => strtolower(
+                    $this->context->selectedFlavourData()['flavour_code']
+                ),
                 'club' => $club->club_code,
             ]
         );

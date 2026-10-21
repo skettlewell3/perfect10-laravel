@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Perfect10;
 
 use App\Http\Controllers\Controller;
-use App\Models\Perfect10\Flavour;
-use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\GameweekContextService;
 use App\Services\Perfect10\LeaderboardContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\StageContextService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +14,7 @@ use Inertia\Response;
 class LeaderboardController extends Controller
 {
     public function __construct(
-        private FlavourContextService $flavourContext,
+        private Perfect10RequestContext $context,
         private StageContextService $stageContext,
         private GameweekContextService $gameweekContext,
         private LeaderboardContextService $leaderboardContext,
@@ -23,33 +22,18 @@ class LeaderboardController extends Controller
 
     public function index(Request $request): Response
     {
-        $flavours = $this->flavourContext->availableFlavours();
+        $flavours = $this->context->flavours();
 
-        abort_if(
-            $flavours->isEmpty(),
-            404,
-            'No active Perfect10 flavour is available.'
-        );
-
-        $selectedFlavourData = $this->flavourContext
-            ->selectFlavour(
-                $flavours,
-                (string) $request->route('flavour')
-            );
+        $selectedFlavourData = $this->context
+            ->selectedFlavourData();
 
         $flavourId = (int) $selectedFlavourData['flavour_id'];
 
-        $flavour = Flavour::query()
-            ->findOrFail($flavourId);
+        $competition = $this->context->competition();
 
-        $competition = $this->flavourContext
-            ->competitionFor($flavour);
+        $campaign = $this->context->campaign();
 
-        $campaign = $this->flavourContext
-            ->activeCampaignFor($flavour);
-
-        $stages = $this->stageContext
-            ->stagesForCampaign($campaign);
+        $stages = $this->context->stages();
 
         $tickerStage = $this->stageContext
             ->tickerStage($stages);

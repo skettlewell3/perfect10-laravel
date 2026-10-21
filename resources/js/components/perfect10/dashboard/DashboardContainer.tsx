@@ -1,4 +1,5 @@
-import type { Fixture, Flavour, GameweekContext } from '@/types/perfect10';
+import type { Flavour, GameweekContext } from '@/types/perfect10';
+import type { Fixture } from '@/types/perfect10/fixture';
 
 import DashboardButton from './DashboardButton';
 import DashButtonClubs from './DashButtonClubs';

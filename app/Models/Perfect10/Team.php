@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property int $team_id
+ * @property string $team_name
+ * @property string|null $color_1
+ * @property string|null $color_2
+ * @property string|null $color_3
+ */
 class Team extends Model
 {
     protected $table = 'teams';

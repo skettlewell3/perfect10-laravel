@@ -1,18 +1,18 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+
+import type { Perfect10PageProps } from '@/types/perfect10';
 
 type Props = {
     title: string;
-    fallbackUrl?: string;
 };
 
-export default function ContentBanner({ title, fallbackUrl = '/' }: Props) {
-    const handleBack = () => {
-        if (window.history.length > 1) {
-            window.history.back();
-            return;
-        }
+export default function ContentBanner({ title }: Props) {
+    const { flavour } = usePage<Perfect10PageProps>().props;
 
-        router.visit(fallbackUrl);
+    const handleBack = () => {
+        router.visit(`/${flavour.flavour_code.toLowerCase()}`, {
+            replace: true,
+        });
     };
 
     return (
@@ -21,7 +21,7 @@ export default function ContentBanner({ title, fallbackUrl = '/' }: Props) {
                 type="button"
                 className="backButton"
                 onClick={handleBack}
-                aria-label="Go Back"
+                aria-label="Go to Dashboard"
             >
                 <img src="/assets/svg/backArrow.svg" alt="" />
             </button>

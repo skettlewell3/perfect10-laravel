@@ -49,9 +49,6 @@ export default function LeaderboardsPage() {
             <div className="pageShell">
                 <ContentBanner
                     title="Leaderboards"
-                    fallbackUrl={`/?flavour=${encodeURIComponent(
-                        flavour.flavour_code,
-                    )}`}
                 />
 
                 <LeaderboardFilters

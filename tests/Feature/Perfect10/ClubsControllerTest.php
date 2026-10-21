@@ -3,9 +3,9 @@
 use App\Models\Perfect10\ClubProfile;
 use App\Services\Perfect10\ClubManagementService;
 use App\Services\Perfect10\CurrentProfileService;
-use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\LeaderboardContextService;
 use App\Services\Perfect10\LeagueTableContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\Perfect10ShellContextService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;
@@ -178,6 +178,35 @@ function clubsControllerFlavours(): Collection
     ]);
 }
 
+function clubsControllerMockRequestContext(
+    Collection $flavours,
+    string $flavourCode
+): void {
+    $selected = $flavours->firstWhere(
+        'flavour_code',
+        $flavourCode
+    );
+
+    $context = Mockery::mock(
+        Perfect10RequestContext::class
+    );
+
+    $context
+        ->shouldReceive('flavours')
+        ->once()
+        ->andReturn($flavours);
+
+    $context
+        ->shouldReceive('selectedFlavourData')
+        ->once()
+        ->andReturn($selected);
+
+    app()->instance(
+        Perfect10RequestContext::class,
+        $context
+    );
+}
+
 test('clubs index returns memberships invites and ownership requests', function () {
     $currentProfileId = 'current-profile';
     $ownerProfileId = 'owner-profile';
@@ -235,24 +264,9 @@ test('clubs index returns memberships invites and ownership requests', function 
 
     $flavours = clubsControllerFlavours();
 
-    $flavourService = Mockery::mock(
-        FlavourContextService::class
-    );
-
-    $flavourService
-        ->shouldReceive('availableFlavours')
-        ->once()
-        ->andReturn($flavours);
-
-    $flavourService
-        ->shouldReceive('selectFlavour')
-        ->once()
-        ->with($flavours, 'EPL')
-        ->andReturn($flavours->first());
-
-    $this->app->instance(
-        FlavourContextService::class,
-        $flavourService
+    clubsControllerMockRequestContext(
+        $flavours,
+        'EPL'
     );
 
     $currentProfile = Mockery::mock(
@@ -330,29 +344,9 @@ test('gameweek clubhouse returns league table data', function () {
 
     $flavours = clubsControllerFlavours();
 
-    $selectedFlavour = $flavours->firstWhere(
-        'flavour_code',
+    clubsControllerMockRequestContext(
+        $flavours,
         'EPL'
-    );
-
-    $flavourService = Mockery::mock(
-        FlavourContextService::class
-    );
-
-    $flavourService
-        ->shouldReceive('availableFlavours')
-        ->once()
-        ->andReturn($flavours);
-
-    $flavourService
-        ->shouldReceive('selectFlavour')
-        ->once()
-        ->with($flavours, 'EPL')
-        ->andReturn($selectedFlavour);
-
-    $this->app->instance(
-        FlavourContextService::class,
-        $flavourService
     );
 
     $currentProfile = Mockery::mock(
@@ -512,29 +506,9 @@ test('per fixture clubhouse does not load league tables', function () {
 
     $flavours = clubsControllerFlavours();
 
-    $selectedFlavour = $flavours->firstWhere(
-        'flavour_code',
+    clubsControllerMockRequestContext(
+        $flavours,
         'WC'
-    );
-
-    $flavourService = Mockery::mock(
-        FlavourContextService::class
-    );
-
-    $flavourService
-        ->shouldReceive('availableFlavours')
-        ->once()
-        ->andReturn($flavours);
-
-    $flavourService
-        ->shouldReceive('selectFlavour')
-        ->once()
-        ->with($flavours, 'WC')
-        ->andReturn($selectedFlavour);
-
-    $this->app->instance(
-        FlavourContextService::class,
-        $flavourService
     );
 
     $currentProfile = Mockery::mock(

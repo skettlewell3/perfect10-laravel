@@ -1,4 +1,4 @@
-import type { Fixture } from '@/types/perfect10';
+import type { Fixture } from '@/types/perfect10/fixture';
 
 type Props = {
     fixture: Fixture;

@@ -1,3 +1,4 @@
+
 import { router } from '@inertiajs/react';
 
 interface Stage {
@@ -27,17 +28,26 @@ export default function LeaderboardFilters({
         stage?: number | null;
         population?: string;
     }) => {
+        const scope = params.scope ?? filters.scopeType;
+
+        const stage =
+            scope === 'stage'
+                ? params.stage === undefined
+                    ? filters.scopeType === 'stage'
+                        ? filters.scopeId
+                        : null
+                    : params.stage
+                : null;
+
+        const url = flavourCode
+            ? `/${flavourCode.toLowerCase()}/leaderboards`
+            : window.location.pathname;
+
         router.get(
-            '/leaderboards',
+            url,
             {
-                flavour: flavourCode ?? undefined,
-                scope: params.scope ?? filters.scopeType,
-                stage:
-                    params.stage === undefined
-                        ? filters.scopeType === 'stage'
-                            ? (filters.scopeId ?? undefined)
-                            : undefined
-                        : (params.stage ?? undefined),
+                scope,
+                ...(stage !== null ? { stage } : {}),
                 population: params.population ?? filters.population,
             },
             {
@@ -62,7 +72,9 @@ export default function LeaderboardFilters({
         });
     };
 
-    const handleStageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleStageChange = (
+        event: React.ChangeEvent<HTMLSelectElement>,
+    ) => {
         visit({
             scope: 'stage',
             stage: Number(event.target.value),
@@ -70,22 +82,10 @@ export default function LeaderboardFilters({
     };
 
     const populationOpts = [
-        {
-            label: 'Global',
-            value: 'global',
-        },
-        {
-            label: 'Users',
-            value: 'users',
-        },
-        {
-            label: 'Clubs',
-            value: 'clubs',
-        },
-        {
-            label: 'Bots',
-            value: 'bots',
-        },
+        { label: 'Global', value: 'global' },
+        { label: 'Users', value: 'users' },
+        { label: 'Clubs', value: 'clubs' },
+        { label: 'Bots', value: 'bots' },
     ];
 
     return (
@@ -97,7 +97,9 @@ export default function LeaderboardFilters({
                             key={opt.value}
                             type="button"
                             className={
-                                filters.population === opt.value ? 'active' : ''
+                                filters.population === opt.value
+                                    ? 'active'
+                                    : ''
                             }
                             onClick={() =>
                                 visit({
@@ -116,7 +118,9 @@ export default function LeaderboardFilters({
                     <button
                         type="button"
                         className={
-                            filters.scopeType === 'campaign' ? 'active' : ''
+                            filters.scopeType === 'campaign'
+                                ? 'active'
+                                : ''
                         }
                         onClick={handleCampaign}
                     >
@@ -126,7 +130,9 @@ export default function LeaderboardFilters({
                     <button
                         type="button"
                         className={
-                            filters.scopeType === 'stage' ? 'active' : ''
+                            filters.scopeType === 'stage'
+                                ? 'active'
+                                : ''
                         }
                         onClick={handleStage}
                     >
@@ -136,7 +142,9 @@ export default function LeaderboardFilters({
 
                 <div
                     className={`scopeIdFilter ${
-                        filters.scopeType === 'stage' ? 'active' : ''
+                        filters.scopeType === 'stage'
+                            ? 'active'
+                            : ''
                     }`}
                 >
                     {filters.scopeType === 'stage' && (
