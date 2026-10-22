@@ -1,6 +1,15 @@
 import { Head } from '@inertiajs/react';
+
 import type { Perfect10PageProps } from '@/types/perfect10';
+import type { PredictionsMap } from '@/types/perfect10/prediction';
+import type { GameweekReview } from '@/components/perfect10/dashboard/DashboardContainer';
+
 import DashboardContainer from '@/components/perfect10/dashboard/DashboardContainer';
+
+type DashboardPageProps = Perfect10PageProps & {
+    predictionsMap: PredictionsMap;
+    gameweekReview: GameweekReview | null;
+};
 
 export default function Dashboard({
     flavours,
@@ -10,7 +19,9 @@ export default function Dashboard({
     stageContext,
     gameweekContext,
     fixtures,
-}: Perfect10PageProps) {
+    predictionsMap,
+    gameweekReview,
+}: DashboardPageProps) {
     return (
         <>
             <Head title={`Perfect10: ${flavour.flavour_name}`} />
@@ -21,6 +32,8 @@ export default function Dashboard({
                         fixtures={fixtures}
                         flavour={flavour}
                         gameweekContext={gameweekContext}
+                        predictionsMap={predictionsMap}
+                        gameweekReview={gameweekReview}
                     />
 
                     <h1>Perfect10 Dashboard</h1>
