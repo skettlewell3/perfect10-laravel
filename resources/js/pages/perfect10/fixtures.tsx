@@ -1,4 +1,3 @@
-
 import { Head, usePage } from '@inertiajs/react';
 
 import ContentBanner from '@/components/perfect10/app/ContentBanner';
@@ -15,7 +14,8 @@ type FixturesPageProps = Perfect10PageProps & {
 };
 
 export default function FixturesPage() {
-    const { flavour, fixtures, teamsMap, predictionsMap } = usePage<FixturesPageProps>().props;
+    const { flavour, fixtures, teamsMap, predictionsMap } =
+        usePage<FixturesPageProps>().props;
 
     const displayFixtures = [...fixtures]
         .sort((a, b) => {
@@ -24,42 +24,41 @@ export default function FixturesPage() {
 
             return bTime - aTime;
         })
-        .filter(fixture =>
-            fixture.fixture_status === 'upcoming' ||
-            fixture.fixture_status === 'finished'
+        .filter(
+            (fixture) =>
+                fixture.fixture_status === 'upcoming' ||
+                fixture.fixture_status === 'finished',
         );
 
     const upcomingFixtures = displayFixtures
-        .filter(fixture => fixture.fixture_status === 'upcoming')
+        .filter((fixture) => fixture.fixture_status === 'upcoming')
         .reverse();
 
-    const finishedFixtures = displayFixtures
-        .filter(fixture => fixture.fixture_status === 'finished');
+    const finishedFixtures = displayFixtures.filter(
+        (fixture) => fixture.fixture_status === 'finished',
+    );
 
     const previewFixtures = (
-        upcomingFixtures.length > 0
-            ? upcomingFixtures
-            : finishedFixtures
+        upcomingFixtures.length > 0 ? upcomingFixtures : finishedFixtures
     ).slice(0, 10);
-
 
     return (
         <>
             <Head title="Fixtures" />
 
             <div className="pageShell">
-                <ContentBanner
-                    title="Fixtures"
-                />
+                <ContentBanner title="Fixtures" />
 
                 <div className="scrollArea fixturesList">
-                    {previewFixtures.map(fixture => (
+                    {previewFixtures.map((fixture) => (
                         <FixtureCard
                             key={fixture.fixture_id}
                             fixture={fixture}
                             formatCode={flavour.format_code}
                             teamsMap={teamsMap}
-                            prediction={predictionsMap[fixture.fixture_id] ?? null}
+                            prediction={
+                                predictionsMap[fixture.fixture_id] ?? null
+                            }
                         />
                     ))}
                 </div>

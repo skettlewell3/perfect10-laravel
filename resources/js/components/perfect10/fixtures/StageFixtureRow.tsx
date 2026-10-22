@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 
@@ -21,9 +20,7 @@ type StageFixtureRowProps = {
     onDraftChange?: (draft: PredictionDraft) => void;
 };
 
-function getTeamStyle(
-    team?: FixtureTeam,
-): CSSProperties {
+function getTeamStyle(team?: FixtureTeam): CSSProperties {
     if (!team) return {};
 
     const style: CSSProperties = {};
@@ -56,28 +53,25 @@ export default function StageFixtureRow({
     predictionWindowOpen,
     onDraftChange,
 }: StageFixtureRowProps) {
-    const hasScoring =
-        prediction?.points_total != null;
+    const hasScoring = prediction?.points_total != null;
 
     const [expanded, setExpanded] = useState(hasScoring);
 
-    const homeTeam = fixture.home_team_id !== null
-        ? teamsMap[fixture.home_team_id]
-        : undefined;
+    const homeTeam =
+        fixture.home_team_id !== null
+            ? teamsMap[fixture.home_team_id]
+            : undefined;
 
-    const awayTeam = fixture.away_team_id !== null
-        ? teamsMap[fixture.away_team_id]
-        : undefined;
+    const awayTeam =
+        fixture.away_team_id !== null
+            ? teamsMap[fixture.away_team_id]
+            : undefined;
 
     const homeValue =
-        draft?.home ??
-        prediction?.pred_home_goals?.toString() ??
-        '';
+        draft?.home ?? prediction?.pred_home_goals?.toString() ?? '';
 
     const awayValue =
-        draft?.away ??
-        prediction?.pred_away_goals?.toString() ??
-        '';
+        draft?.away ?? prediction?.pred_away_goals?.toString() ?? '';
 
     const isEditable =
         fixture.fixture_status === 'upcoming' &&
@@ -91,22 +85,16 @@ export default function StageFixtureRow({
         fixture.fixture_status === 'finished';
 
     const homeScore = hasStarted
-        ? fixture.final_home_goals ?? fixture.ft_home_goals
+        ? (fixture.final_home_goals ?? fixture.ft_home_goals)
         : null;
 
     const awayScore = hasStarted
-        ? fixture.final_away_goals ?? fixture.ft_away_goals
+        ? (fixture.final_away_goals ?? fixture.ft_away_goals)
         : null;
 
-    const showPrediction =
-        !isEditable &&
-        !hasStarted &&
-        Boolean(prediction);
+    const showPrediction = !isEditable && !hasStarted && Boolean(prediction);
 
-    const handleChange = (
-        side: 'home' | 'away',
-        value: string,
-    ) => {
+    const handleChange = (side: 'home' | 'away', value: string) => {
         if (!onDraftChange) return;
 
         // Allow clearing the input or entering one digit from 0–9.
@@ -129,10 +117,7 @@ export default function StageFixtureRow({
                 </div>
 
                 {/* Home team */}
-                <div
-                    className="team home"
-                    style={getTeamStyle(homeTeam)}
-                >
+                <div className="team home" style={getTeamStyle(homeTeam)}>
                     {fixture.home_short_code ?? 'TBC'}
                 </div>
 
@@ -146,20 +131,18 @@ export default function StageFixtureRow({
                             maxLength={1}
                             className="predInput"
                             value={homeValue}
-                            onChange={event =>
+                            onChange={(event) =>
                                 handleChange('home', event.target.value)
                             }
                             aria-label={`${fixture.home_team_name ?? 'Home'} predicted goals`}
                         />
                     ) : (
-                        <div className={
-                            hasStarted ? 'homeScore' : 'homePred'
-                        }>
+                        <div className={hasStarted ? 'homeScore' : 'homePred'}>
                             {hasStarted
-                                ? homeScore ?? '–'
+                                ? (homeScore ?? '–')
                                 : showPrediction
-                                    ? prediction?.pred_home_goals
-                                    : '–'}
+                                  ? prediction?.pred_home_goals
+                                  : '–'}
                         </div>
                     )}
                 </div>
@@ -170,37 +153,31 @@ export default function StageFixtureRow({
                 {/* Away score */}
                 <div className="scoreCell">
                     {isEditable ? (
-                <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]"
-                    maxLength={1}
-                    className="predInput"
-                    value={awayValue}
-                    onChange={event =>
-                        handleChange('away', event.target.value)
-                    }
-                    aria-label={`${fixture.away_team_name ?? 'Away'} predicted goals`}
-
-                />
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]"
+                            maxLength={1}
+                            className="predInput"
+                            value={awayValue}
+                            onChange={(event) =>
+                                handleChange('away', event.target.value)
+                            }
+                            aria-label={`${fixture.away_team_name ?? 'Away'} predicted goals`}
+                        />
                     ) : (
-                        <div className={
-                            hasStarted ? 'awayScore' : 'awayPred'
-                        }>
+                        <div className={hasStarted ? 'awayScore' : 'awayPred'}>
                             {hasStarted
-                                ? awayScore ?? '–'
+                                ? (awayScore ?? '–')
                                 : showPrediction
-                                    ? prediction?.pred_away_goals
-                                    : '–'}
+                                  ? prediction?.pred_away_goals
+                                  : '–'}
                         </div>
                     )}
                 </div>
 
                 {/* Away team */}
-                <div
-                    className="team away"
-                    style={getTeamStyle(awayTeam)}
-                >
+                <div className="team away" style={getTeamStyle(awayTeam)}>
                     {fixture.away_short_code ?? 'TBC'}
                 </div>
 
@@ -209,18 +186,14 @@ export default function StageFixtureRow({
                     {hasScoring && (
                         <FixtureExpandButton
                             isExpanded={expanded}
-                            onClick={() =>
-                                setExpanded(previous => !previous)
-                            }
+                            onClick={() => setExpanded((previous) => !previous)}
                         />
                     )}
                 </div>
             </div>
 
             {expanded && hasScoring && (
-                <FixtureScoreBreakdown
-                    prediction={prediction}
-                />
+                <FixtureScoreBreakdown prediction={prediction} />
             )}
         </div>
     );

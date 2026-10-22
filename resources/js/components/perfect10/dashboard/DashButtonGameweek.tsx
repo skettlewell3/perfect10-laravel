@@ -42,19 +42,18 @@ export default function DashButtonGameweek({
         if (!activeGameweek) return [];
 
         return fixtures.filter(
-            (fixture) =>
-                fixture.gameweek_id === activeGameweek.gameweek_id,
+            (fixture) => fixture.gameweek_id === activeGameweek.gameweek_id,
         );
     }, [fixtures, activeGameweek]);
 
-    const hasAnyPredictions = activeGameweekFixtures.some(
-        (fixture) => Boolean(predictionsMap[fixture.fixture_id]),
+    const hasAnyPredictions = activeGameweekFixtures.some((fixture) =>
+        Boolean(predictionsMap[fixture.fixture_id]),
     );
 
     const hasSubmitted =
         activeGameweekFixtures.length === 10 &&
-        activeGameweekFixtures.every(
-            (fixture) => Boolean(predictionsMap[fixture.fixture_id]),
+        activeGameweekFixtures.every((fixture) =>
+            Boolean(predictionsMap[fixture.fixture_id]),
         );
 
     const openAt = activeGameweek?.prediction_open_at
@@ -72,8 +71,7 @@ export default function DashButtonGameweek({
         now >= openAt &&
         now < closeAt;
 
-    const predictionWindowClosed =
-        closeAt !== null && now >= closeAt;
+    const predictionWindowClosed = closeAt !== null && now >= closeAt;
 
     const screens = [];
 
@@ -89,19 +87,13 @@ export default function DashButtonGameweek({
 
         if (gameweekReview) {
             screens.push(
-                <GameweekReviewSnapshot
-                    key="review"
-                    review={gameweekReview}
-                />,
+                <GameweekReviewSnapshot key="review" review={gameweekReview} />,
             );
         }
     } else if (activeGameweek && predictionWindowClosed) {
         if (hasAnyPredictions && gameweekReview) {
             screens.push(
-                <GameweekReviewSnapshot
-                    key="review"
-                    review={gameweekReview}
-                />,
+                <GameweekReviewSnapshot key="review" review={gameweekReview} />,
             );
         } else {
             screens.push(
@@ -115,10 +107,7 @@ export default function DashButtonGameweek({
         }
     } else if (gameweekReview) {
         screens.push(
-            <GameweekReviewSnapshot
-                key="review"
-                review={gameweekReview}
-            />,
+            <GameweekReviewSnapshot key="review" review={gameweekReview} />,
         );
     }
 
@@ -143,9 +132,7 @@ export default function DashButtonGameweek({
             type="button"
             className="dashboardButton"
             onClick={() => {
-                router.get(
-                    `/${flavour.flavour_code.toLowerCase()}/gameweek`,
-                );
+                router.get(`/${flavour.flavour_code.toLowerCase()}/gameweek`);
             }}
         >
             <div className="dashContent">

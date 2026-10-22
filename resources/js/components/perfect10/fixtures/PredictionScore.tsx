@@ -20,28 +20,19 @@ export default function PredictionScore({
     onDraftChange,
 }: PredictionScoreProps) {
     const homeValue =
-        draft?.home ??
-        prediction?.pred_home_goals?.toString() ??
-        '';
+        draft?.home ?? prediction?.pred_home_goals?.toString() ?? '';
 
     const awayValue =
-        draft?.away ??
-        prediction?.pred_away_goals?.toString() ??
-        '';
+        draft?.away ?? prediction?.pred_away_goals?.toString() ?? '';
 
     const isDirty =
         Boolean(draft) &&
-        (
-            Number(homeValue) !== prediction?.pred_home_goals ||
-            Number(awayValue) !== prediction?.pred_away_goals
-        );
+        (Number(homeValue) !== prediction?.pred_home_goals ||
+            Number(awayValue) !== prediction?.pred_away_goals);
 
     const inputColor = isDirty ? '#0000ff' : '#000000';
 
-    const handleChange = (
-        side: 'home' | 'away',
-        value: string,
-    ) => {
+    const handleChange = (side: 'home' | 'away', value: string) => {
         if (!onDraftChange) return;
 
         onDraftChange({
@@ -62,7 +53,7 @@ export default function PredictionScore({
                     step={1}
                     value={homeValue}
                     style={{ color: inputColor }}
-                    onChange={event =>
+                    onChange={(event) =>
                         handleChange('home', event.target.value)
                     }
                     disabled={!onDraftChange}
@@ -79,7 +70,7 @@ export default function PredictionScore({
                     step={1}
                     value={awayValue}
                     style={{ color: inputColor }}
-                    onChange={event =>
+                    onChange={(event) =>
                         handleChange('away', event.target.value)
                     }
                     disabled={!onDraftChange}
@@ -95,8 +86,7 @@ export default function PredictionScore({
             </div>
 
             <div className="vs vsPred">
-                <span className="label">You:</span>
-                V
+                <span className="label">You:</span>V
             </div>
 
             <div className="predDiv away">

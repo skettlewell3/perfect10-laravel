@@ -1,4 +1,3 @@
-
 import { router } from '@inertiajs/react';
 
 interface Stage {
@@ -72,9 +71,7 @@ export default function LeaderboardFilters({
         });
     };
 
-    const handleStageChange = (
-        event: React.ChangeEvent<HTMLSelectElement>,
-    ) => {
+    const handleStageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         visit({
             scope: 'stage',
             stage: Number(event.target.value),
@@ -97,9 +94,7 @@ export default function LeaderboardFilters({
                             key={opt.value}
                             type="button"
                             className={
-                                filters.population === opt.value
-                                    ? 'active'
-                                    : ''
+                                filters.population === opt.value ? 'active' : ''
                             }
                             onClick={() =>
                                 visit({
@@ -118,9 +113,7 @@ export default function LeaderboardFilters({
                     <button
                         type="button"
                         className={
-                            filters.scopeType === 'campaign'
-                                ? 'active'
-                                : ''
+                            filters.scopeType === 'campaign' ? 'active' : ''
                         }
                         onClick={handleCampaign}
                     >
@@ -130,9 +123,7 @@ export default function LeaderboardFilters({
                     <button
                         type="button"
                         className={
-                            filters.scopeType === 'stage'
-                                ? 'active'
-                                : ''
+                            filters.scopeType === 'stage' ? 'active' : ''
                         }
                         onClick={handleStage}
                     >
@@ -142,9 +133,7 @@ export default function LeaderboardFilters({
 
                 <div
                     className={`scopeIdFilter ${
-                        filters.scopeType === 'stage'
-                            ? 'active'
-                            : ''
+                        filters.scopeType === 'stage' ? 'active' : ''
                     }`}
                 >
                     {filters.scopeType === 'stage' && (

@@ -29,8 +29,8 @@ export default function PredictionNotification({
         ? notification.isUpdating
             ? 'Your predictions have been updated successfully.'
             : 'Thanks for playing Perfect10. Good luck!'
-        : notification.message ??
-          "Couldn't submit your predictions. Please try again.";
+        : (notification.message ??
+          "Couldn't submit your predictions. Please try again.");
 
     const icon: ReactNode = isSuccess ? '✓' : '!';
 
@@ -48,9 +48,7 @@ export default function PredictionNotification({
             </div>
 
             <div className="predictionNotificationContent">
-                <h3 className="predictionNotificationTitle">
-                    {title}
-                </h3>
+                <h3 className="predictionNotificationTitle">{title}</h3>
 
                 <p className="predictionNotificationDescription">
                     {description}

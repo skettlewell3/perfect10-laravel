@@ -35,11 +35,7 @@ function getWindowStatus(
     const open = new Date(openAt).getTime();
     const close = new Date(closeAt).getTime();
 
-    if (
-        !Number.isFinite(open) ||
-        !Number.isFinite(close) ||
-        close <= open
-    ) {
+    if (!Number.isFinite(open) || !Number.isFinite(close) || close <= open) {
         return blank;
     }
 
@@ -74,9 +70,7 @@ function getWindowStatus(
         const remaining = Math.max(0, target - now);
 
         const hours = Math.floor(remaining / HOUR);
-        const minutes = Math.floor(
-            (remaining % HOUR) / MINUTE,
-        );
+        const minutes = Math.floor((remaining % HOUR) / MINUTE);
 
         countdown = `${hours}h ${minutes}m`;
     }
@@ -99,7 +93,7 @@ export default function usePredictionWindowStatus(
     useEffect(() => {
         const interval = window.setInterval(() => {
             setNow(Date.now());
-            setFlip(previous => !previous);
+            setFlip((previous) => !previous);
         }, 3000);
 
         return () => window.clearInterval(interval);

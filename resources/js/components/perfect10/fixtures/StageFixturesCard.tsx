@@ -18,10 +18,7 @@ type StageFixturesCardProps = {
     predictionWindowOpen: boolean;
 
     predictionDrafts?: Record<number, PredictionDraft>;
-    onDraftChange?: (
-        fixtureId: number,
-        draft: PredictionDraft,
-    ) => void;
+    onDraftChange?: (fixtureId: number, draft: PredictionDraft) => void;
 };
 
 export default function StageFixturesCard({
@@ -46,9 +43,7 @@ export default function StageFixturesCard({
             : 'specialStage';
 
     return (
-        <div
-            className={`fixtureCard groupedFixturesCard ${stageClass}`}
-        >
+        <div className={`fixtureCard groupedFixturesCard ${stageClass}`}>
             <StageCardHeader
                 fixtures={fixtures}
                 predictionOpenAt={predictionOpenAt}
@@ -60,20 +55,13 @@ export default function StageFixturesCard({
                     key={fixture.fixture_id}
                     fixture={fixture}
                     teamsMap={teamsMap}
-                    prediction={
-                        predictionsMap[fixture.fixture_id] ?? null
-                    }
-                    draft={
-                        predictionDrafts[fixture.fixture_id] ?? null
-                    }
+                    prediction={predictionsMap[fixture.fixture_id] ?? null}
+                    draft={predictionDrafts[fixture.fixture_id] ?? null}
                     predictionWindowOpen={predictionWindowOpen}
                     onDraftChange={
                         onDraftChange
                             ? (draft) =>
-                                  onDraftChange(
-                                      fixture.fixture_id,
-                                      draft,
-                                  )
+                                  onDraftChange(fixture.fixture_id, draft)
                             : undefined
                     }
                 />

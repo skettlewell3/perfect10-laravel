@@ -1,4 +1,3 @@
-
 import type { CSSProperties } from 'react';
 
 type TeamDisplayProps = {
@@ -56,28 +55,17 @@ export default function TeamDisplay({
 }: TeamDisplayProps) {
     const displayName = name || 'TBC';
 
-    const isLongName =
-        displayName.length > (variant === 'flag' ? 15 : 10);
+    const isLongName = displayName.length > (variant === 'flag' ? 15 : 10);
 
     const teamStyle =
         variant === 'colours'
-            ? getTeamStyle(
-                  primaryColor,
-                  secondaryColor,
-                  tertiaryColor,
-              )
+            ? getTeamStyle(primaryColor, secondaryColor, tertiaryColor)
             : undefined;
 
-    const showFlag =
-        variant === 'flag' &&
-        Boolean(name) &&
-        Boolean(flagCode);
+    const showFlag = variant === 'flag' && Boolean(name) && Boolean(flagCode);
 
     return (
-        <div
-            className="teamBlock"
-            style={teamStyle}
-        >
+        <div className="teamBlock" style={teamStyle}>
             {showFlag && (
                 <div className="flagWrap">
                     <img

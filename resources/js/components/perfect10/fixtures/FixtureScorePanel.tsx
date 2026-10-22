@@ -1,4 +1,3 @@
-
 import type { Fixture } from '@/types/perfect10/fixture';
 import type {
     FixturePrediction,
@@ -7,7 +6,6 @@ import type {
 
 import MatchScore from './MatchScore';
 import PredictionScore from './PredictionScore';
-
 
 type FixtureScorePanelProps = {
     fixture: Fixture;
@@ -25,16 +23,13 @@ export default function FixtureScorePanel({
     onDraftChange,
 }: FixtureScorePanelProps) {
     const predictionOpen =
-        fixture.predictions_open &&
-        fixture.fixture_status === 'upcoming';
+        fixture.predictions_open && fixture.fixture_status === 'upcoming';
 
     const editable = predictionOpen && canEdit;
 
     return (
         <div className="scorePanel">
-            {!editable && (
-                <MatchScore fixture={fixture} />
-            )}
+            {!editable && <MatchScore fixture={fixture} />}
 
             <PredictionScore
                 fixture={fixture}

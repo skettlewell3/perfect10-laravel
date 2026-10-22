@@ -4,10 +4,7 @@ type FixtureScoreBreakdownProps = {
     prediction: FixturePrediction | null | undefined;
 };
 
-function getPoints(
-    correct: boolean | null,
-    points: number,
-): number | null {
+function getPoints(correct: boolean | null, points: number): number | null {
     if (correct === null) {
         return null;
     }
@@ -15,11 +12,7 @@ function getPoints(
     return correct ? points : 0;
 }
 
-function PointsCell({
-    points,
-}: {
-    points: number | null;
-}) {
+function PointsCell({ points }: { points: number | null }) {
     return (
         <div
             className={`fixtureBreakdownValue ${
@@ -39,36 +32,22 @@ export default function FixtureScoreBreakdown({
         return null;
     }
 
-    const resultPoints = getPoints(
-        prediction.correct_result,
-        3,
-    );
+    const resultPoints = getPoints(prediction.correct_result, 3);
 
-    const homePoints = getPoints(
-        prediction.correct_home_goals,
-        2,
-    );
+    const homePoints = getPoints(prediction.correct_home_goals, 2);
 
-    const awayPoints = getPoints(
-        prediction.correct_away_goals,
-        2,
-    );
+    const awayPoints = getPoints(prediction.correct_away_goals, 2);
 
     const goalDifferencePoints = getPoints(
         prediction.correct_goal_difference,
         2,
     );
 
-    const totalGoalsPoints = getPoints(
-        prediction.correct_total_goals,
-        1,
-    );
+    const totalGoalsPoints = getPoints(prediction.correct_total_goals, 1);
 
     const totalPoints = prediction.points_total;
 
-    const isPerfect10 =
-        prediction.perfect_10 === true ||
-        totalPoints === 10;
+    const isPerfect10 = prediction.perfect_10 === true || totalPoints === 10;
 
     const predictionScore = [
         prediction.pred_home_goals,
@@ -85,10 +64,7 @@ export default function FixtureScoreBreakdown({
                     Pred
                 </div>
 
-                <div
-                    className="fixtureBreakdownCell"
-                    title="Correct result"
-                >
+                <div className="fixtureBreakdownCell" title="Correct result">
                     R
                 </div>
 

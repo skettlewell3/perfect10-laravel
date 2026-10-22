@@ -47,9 +47,7 @@ export default function LeaderboardsPage() {
             <Head title="Leaderboards" />
 
             <div className="pageShell">
-                <ContentBanner
-                    title="Leaderboards"
-                />
+                <ContentBanner title="Leaderboards" />
 
                 <LeaderboardFilters
                     leaderboardStages={leaderboardStages}

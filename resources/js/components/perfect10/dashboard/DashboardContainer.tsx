@@ -39,10 +39,7 @@ export default function DashboardContainer({
 
     return (
         <div id="dashboardContainer">
-            <DashButtonFixture
-                fixtures={fixtures}
-                flavour={flavour}
-            />
+            <DashButtonFixture fixtures={fixtures} flavour={flavour} />
 
             <DashButtonLeaderboard flavour={flavour} />
 
@@ -59,11 +56,7 @@ export default function DashboardContainer({
             <DashButtonClubs flavour={flavour} />
 
             {isGameweekFormat && (
-                <DashboardButton
-                    label="Stats"
-                    to="/stats"
-                    flavour={flavour}
-                />
+                <DashboardButton label="Stats" to="/stats" flavour={flavour} />
             )}
         </div>
     );

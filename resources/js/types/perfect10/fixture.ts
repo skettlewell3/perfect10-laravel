@@ -1,4 +1,3 @@
-
 export type FixtureStatus =
     | 'upcoming'
     | 'live_90'
@@ -6,16 +5,9 @@ export type FixtureStatus =
     | 'finished'
     | 'postponed';
 
-export type StageType =
-    | 'group'
-    | 'knockout'
-    | 'gameweek'
-    | 'rearranged';
+export type StageType = 'group' | 'knockout' | 'gameweek' | 'rearranged';
 
-export type GameweekStatus =
-    | 'active'
-    | 'finished'
-    | 'upcoming';
+export type GameweekStatus = 'active' | 'finished' | 'upcoming';
 
 export type Fixture = {
     // Campaign

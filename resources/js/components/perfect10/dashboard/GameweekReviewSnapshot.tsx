@@ -4,9 +4,7 @@ type Props = {
     review: GameweekReview;
 };
 
-export default function GameweekReviewSnapshot({
-    review,
-}: Props) {
+export default function GameweekReviewSnapshot({ review }: Props) {
     const {
         stage_code,
         rank,
@@ -23,9 +21,7 @@ export default function GameweekReviewSnapshot({
         <div className="gameweekReviewSnapshot">
             <div className="gameweekReviewPrimary">
                 <div className="gameweekReviewStat">
-                    <span className="stageCode">
-                        {stage_code}
-                    </span>
+                    <span className="stageCode">{stage_code}</span>
                 </div>
 
                 <div className="gameweekReviewStat">

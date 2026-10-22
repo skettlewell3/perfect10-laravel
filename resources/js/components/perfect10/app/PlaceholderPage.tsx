@@ -7,15 +7,12 @@ type Props = {
 };
 
 export default function PlaceholderPage({ title }: Props) {
-
     return (
         <>
             <Head title={title} />
 
             <div className="pageShell">
-                <ContentBanner
-                    title={title}
-                />
+                <ContentBanner title={title} />
             </div>
         </>
     );
