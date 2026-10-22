@@ -5,12 +5,11 @@ use App\Http\Controllers\Perfect10\DashboardController;
 use App\Http\Controllers\Perfect10\FixturesController;
 use App\Http\Controllers\Perfect10\GameweekController;
 use App\Http\Controllers\Perfect10\LeaderboardController;
-use App\Http\Controllers\Perfect10\PlaceholderPageController;
 use App\Http\Controllers\Perfect10\PredictionSubmissionController;
 use App\Http\Controllers\Perfect10\ProfileController;
+use App\Http\Controllers\Perfect10\StatsController;
 use App\Http\Middleware\EnsurePerfect10Profile;
 use App\Services\Perfect10\FlavourContextService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function (
@@ -107,12 +106,8 @@ Route::prefix('{flavour}')->group(function () {
         [ClubsController::class, 'declineOwnershipTransfer']
     )->name('clubs.ownership-transfer.decline');
 
-    Route::get('/stats', function (
-        Request $request,
-        PlaceholderPageController $controller
-    ) {
-        return $controller->show($request, 'stats');
-    })->name('stats');
+    Route::get('/stats', [StatsController::class, 'index'])
+        ->name('stats');
 });
 
 require __DIR__.'/settings.php';
