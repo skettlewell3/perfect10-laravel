@@ -1,7 +1,4 @@
-import type {
-    Fixture,
-    FixtureStatus,
-} from '@/types/perfect10/fixture';
+import type { Fixture, FixtureStatus } from '@/types/perfect10/fixture';
 
 import usePredictionWindowStatus from '@/hooks/perfect10/usePredictionWindowStatus';
 import { formatFixtureKickoff } from './FixtureCardHeader';
@@ -40,8 +37,7 @@ export default function StageCardHeader({
     const fixtureStatus = FIXTURE_STATUSES[fixture.fixture_status];
 
     const showPrediction =
-        fixture.fixture_status === 'upcoming' &&
-        prediction.mode !== 'blank';
+        fixture.fixture_status === 'upcoming' && prediction.mode !== 'blank';
 
     return (
         <div className="fixtureCardHeader perFixtureCardHeader">
@@ -64,9 +60,7 @@ export default function StageCardHeader({
                         </span>
                     ) : (
                         <>
-                            <span className="label">
-                                {prediction.label}
-                            </span>
+                            <span className="label">{prediction.label}</span>
                             <span className="dot" />
                         </>
                     )}

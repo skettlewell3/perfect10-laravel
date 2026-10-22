@@ -1,4 +1,3 @@
-
 import type { Fixture } from '@/types/perfect10/fixture';
 import type {
     FixturePrediction,
@@ -40,22 +39,22 @@ export default function FixtureCard({
 }: FixtureCardProps) {
     const isGameweekFormat = formatCode === 'GWK';
 
-    const isStandalone =
-        isGameweekFormat &&
-        fixture.gameweek_id === null;
+    const isStandalone = isGameweekFormat && fixture.gameweek_id === null;
 
     const canEdit =
         fixture.fixture_status === 'upcoming' &&
         fixture.predictions_open &&
         (!isGameweekFormat || isStandalone);
 
-    const homeTeam = fixture.home_team_id !== null
-        ? teamsMap[fixture.home_team_id]
-        : undefined;
+    const homeTeam =
+        fixture.home_team_id !== null
+            ? teamsMap[fixture.home_team_id]
+            : undefined;
 
-    const awayTeam = fixture.away_team_id !== null
-        ? teamsMap[fixture.away_team_id]
-        : undefined;
+    const awayTeam =
+        fixture.away_team_id !== null
+            ? teamsMap[fixture.away_team_id]
+            : undefined;
 
     const isFinished = fixture.fixture_status === 'finished';
 
@@ -69,12 +68,9 @@ export default function FixtureCard({
         fixture.winner_team_id !== null &&
         fixture.winner_team_id === fixture.away_team_id;
 
-    const showProgressionMarker =
-        isFinished &&
-        fixture.winner_team_id !== null;
+    const showProgressionMarker = isFinished && fixture.winner_team_id !== null;
 
-    const teamVariant =
-        isGameweekFormat ? 'colours' : 'flag';
+    const teamVariant = isGameweekFormat ? 'colours' : 'flag';
 
     const stageClass = isGameweekFormat
         ? fixture.gameweek_number !== null
@@ -84,10 +80,8 @@ export default function FixtureCard({
 
     const showPredictionStatus =
         !isGameweekFormat ||
-        (
-            fixture.gameweek_id !== null &&
-            fixture.gameweek_status === 'active'
-        ) ||
+        (fixture.gameweek_id !== null &&
+            fixture.gameweek_status === 'active') ||
         isStandalone;
 
     const groupLetter =
@@ -104,9 +98,7 @@ export default function FixtureCard({
 
             <div className="fixtureBody">
                 <div className="fCardCol L">
-                    <div className="stageCell">
-                        {fixture.stage_name}
-                    </div>
+                    <div className="stageCell">{fixture.stage_name}</div>
 
                     <TeamDisplay
                         name={fixture.home_team_name}
@@ -117,9 +109,7 @@ export default function FixtureCard({
                         tertiaryColor={homeTeam?.color_3}
                         isWinner={homeWon}
                         isLoser={awayWon}
-                        showProgressionMarker={
-                            showProgressionMarker && homeWon
-                        }
+                        showProgressionMarker={showProgressionMarker && homeWon}
                     />
 
                     <div className="deadlineCell">
@@ -138,8 +128,8 @@ export default function FixtureCard({
                                             hourCycle: 'h23',
                                         }).format(
                                             new Date(
-                                                fixture.prediction_close_at
-                                            )
+                                                fixture.prediction_close_at,
+                                            ),
                                         )}
                                     </span>
                                 </>
@@ -175,9 +165,7 @@ export default function FixtureCard({
                         tertiaryColor={awayTeam?.color_3}
                         isWinner={awayWon}
                         isLoser={homeWon}
-                        showProgressionMarker={
-                            showProgressionMarker && awayWon
-                        }
+                        showProgressionMarker={showProgressionMarker && awayWon}
                     />
 
                     <div className="submitCell">

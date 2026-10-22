@@ -38,20 +38,11 @@ function validGoal(value: string): boolean {
 
     const goals = Number(value);
 
-    return (
-        Number.isInteger(goals) &&
-        goals >= MIN_GOALS &&
-        goals <= MAX_GOALS
-    );
+    return Number.isInteger(goals) && goals >= MIN_GOALS && goals <= MAX_GOALS;
 }
 
-export function isValidPrediction(
-    draft: PredictionDraft,
-): boolean {
-    return (
-        validGoal(draft.home) &&
-        validGoal(draft.away)
-    );
+export function isValidPrediction(draft: PredictionDraft): boolean {
+    return validGoal(draft.home) && validGoal(draft.away);
 }
 
 export function isDirtyPrediction(
@@ -119,10 +110,7 @@ export default function usePredictionDrafts({
     }));
 
     // Do not expose drafts belonging to a previous profile or scope.
-    const drafts =
-        draftState.key === storageKey
-            ? draftState.drafts
-            : {};
+    const drafts = draftState.key === storageKey ? draftState.drafts : {};
 
     useEffect(() => {
         if (draftState.key === storageKey) return;
@@ -155,29 +143,24 @@ export default function usePredictionDrafts({
         };
 
         sessionStorage.setItem(storageKey, JSON.stringify(stored));
-    }, [
-        storageKey,
-        draftState.key,
-        drafts,
-        predictionCloseAt,
-    ]);
+    }, [storageKey, draftState.key, drafts, predictionCloseAt]);
 
-    const updateDraft = useCallback((
-        fixtureId: number,
-        draft: PredictionDraft,
-    ) => {
-        if (!storageKey) return;
-    
-        setDraftState(previous => ({
-            key: storageKey,
-            drafts: {
-                ...(previous.key === storageKey
-                    ? previous.drafts
-                    : loadDrafts(storageKey)),
-                [fixtureId]: draft,
-            },
-        }));
-    }, [storageKey]);
+    const updateDraft = useCallback(
+        (fixtureId: number, draft: PredictionDraft) => {
+            if (!storageKey) return;
+
+            setDraftState((previous) => ({
+                key: storageKey,
+                drafts: {
+                    ...(previous.key === storageKey
+                        ? previous.drafts
+                        : loadDrafts(storageKey)),
+                    [fixtureId]: draft,
+                },
+            }));
+        },
+        [storageKey],
+    );
 
     const clearDrafts = useCallback(() => {
         if (!storageKey) return;
@@ -191,7 +174,7 @@ export default function usePredictionDrafts({
     }, [storageKey]);
 
     const fixtureIds = useMemo(
-        () => new Set(fixtures.map(f => f.fixture_id)),
+        () => new Set(fixtures.map((f) => f.fixture_id)),
         [fixtures],
     );
 
@@ -204,10 +187,7 @@ export default function usePredictionDrafts({
 
                 return (
                     isValidPrediction(draft) &&
-                    isDirtyPrediction(
-                        draft,
-                        predictionsMap[fixtureId],
-                    )
+                    isDirtyPrediction(draft, predictionsMap[fixtureId])
                 );
             })
             .map(([id, draft]): PredictionPayload => ({
@@ -219,8 +199,8 @@ export default function usePredictionDrafts({
 
     const hasExistingSet =
         fixtures.length > 0 &&
-        fixtures.every(
-            fixture => Boolean(predictionsMap[fixture.fixture_id])
+        fixtures.every((fixture) =>
+            Boolean(predictionsMap[fixture.fixture_id]),
         );
 
     // Initial GWK submission must include every fixture.
@@ -228,32 +208,24 @@ export default function usePredictionDrafts({
         fixtures.length > 0 &&
         validChangedPredictions.length === fixtures.length;
 
-    const hasIncompleteDrafts = Object.entries(drafts).some(
-        ([id, draft]) => {
-            const fixtureId = Number(id);
+    const hasIncompleteDrafts = Object.entries(drafts).some(([id, draft]) => {
+        const fixtureId = Number(id);
 
-            if (!fixtureIds.has(fixtureId)) {
-                return false;
-            }
+        if (!fixtureIds.has(fixtureId)) {
+            return false;
+        }
 
-            return (
-                isDirtyPrediction(
-                    draft,
-                    predictionsMap[fixtureId],
-                ) &&
-                !isValidPrediction(draft)
-            );
-        },
-    );
+        return (
+            isDirtyPrediction(draft, predictionsMap[fixtureId]) &&
+            !isValidPrediction(draft)
+        );
+    });
 
     // Once a complete set exists, individual changes are allowed.
-    const isUpdating =
-        hasExistingSet &&
-        validChangedPredictions.length > 0;
+    const isUpdating = hasExistingSet && validChangedPredictions.length > 0;
 
     const canSubmitGameweek =
-        !hasIncompleteDrafts &&
-        (hasCompleteDraftSet || isUpdating);
+        !hasIncompleteDrafts && (hasCompleteDraftSet || isUpdating);
 
     return {
         drafts,

@@ -20,16 +20,10 @@ export default function GameweekSnapshot({
         : null;
 
     const secondsRemaining = closeAt
-        ? Math.max(
-              0,
-              Math.floor(
-                  (closeAt.getTime() - now.getTime()) / 1000,
-              ),
-          )
+        ? Math.max(0, Math.floor((closeAt.getTime() - now.getTime()) / 1000))
         : 0;
 
-    const showCountdown =
-        secondsRemaining > 0 && secondsRemaining < 86400;
+    const showCountdown = secondsRemaining > 0 && secondsRemaining < 86400;
 
     useEffect(() => {
         if (!showCountdown) {
@@ -65,8 +59,7 @@ export default function GameweekSnapshot({
           ].join(' ')
         : null;
 
-    const displayCountdown =
-        showCountdown && showCountdownScreen;
+    const displayCountdown = showCountdown && showCountdownScreen;
 
     return (
         <div className="gameweekSnapshot">
@@ -79,17 +72,13 @@ export default function GameweekSnapshot({
                     <>
                         <span>Submitted</span>
 
-                        <span className="predictionStatusIcon success">
-                            ✓
-                        </span>
+                        <span className="predictionStatusIcon success">✓</span>
                     </>
                 ) : (
                     <>
                         <span>Not submitted</span>
 
-                        <span className="predictionStatusIcon failure">
-                            ✗
-                        </span>
+                        <span className="predictionStatusIcon failure">✗</span>
                     </>
                 )}
             </div>

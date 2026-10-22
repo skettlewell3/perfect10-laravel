@@ -27,16 +27,11 @@ export default function SubmitSlideUp({
                 onClick={onSubmit}
                 aria-busy={processing}
                 aria-label={
-                    processing
-                        ? 'Submitting predictions'
-                        : submissionLabel
+                    processing ? 'Submitting predictions' : submissionLabel
                 }
             >
                 {processing ? (
-                    <span
-                        className="submitButtonSpinner"
-                        aria-hidden="true"
-                    />
+                    <span className="submitButtonSpinner" aria-hidden="true" />
                 ) : (
                     submissionLabel
                 )}

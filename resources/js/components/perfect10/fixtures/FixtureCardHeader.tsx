@@ -1,7 +1,4 @@
-import type {
-    Fixture,
-    FixtureStatus,
-} from '@/types/perfect10/fixture';
+import type { Fixture, FixtureStatus } from '@/types/perfect10/fixture';
 
 import usePredictionWindowStatus from '@/hooks/perfect10/usePredictionWindowStatus';
 
@@ -83,9 +80,7 @@ export default function FixtureCardHeader({
                         </span>
                     ) : (
                         <>
-                            <span className="label">
-                                {prediction.label}
-                            </span>
+                            <span className="label">{prediction.label}</span>
                             <span className="dot" />
                         </>
                     )}

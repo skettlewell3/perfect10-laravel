@@ -1,14 +1,10 @@
-
 import type { Fixture } from '@/types/perfect10/fixture';
 
 type FixtureDetailsProps = {
     fixture: Fixture;
 };
 
-function formatTime(
-    date: Date,
-    timeZone?: string,
-): string {
+function formatTime(date: Date, timeZone?: string): string {
     return new Intl.DateTimeFormat('en-GB', {
         hour: '2-digit',
         minute: '2-digit',
@@ -17,9 +13,7 @@ function formatTime(
     }).format(date);
 }
 
-export default function FixtureDetails({
-    fixture,
-}: FixtureDetailsProps) {
+export default function FixtureDetails({ fixture }: FixtureDetailsProps) {
     const kickoff = new Date(fixture.kickoff_at);
 
     const localKO = formatTime(kickoff);
@@ -30,19 +24,12 @@ export default function FixtureDetails({
 
     const showVenueTime = venueKO !== localKO;
 
-    const location = [
-        fixture.city,
-        fixture.country,
-    ]
-        .filter(Boolean)
-        .join(', ');
+    const location = [fixture.city, fixture.country].filter(Boolean).join(', ');
 
     return (
         <div className="fixtureDetails perFixtureDetails">
             <div className="fixtureLocation">
-                {showVenueTime && (
-                    <p>{venueKO}</p>
-                )}
+                {showVenueTime && <p>{venueKO}</p>}
 
                 <p>{fixture.venue_name}</p>
 

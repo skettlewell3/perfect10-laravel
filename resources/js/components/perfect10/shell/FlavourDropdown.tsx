@@ -10,31 +10,31 @@ export default function FlavourDropdown() {
 
     function handleSelect(selectedFlavour: Flavour) {
         setOpen(false);
-        
+
         const selectedCode = selectedFlavour.flavour_code.toLowerCase();
-        
+
         const currentPath = window.location.pathname;
         const currentParams = new URLSearchParams(window.location.search);
-        
+
         const segments = currentPath.split('/').filter(Boolean);
-        
+
         const isProfilePage = segments[0] === 'profile';
-        
+
         if (isProfilePage) {
             router.get(`/${selectedCode}`);
             return;
         }
-    
+
         if (selectedFlavour.flavour_id === flavour.flavour_id) {
             return;
         }
-    
+
         segments[0] = selectedCode;
-    
+
         const nextPath = `/${segments.join('/')}`;
-    
+
         const nextParams: Record<string, string> = {};
-    
+
         /*
          * Preserve filters that are meaningful across flavours.
          *
@@ -44,16 +44,16 @@ export default function FlavourDropdown() {
         if (segments[1] === 'leaderboards') {
             const scope = currentParams.get('scope');
             const population = currentParams.get('population');
-        
+
             if (scope) {
                 nextParams.scope = scope;
             }
-        
+
             if (population) {
                 nextParams.population = population;
             }
         }
-    
+
         router.get(nextPath, nextParams, {
             preserveScroll: true,
         });

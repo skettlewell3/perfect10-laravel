@@ -2216,8 +2216,8 @@ input[type='number'] {
 
     color: white;
 
-    animation: predictionNotificationEnter 350ms
-        cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: predictionNotificationEnter 350ms cubic-bezier(0.22, 1, 0.36, 1)
+        both;
 }
 
 .predictionNotificationIcon {

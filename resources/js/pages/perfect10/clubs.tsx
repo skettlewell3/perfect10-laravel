@@ -52,9 +52,7 @@ export default function ClubsPage() {
             <Head title="Clubs" />
 
             <div className="pageShell">
-                <ContentBanner
-                    title="Clubs"
-                />
+                <ContentBanner title="Clubs" />
 
                 <div className="scrollArea dashboardScroll">
                     <ClubInvitesCard invites={invites} flavour={flavour} />
