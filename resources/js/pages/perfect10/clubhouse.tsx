@@ -58,7 +58,11 @@ export default function ClubhousePage() {
             <Head title={club.club_name} />
 
             <div className="pageShell">
-                <ContentBanner title={club.club_name} />
+                <ContentBanner
+                    title="Clubhouse"
+                    backUrl={`/${flavour.flavour_code.trim().toLowerCase()}/clubs`}
+                    backLabel="Back to Clubs"
+                />
 
                 <div className="scrollArea dashboardScroll">
                     {hasLeaderboard && (

@@ -3148,11 +3148,16 @@ option.bold {
 
 .modalFieldset {
     display: grid;
-    grid-template-columns: 2fr 1fr 0.3fr 1fr 2fr;
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(0, 1fr)
+        minmax(0, 0.3fr)
+        minmax(0, 1fr)
+        minmax(0, 2fr);
     min-height: 2.5em;
+    min-width: 0;
     padding: 0.2em;
     border: none;
-    /* cursor: pointer; */
 }
 
 .match div {
@@ -3163,6 +3168,7 @@ option.bold {
 
 .posTeam {
     display: flex;
+    min-width: 0;
     text-align: center;
     border-radius: 5px;
     font-weight: bold;
@@ -3187,14 +3193,39 @@ option.bold {
 
 .posName {
     width: 70%;
+    min-width: 0;
     padding: 4px 0;
 }
 
-.pred {
+.modalFieldset .homeScore,
+.modalFieldset .awayScore {
+    min-width: 0;
+}
+
+.modalFieldset .pred {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    padding: 0.2rem 0;
+    border: none;
     border-radius: 5px;
+    outline: none;
+
+    background-color: white;
+    color: black;
+
     font-size: 1.2rem;
-    text-align: center;
     font-weight: bold;
+    text-align: center;
+    appearance: none;
+}
+
+.modalFieldset .pred:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 1px;
 }
 
 .v {

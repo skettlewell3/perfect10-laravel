@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
+import { router } from '@inertiajs/react';
 
 import type { Fixture } from '@/types/perfect10/fixture';
 import type {
@@ -18,6 +19,8 @@ type StageFixtureRowProps = {
     teamsMap: Record<number, FixtureTeam>;
     predictionWindowOpen: boolean;
     onDraftChange?: (draft: PredictionDraft) => void;
+    flavourCode: string;
+    showMatchDetailsButton?: boolean;
 };
 
 function getTeamStyle(team?: FixtureTeam): CSSProperties {
@@ -45,6 +48,22 @@ function getTeamStyle(team?: FixtureTeam): CSSProperties {
     return style;
 }
 
+const matchDetailsButtonStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    minWidth: 0,
+    padding: 0,
+    margin: 0,
+    border: 'none',
+    background: 'transparent',
+    color: '#fff',
+    font: 'inherit',
+    lineHeight: 'inherit',
+    cursor: 'pointer',
+};
+
 export default function StageFixtureRow({
     fixture,
     prediction,
@@ -52,6 +71,8 @@ export default function StageFixtureRow({
     teamsMap,
     predictionWindowOpen,
     onDraftChange,
+    flavourCode,
+    showMatchDetailsButton = true,
 }: StageFixtureRowProps) {
     const hasScoring = prediction?.points_total != null;
 
@@ -97,7 +118,6 @@ export default function StageFixtureRow({
     const handleChange = (side: 'home' | 'away', value: string) => {
         if (!onDraftChange) return;
 
-        // Allow clearing the input or entering one digit from 0–9.
         if (value !== '' && !/^[0-9]$/.test(value)) {
             return;
         }
@@ -108,80 +128,96 @@ export default function StageFixtureRow({
         });
     };
 
+    const openMatchDetails = () => {
+        router.get(
+            `/${flavourCode.trim().toLowerCase()}/matches/${fixture.fixture_id}`,
+        );
+    };
+
     return (
         <div className="fixtureFieldsetWrapper">
             <div className="stageFixtureRow">
-                {/* Match details — modal integration later */}
-                <div className="matchModalButton">
-                    <span aria-hidden="true">ⓘ</span>
-                </div>
+                {showMatchDetailsButton ? (
+                    <button
+                        type="button"
+                        className="matchModalButton"
+                        style={matchDetailsButtonStyle}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            openMatchDetails();
+                        }}
+                        aria-label={`View ${fixture.home_team_name ?? 'Home'} versus ${fixture.away_team_name ?? 'Away'} match details`}
+                    >
+                        ⓘ
+                    </button>
+                ) : (
+                    <div aria-hidden="true" />
+                )}
 
-                {/* Home team */}
                 <div className="team home" style={getTeamStyle(homeTeam)}>
                     {fixture.home_short_code ?? 'TBC'}
                 </div>
 
-                {/* Home score */}
                 <div className="scoreCell">
                     {isEditable ? (
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]"
-                            maxLength={1}
-                            className="predInput"
-                            value={homeValue}
-                            onChange={(event) =>
-                                handleChange('home', event.target.value)
-                            }
-                            aria-label={`${fixture.home_team_name ?? 'Home'} predicted goals`}
-                        />
-                    ) : (
-                        <div className={hasStarted ? 'homeScore' : 'homePred'}>
-                            {hasStarted
-                                ? (homeScore ?? '–')
-                                : showPrediction
-                                  ? prediction?.pred_home_goals
-                                  : '–'}
+                        <div className="homePred">
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]"
+                                maxLength={1}
+                                className="predInput"
+                                value={homeValue}
+                                onChange={(event) =>
+                                    handleChange('home', event.target.value)
+                                }
+                                aria-label={`${fixture.home_team_name ?? 'Home'} predicted goals`}
+                            />
                         </div>
+                    ) : hasStarted ? (
+                        <div className="homeScore">{homeScore ?? '–'}</div>
+                    ) : showPrediction ? (
+                        <div className="homePred">
+                            {prediction?.pred_home_goals}
+                        </div>
+                    ) : (
+                        <div />
                     )}
                 </div>
 
-                {/* Versus */}
-                <div className="vs">V</div>
+                <div className="vs">v</div>
 
-                {/* Away score */}
                 <div className="scoreCell">
                     {isEditable ? (
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]"
-                            maxLength={1}
-                            className="predInput"
-                            value={awayValue}
-                            onChange={(event) =>
-                                handleChange('away', event.target.value)
-                            }
-                            aria-label={`${fixture.away_team_name ?? 'Away'} predicted goals`}
-                        />
-                    ) : (
-                        <div className={hasStarted ? 'awayScore' : 'awayPred'}>
-                            {hasStarted
-                                ? (awayScore ?? '–')
-                                : showPrediction
-                                  ? prediction?.pred_away_goals
-                                  : '–'}
+                        <div className="awayPred">
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]"
+                                maxLength={1}
+                                className="predInput"
+                                value={awayValue}
+                                onChange={(event) =>
+                                    handleChange('away', event.target.value)
+                                }
+                                aria-label={`${fixture.away_team_name ?? 'Away'} predicted goals`}
+                            />
                         </div>
+                    ) : hasStarted ? (
+                        <div className="awayScore">{awayScore ?? '–'}</div>
+                    ) : showPrediction ? (
+                        <div className="awayPredLoc">
+                            {prediction?.pred_away_goals}
+                        </div>
+                    ) : (
+                        <div />
                     )}
                 </div>
 
-                {/* Away team */}
                 <div className="team away" style={getTeamStyle(awayTeam)}>
                     {fixture.away_short_code ?? 'TBC'}
                 </div>
 
-                {/* Score breakdown toggle */}
                 <div>
                     {hasScoring && (
                         <FixtureExpandButton

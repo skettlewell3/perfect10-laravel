@@ -5,6 +5,7 @@ use App\Http\Controllers\Perfect10\DashboardController;
 use App\Http\Controllers\Perfect10\FixturesController;
 use App\Http\Controllers\Perfect10\GameweekController;
 use App\Http\Controllers\Perfect10\LeaderboardController;
+use App\Http\Controllers\Perfect10\MatchController;
 use App\Http\Controllers\Perfect10\PredictionSubmissionController;
 use App\Http\Controllers\Perfect10\ProfileController;
 use App\Http\Controllers\Perfect10\StatsController;
@@ -49,6 +50,10 @@ Route::prefix('{flavour}')->group(function () {
 
     Route::get('/gameweek', [GameweekController::class, 'index'])
         ->name('gameweek');
+
+    Route::get('/matches/{fixture}', [MatchController::class, 'show'])
+        ->whereNumber('fixture')
+        ->name('matches.show');
 
     Route::post(
         '/predictions',

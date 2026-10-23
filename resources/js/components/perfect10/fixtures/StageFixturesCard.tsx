@@ -12,6 +12,7 @@ type StageFixturesCardProps = {
     fixtures: Fixture[];
     teamsMap: Record<number, FixtureTeam>;
     predictionsMap: PredictionsMap;
+    flavourCode: string;
 
     predictionOpenAt?: string | null;
     predictionCloseAt?: string | null;
@@ -25,6 +26,7 @@ export default function StageFixturesCard({
     fixtures,
     teamsMap,
     predictionsMap,
+    flavourCode,
     predictionOpenAt,
     predictionCloseAt,
     predictionWindowOpen,
@@ -57,6 +59,7 @@ export default function StageFixturesCard({
                     teamsMap={teamsMap}
                     prediction={predictionsMap[fixture.fixture_id] ?? null}
                     draft={predictionDrafts[fixture.fixture_id] ?? null}
+                    flavourCode={flavourCode}
                     predictionWindowOpen={predictionWindowOpen}
                     onDraftChange={
                         onDraftChange
