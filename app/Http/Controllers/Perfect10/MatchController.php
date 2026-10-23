@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Perfect10;
 use App\Http\Controllers\Controller;
 use App\Services\Perfect10\CurrentProfileService;
 use App\Services\Perfect10\LeagueTableContextService;
+use App\Services\Perfect10\MatchFormContextService;
 use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\PredictionContextService;
 use App\Services\Perfect10\TeamContextService;
@@ -19,6 +20,7 @@ class MatchController extends Controller
         private CurrentProfileService $currentProfile,
         private LeagueTableContextService $leagueTableContext,
         private TeamContextService $teamContext,
+        private MatchFormContextService $matchFormContext,
     ) {}
 
     public function show(string $flavour, string $fixture): Response
@@ -60,7 +62,8 @@ class MatchController extends Controller
         /*
          * The active gameweek's stage is the fixture grouping.
          *
-         * Use exactly the same method as GameweekController.
+         * These fixtures are used for match navigation and
+         * gameweek prediction submission.
          */
         $fixtures = $this->context->fixturesForStage(
             (int) $activeGameweek->stage_id
@@ -105,8 +108,43 @@ class MatchController extends Controller
             ->only($fixtureIds)
             ->all();
 
+        /*
+         * Keep the existing match fixture team data.
+         */
         $teamsMap = $this->teamContext
             ->teamsMapForFixtures($fixtures);
+
+        /*
+         * Build the Form Guide using the complete fixture-provider
+         * collection, not just the active gameweek.
+         *
+         * Perfect10RequestContext caches the fixture-provider
+         * response for this request.
+         */
+        $form = $this->matchFormContext->forMatch(
+            $this->context->fixtures(),
+            $currentFixture
+        );
+
+        /*
+         * Gather the selected historical and upcoming fixtures
+         * so their opponents' colours can be displayed.
+         */
+        $formFixtures = [
+            ...$form['home']['past'],
+            ...$form['home']['future'],
+            ...$form['away']['past'],
+            ...$form['away']['future'],
+        ];
+
+        $formFixtures = array_values(
+            collect($formFixtures)
+                ->unique('fixture_id')
+                ->all()
+        );
+
+        $formTeamsMap = $this->teamContext
+            ->teamsMapForFixtures($formFixtures);
 
         /*
          * Retrieve the actual league table positions
@@ -150,6 +188,9 @@ class MatchController extends Controller
             'teamsMap' => $teamsMap,
             'predictionsMap' => $predictionsMap,
             'actualTable' => $actualTable,
+
+            'form' => $form,
+            'formTeamsMap' => $formTeamsMap,
 
             'navigation' => [
                 'previousFixtureId' => $previousFixture['fixture_id'] ?? null,

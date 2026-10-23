@@ -3,7 +3,9 @@ import { Head, router, usePage } from '@inertiajs/react';
 
 import MatchContentBanner from '@/components/perfect10/matches/MatchContentBanner';
 import MatchFixtureCard from '@/components/perfect10/matches/MatchFixtureCard';
-import LeagueTable from '@/components/perfect10/tables/LeagueTable';
+import FormContainer, {
+    type MatchForm,
+} from '@/components/perfect10/matches/FormContainer';
 import SubmitSlideUp from '@/components/perfect10/predictions/SubmitSlideUp';
 import PredictionNotification from '@/components/perfect10/predictions/PredictionNotification';
 
@@ -24,6 +26,8 @@ type MatchPageProps = Perfect10PageProps & {
     predictionsMap: PredictionsMap;
     teamsMap: Record<number, FixtureTeam>;
     actualTable: LeagueTableRowData[];
+    form: MatchForm;
+    formTeamsMap: Record<number, FixtureTeam>;
     navigation: {
         previousFixtureId: number | null;
         nextFixtureId: number | null;
@@ -40,6 +44,8 @@ export default function MatchPage() {
         predictionsMap,
         teamsMap,
         actualTable,
+        form,
+        formTeamsMap,
         navigation,
     } = usePage<MatchPageProps>().props;
 
@@ -177,7 +183,11 @@ export default function MatchPage() {
                     <div className="statsSection">
                         <div className="statsSectionTitle">Form</div>
 
-                        <LeagueTable data={actualTable} />
+                        <FormContainer
+                            form={form}
+                            currentFixture={fixture}
+                            teamsMap={formTeamsMap}
+                        />
                     </div>
                 </div>
 
