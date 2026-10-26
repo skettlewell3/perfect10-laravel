@@ -8,6 +8,7 @@ use App\Services\Perfect10\LeagueTableContextService;
 use App\Services\Perfect10\MatchFormContextService;
 use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\PredictionContextService;
+use App\Services\Perfect10\TeamComparisonContextService;
 use App\Services\Perfect10\TeamContextService;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,6 +22,7 @@ class MatchController extends Controller
         private LeagueTableContextService $leagueTableContext,
         private TeamContextService $teamContext,
         private MatchFormContextService $matchFormContext,
+        private TeamComparisonContextService $teamComparisonContext,
     ) {}
 
     public function show(string $flavour, string $fixture): Response
@@ -109,26 +111,32 @@ class MatchController extends Controller
             ->all();
 
         /*
-         * Keep the existing match fixture team data.
+         * Team data for the match fixture card.
          */
         $teamsMap = $this->teamContext
             ->teamsMapForFixtures($fixtures);
 
         /*
-         * Build the Form Guide using the complete fixture-provider
-         * collection, not just the active gameweek.
+         * Retrieve the complete fixture collection once for
+         * the Form Guide and Team Comparison presentation.
          *
-         * Perfect10RequestContext caches the fixture-provider
-         * response for this request.
+         * Perfect10RequestContext caches this data
+         * for the current request.
+         */
+        $allFixtures = $this->context->fixtures();
+
+        /*
+         * Build the Form Guide using all fixtures
+         * belonging to the selected flavour.
          */
         $form = $this->matchFormContext->forMatch(
-            $this->context->fixtures(),
+            $allFixtures,
             $currentFixture
         );
 
         /*
-         * Gather the selected historical and upcoming fixtures
-         * so their opponents' colours can be displayed.
+         * Gather historical and upcoming fixtures so
+         * their opponents' colours can be displayed.
          */
         $formFixtures = [
             ...$form['home']['past'],
@@ -172,6 +180,35 @@ class MatchController extends Controller
             ->sortBy('pos')
             ->values();
 
+        /*
+         * Team Comparison.
+         *
+         * The fixture determines the two teams, so no
+         * selector or additional frontend request is needed.
+         *
+         * The RPC returns the full Overall / Direct dataset.
+         * React handles switching between display modes.
+         */
+        $comparison = [];
+
+        if ($homeTeamId !== null && $awayTeamId !== null) {
+            $comparison = $this->teamComparisonContext->compare(
+                (int) $selected['flavour_id'],
+                (int) $homeTeamId,
+                (int) $awayTeamId
+            );
+        }
+
+        /*
+         * The comparison can reference opponents outside
+         * the active gameweek.
+         *
+         * Use all available flavour fixtures to obtain
+         * their team presentation data.
+         */
+        $comparisonTeamsMap = $this->teamContext
+            ->teamsMapForFixtures($allFixtures);
+
         return Inertia::render('perfect10/match', [
             'flavour' => $selected,
 
@@ -191,6 +228,9 @@ class MatchController extends Controller
 
             'form' => $form,
             'formTeamsMap' => $formTeamsMap,
+
+            'comparison' => $comparison,
+            'comparisonTeamsMap' => $comparisonTeamsMap,
 
             'navigation' => [
                 'previousFixtureId' => $previousFixture['fixture_id'] ?? null,

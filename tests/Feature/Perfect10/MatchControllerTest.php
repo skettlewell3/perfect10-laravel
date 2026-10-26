@@ -7,6 +7,7 @@ use App\Services\Perfect10\LeagueTableContextService;
 use App\Services\Perfect10\MatchFormContextService;
 use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\PredictionContextService;
+use App\Services\Perfect10\TeamComparisonContextService;
 use App\Services\Perfect10\TeamContextService;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -146,6 +147,30 @@ function matchControllerForm(): array
         'away' => [
             'past' => [],
             'future' => [$allFixtures[4]],
+        ],
+    ];
+}
+
+/**
+ * Representative results from the comparison RPC.
+ *
+ * @return list<array<string, mixed>>
+ */
+function matchControllerComparison(): array
+{
+    return [
+        [
+            'opponent_id' => 7,
+            'opponent_name' => 'Fulham',
+            'opponent_short' => 'FUL',
+            't1_home_gf' => 2,
+            't1_home_ga' => 1,
+            't1_home_pts' => 3,
+            't1_home_swing' => null,
+            't2_home_gf' => null,
+            't2_home_ga' => null,
+            't2_home_pts' => null,
+            't2_home_swing' => null,
         ],
     ];
 }
@@ -403,6 +428,34 @@ function setupMatchControllerServices(Flavour $flavour): void
             ],
         ]));
 
+    $teamService
+        ->shouldReceive('teamsMapForFixtures')
+        ->once()
+        ->with(matchControllerAllFixtures())
+        ->andReturn(collect([
+            3 => [
+                'team_id' => 3,
+                'team_name' => 'Ipswich',
+                'color_1' => '#1234ff',
+                'color_2' => '#ffffff',
+                'color_3' => null,
+            ],
+            4 => [
+                'team_id' => 4,
+                'team_name' => 'Nottingham Forest',
+                'color_1' => '#ff0000',
+                'color_2' => '#ffffff',
+                'color_3' => null,
+            ],
+            7 => [
+                'team_id' => 7,
+                'team_name' => 'Fulham',
+                'color_1' => '#ffffff',
+                'color_2' => '#000000',
+                'color_3' => null,
+            ],
+        ]));
+
     app()->instance(
         TeamContextService::class,
         $teamService
@@ -459,6 +512,21 @@ function setupMatchControllerServices(Flavour $flavour): void
         LeagueTableContextService::class,
         $leagueTableService
     );
+
+    $comparisonService = Mockery::mock(
+        TeamComparisonContextService::class
+    );
+
+    $comparisonService
+        ->shouldReceive('compare')
+        ->once()
+        ->with(1, 3, 4)
+        ->andReturn(matchControllerComparison());
+
+    app()->instance(
+        TeamComparisonContextService::class,
+        $comparisonService
+    );
 }
 
 test('match details returns the selected fixture with predictions teams league positions and form', function () {
@@ -510,6 +578,10 @@ test('match details returns the selected fixture with predictions teams league p
             ->where('form.home.past.0.resolution_type', 'home_win')
             ->where('formTeamsMap.7.team_name', 'Fulham')
             ->where('formTeamsMap.8.team_name', 'Everton')
+            ->has('comparison', 1)
+            ->where('comparison.0.opponent_id', 7)
+            ->where('comparison.0.t1_home_pts', 3)
+            ->where('comparisonTeamsMap.7.team_name', 'Fulham')
             ->etc();
     });
 });
@@ -546,7 +618,7 @@ test('match navigation uses the correct previous and next fixture IDs', function
         $formService
     );
 
-    setupMatchControllerServicesForNavigation($flavour);
+    setupMatchControllerServicesForNavigation($flavour, $fixtureId);
 
     $response = $this->get(
         route('matches.show', [
@@ -578,7 +650,7 @@ test('match navigation uses the correct previous and next fixture IDs', function
 /**
  * Setup shared non-form dependencies for navigation tests.
  */
-function setupMatchControllerServicesForNavigation(Flavour $flavour): void
+function setupMatchControllerServicesForNavigation(Flavour $flavour, int $fixtureId): void
 {
     $predictions = Mockery::mock(
         PredictionContextService::class
@@ -611,6 +683,12 @@ function setupMatchControllerServicesForNavigation(Flavour $flavour): void
         ->with([])
         ->andReturn(collect([]));
 
+    $teams
+        ->shouldReceive('teamsMapForFixtures')
+        ->once()
+        ->with(matchControllerAllFixtures())
+        ->andReturn(collect([]));
+
     app()->instance(
         TeamContextService::class,
         $teams
@@ -630,10 +708,47 @@ function setupMatchControllerServicesForNavigation(Flavour $flavour): void
         LeagueTableContextService::class,
         $leagueTable
     );
+
+    $fixture = collect(matchControllerFixtures())
+        ->first(fn (array $row): bool => (int) $row['fixture_id'] === $fixtureId);
+
+    if ($fixture === null) {
+        throw new RuntimeException('Navigation test fixture not found.');
+    }
+
+    $comparisonService = Mockery::mock(
+        TeamComparisonContextService::class
+    );
+
+    $comparisonService
+        ->shouldReceive('compare')
+        ->once()
+        ->with(
+            1,
+            (int) $fixture['home_team_id'],
+            (int) $fixture['away_team_id']
+        )
+        ->andReturn([]);
+
+    app()->instance(
+        TeamComparisonContextService::class,
+        $comparisonService
+    );
 }
 
 test('fixture outside the active stage returns not found', function () {
     setupMatchControllerContext();
+
+    $comparisonService = Mockery::mock(
+        TeamComparisonContextService::class
+    );
+
+    $comparisonService->shouldNotReceive('compare');
+
+    app()->instance(
+        TeamComparisonContextService::class,
+        $comparisonService
+    );
 
     $response = $this->get(
         route('matches.show', [

@@ -3517,6 +3517,21 @@ option.bold {
     color: var(--blue);
 }
 
+/* Empty fixture: show the metadata square, not the dash */
+
+.fixtureCell.emptyFixture {
+    opacity: 1;
+}
+
+.emptyFixture .resultCell {
+    visibility: hidden;
+}
+
+.emptyFixture .metaCell {
+    background-color: rgb(255 255 255 / 20%);
+    color: transparent;
+}
+
 /* END of Team Comparison */
 
 /* -- END OF MATCH MODAL */

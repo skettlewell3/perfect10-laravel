@@ -6,6 +6,8 @@ import MatchFixtureCard from '@/components/perfect10/matches/MatchFixtureCard';
 import FormContainer, {
     type MatchForm,
 } from '@/components/perfect10/matches/FormContainer';
+import LeagueTableSnapshot from '@/components/perfect10/tables/LeagueTableSnapshot';
+import TeamComparison from '@/components/perfect10/teamComparison/TeamComparison';
 import SubmitSlideUp from '@/components/perfect10/predictions/SubmitSlideUp';
 import PredictionNotification from '@/components/perfect10/predictions/PredictionNotification';
 
@@ -16,6 +18,7 @@ import type { Perfect10PageProps } from '@/types/perfect10';
 import type { Fixture } from '@/types/perfect10/fixture';
 import type { Gameweek } from '@/types/perfect10/gameweek';
 import type { PredictionsMap } from '@/types/perfect10/prediction';
+import type { TeamComparisonData } from '@/types/perfect10/team-comparison';
 
 import usePredictionDrafts from '@/hooks/perfect10/usePredictionDrafts';
 
@@ -28,6 +31,8 @@ type MatchPageProps = Perfect10PageProps & {
     actualTable: LeagueTableRowData[];
     form: MatchForm;
     formTeamsMap: Record<number, FixtureTeam>;
+    comparison: TeamComparisonData;
+    comparisonTeamsMap: Record<number, FixtureTeam>;
     navigation: {
         previousFixtureId: number | null;
         nextFixtureId: number | null;
@@ -46,6 +51,8 @@ export default function MatchPage() {
         actualTable,
         form,
         formTeamsMap,
+        comparison,
+        comparisonTeamsMap,
         navigation,
     } = usePage<MatchPageProps>().props;
 
@@ -183,12 +190,34 @@ export default function MatchPage() {
                     <div className="statsSection">
                         <div className="statsSectionTitle">Form</div>
 
+                        <LeagueTableSnapshot data={actualTable} />
+
                         <FormContainer
                             form={form}
                             currentFixture={fixture}
                             teamsMap={formTeamsMap}
                         />
                     </div>
+
+                    {fixture.home_team_id !== null &&
+                        fixture.away_team_id !== null && (
+                            <div className="statsSection">
+                                <div className="statsSectionTitle text-right">
+                                    Team Comparison
+                                </div>
+
+                                <TeamComparison
+                                    data={comparison}
+                                    teams={{
+                                        team1: fixture.home_team_id,
+                                        team2: fixture.away_team_id,
+                                    }}
+                                    teamsMap={comparisonTeamsMap}
+                                    team1ShortCode={fixture.home_short_code}
+                                    team2ShortCode={fixture.away_short_code}
+                                />
+                            </div>
+                        )}
                 </div>
 
                 <SubmitSlideUp
