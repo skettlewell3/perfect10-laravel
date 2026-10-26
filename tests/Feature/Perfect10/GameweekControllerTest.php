@@ -1,14 +1,11 @@
 <?php
 
-use App\Models\Perfect10\Campaign;
 use App\Models\Perfect10\Flavour;
 use App\Models\Perfect10\Gameweek;
 use App\Services\Perfect10\CurrentProfileService;
-use App\Services\Perfect10\FixtureContextService;
-use App\Services\Perfect10\GameweekContextService;
 use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\PredictionContextService;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use App\Services\Perfect10\TeamContextService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -51,14 +48,14 @@ beforeEach(function () {
         ->shouldReceive('userProfile')
         ->andReturn(null);
 
-    $this->app->instance(
+    app()->instance(
         CurrentProfileService::class,
         $currentProfile
     );
 });
 
 /**
- * Configure the selected flavour and campaign for a test.
+ * Configure the selected flavour and request context.
  */
 function setupGameweekControllerContext(
     $test,
@@ -81,11 +78,6 @@ function setupGameweekControllerContext(
         'flavour_code' => $selected['flavour_code'],
     ]);
 
-    $campaign = new Campaign([
-        'campaign_id' => $selected['active_campaign_id'],
-        'competition_id' => $formatCode === 'GWK' ? 10 : 20,
-    ]);
-
     $context = Mockery::mock(
         Perfect10RequestContext::class
     );
@@ -105,14 +97,10 @@ function setupGameweekControllerContext(
             ->shouldReceive('flavour')
             ->once()
             ->andReturn($flavour);
-
-        $context
-            ->shouldReceive('campaign')
-            ->once()
-            ->andReturn($campaign);
     } else {
         $context->shouldNotReceive('flavour');
-        $context->shouldNotReceive('campaign');
+        $context->shouldNotReceive('activeGameweek');
+        $context->shouldNotReceive('fixturesForStage');
     }
 
     app()->instance(
@@ -120,11 +108,11 @@ function setupGameweekControllerContext(
         $context
     );
 
-    return [$flavour, $campaign];
+    return [$flavour, $context];
 }
 
 test('gameweek page returns active gameweek with filtered fixtures predictions and teams', function () {
-    [$flavour, $campaign] = setupGameweekControllerContext($this);
+    [$flavour, $context] = setupGameweekControllerContext($this);
 
     $gameweek = new Gameweek([
         'gameweek_id' => 500,
@@ -136,67 +124,41 @@ test('gameweek page returns active gameweek with filtered fixtures predictions a
         'prediction_close_at' => '2026-10-24 12:00:00',
     ]);
 
-    $gameweeks = new EloquentCollection([$gameweek]);
-
-    $gameweekService = Mockery::mock(
-        GameweekContextService::class
-    );
-
-    $gameweekService
-        ->shouldReceive('gameweeksForCampaign')
-        ->once()
-        ->with($campaign)
-        ->andReturn($gameweeks);
-
-    $gameweekService
+    $context
         ->shouldReceive('activeGameweek')
         ->once()
-        ->with($gameweeks)
         ->andReturn($gameweek);
 
-    $this->app->instance(
-        GameweekContextService::class,
-        $gameweekService
-    );
-
+    /*
+     * The active gameweek belongs to Stage 50.
+     *
+     * Perfect10RequestContext now groups all fixtures by stage_id,
+     * including gameweek fixtures.
+     */
     $fixtures = [
         [
-            'fixture_id' => 102,
-            'gameweek_id' => 500,
-            'kickoff_at' => '2026-10-24 15:00:00',
-            'home_team_id' => 3,
-            'away_team_id' => 4,
-        ],
-        [
-            'fixture_id' => 999,
-            'gameweek_id' => 501,
-            'kickoff_at' => '2026-10-23 12:00:00',
-            'home_team_id' => 5,
-            'away_team_id' => 6,
-        ],
-        [
             'fixture_id' => 101,
+            'stage_id' => 50,
             'gameweek_id' => 500,
             'kickoff_at' => '2026-10-24 12:30:00',
             'home_team_id' => 1,
             'away_team_id' => 2,
         ],
+        [
+            'fixture_id' => 102,
+            'stage_id' => 50,
+            'gameweek_id' => 500,
+            'kickoff_at' => '2026-10-24 15:00:00',
+            'home_team_id' => 3,
+            'away_team_id' => 4,
+        ],
     ];
 
-    $fixtureService = Mockery::mock(
-        FixtureContextService::class
-    );
-
-    $fixtureService
-        ->shouldReceive('fixturesForFlavour')
+    $context
+        ->shouldReceive('fixturesForStage')
         ->once()
-        ->with($flavour)
+        ->with(50)
         ->andReturn($fixtures);
-
-    $this->app->instance(
-        FixtureContextService::class,
-        $fixtureService
-    );
 
     $predictionService = Mockery::mock(
         PredictionContextService::class
@@ -224,7 +186,7 @@ test('gameweek page returns active gameweek with filtered fixtures predictions a
             ],
         ]);
 
-    $this->app->instance(
+    app()->instance(
         PredictionContextService::class,
         $predictionService
     );
@@ -257,6 +219,11 @@ test('gameweek page returns active gameweek with filtered fixtures predictions a
         'flag_code' => 'gb-eng',
     ]);
 
+    app()->instance(
+        TeamContextService::class,
+        new TeamContextService
+    );
+
     $response = $this->get(
         route('gameweek', ['flavour' => 'EPL'])
     );
@@ -288,19 +255,6 @@ test('gameweek page returns active gameweek with filtered fixtures predictions a
 test('per fixture flavour cannot access gameweek page', function () {
     setupGameweekControllerContext($this, 'PFX');
 
-    $gameweekService = Mockery::mock(
-        GameweekContextService::class
-    );
-
-    $gameweekService->shouldNotReceive(
-        'gameweeksForCampaign'
-    );
-
-    $this->app->instance(
-        GameweekContextService::class,
-        $gameweekService
-    );
-
     $response = $this->get(
         route('gameweek', ['flavour' => 'WC'])
     );
@@ -309,51 +263,14 @@ test('per fixture flavour cannot access gameweek page', function () {
 });
 
 test('gameweek page handles the absence of an active gameweek', function () {
-    [$flavour, $campaign] = setupGameweekControllerContext($this);
+    [$flavour, $context] = setupGameweekControllerContext($this);
 
-    $gameweeks = new EloquentCollection([
-        new Gameweek([
-            'gameweek_id' => 400,
-            'campaign_id' => 100,
-            'stage_id' => 40,
-            'gameweek_number' => 4,
-            'status' => 'finished',
-        ]),
-    ]);
-
-    $gameweekService = Mockery::mock(
-        GameweekContextService::class
-    );
-
-    $gameweekService
-        ->shouldReceive('gameweeksForCampaign')
-        ->once()
-        ->with($campaign)
-        ->andReturn($gameweeks);
-
-    $gameweekService
+    $context
         ->shouldReceive('activeGameweek')
         ->once()
-        ->with($gameweeks)
         ->andReturn(null);
 
-    $this->app->instance(
-        GameweekContextService::class,
-        $gameweekService
-    );
-
-    $fixtureService = Mockery::mock(
-        FixtureContextService::class
-    );
-
-    $fixtureService->shouldNotReceive(
-        'fixturesForFlavour'
-    );
-
-    $this->app->instance(
-        FixtureContextService::class,
-        $fixtureService
-    );
+    $context->shouldNotReceive('fixturesForStage');
 
     $predictionService = Mockery::mock(
         PredictionContextService::class
@@ -365,7 +282,7 @@ test('gameweek page handles the absence of an active gameweek', function () {
         ->with($flavour, null)
         ->andReturn([]);
 
-    $this->app->instance(
+    app()->instance(
         PredictionContextService::class,
         $predictionService
     );

@@ -5,6 +5,7 @@ namespace App\Services\Perfect10;
 use App\Models\Perfect10\Campaign;
 use App\Models\Perfect10\Competition;
 use App\Models\Perfect10\Flavour;
+use App\Models\Perfect10\Gameweek;
 use App\Models\Perfect10\Stage;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
@@ -31,15 +32,36 @@ class Perfect10RequestContext
 
     private ?Campaign $campaign = null;
 
+    private bool $activeGameweekResolved = false;
+
+    private ?Gameweek $activeGameweek = null;
+
     /**
      * @var EloquentCollection<int, Stage>|null
      */
     private ?EloquentCollection $stages = null;
 
+    /**
+     * @var EloquentCollection<int, Gameweek>|null
+     */
+    private ?EloquentCollection $gameweeks = null;
+
+    /**
+     * @var list<array<string, mixed>>|null
+     */
+    private ?array $fixtures = null;
+
+    /**
+     * @var array<int, list<array<string, mixed>>>
+     */
+    private array $stageFixtures = [];
+
     public function __construct(
         private readonly Request $request,
         private readonly FlavourContextService $flavourContext,
         private readonly StageContextService $stageContext,
+        private readonly GameweekContextService $gameweekContext,
+        private readonly FixtureContextService $fixtureContext,
     ) {}
 
     /**
@@ -127,5 +149,75 @@ class Perfect10RequestContext
     {
         return $this->stages ??= $this->stageContext
             ->stagesForCampaign($this->campaign());
+    }
+
+    /**
+     * @return EloquentCollection<int, Gameweek>
+     */
+    public function gameweeks(): EloquentCollection
+    {
+        return $this->gameweeks ??= $this->gameweekContext
+            ->gameweeksForCampaign($this->campaign());
+    }
+
+    /**
+     * Resolve the active gameweek once per request.
+     */
+    public function activeGameweek(): ?Gameweek
+    {
+        if (! $this->activeGameweekResolved) {
+            $this->activeGameweek = $this->gameweekContext
+                ->activeGameweek($this->gameweeks());
+
+            $this->activeGameweekResolved = true;
+        }
+
+        return $this->activeGameweek;
+    }
+
+    /**
+     * Retrieve the selected flavour's fixture-provider data.
+     *
+     * Results are cached for the current request.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function fixtures(): array
+    {
+        return $this->fixtures ??= $this->fixtureContext
+            ->fixturesForFlavour($this->flavour());
+    }
+
+    /**
+     * Retrieve fixtures belonging to a stage.
+     *
+     * Includes non-gameweek stages, such as rearranged fixtures.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function fixturesForStage(int $stageId): array
+    {
+        if (array_key_exists($stageId, $this->stageFixtures)) {
+            return $this->stageFixtures[$stageId];
+        }
+
+        $fixtures = collect($this->fixtures())
+            ->filter(
+                fn (array $fixture): bool => $fixture['stage_id'] !== null &&
+                    (int) $fixture['stage_id'] === $stageId
+            )
+            ->sort(
+                fn (array $a, array $b): int => strcmp(
+                    (string) $a['kickoff_at'],
+                    (string) $b['kickoff_at']
+                ) ?: (
+                    (int) $a['fixture_id'] <=>
+                    (int) $b['fixture_id']
+                )
+            )
+            ->values()
+            ->all();
+
+        return $this->stageFixtures[$stageId] = array_values($fixtures);
     }
 }

@@ -158,6 +158,7 @@ export default function GameweekPage() {
                             {groupedFixtures.map(([kickoff, group]) => (
                                 <StageFixturesCard
                                     key={kickoff}
+                                    flavourCode={flavour.flavour_code}
                                     fixtures={group}
                                     teamsMap={teamsMap}
                                     predictionsMap={predictionsMap}
