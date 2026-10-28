@@ -2,8 +2,9 @@ import { Head, usePage } from '@inertiajs/react';
 
 import ContentBanner from '@/components/perfect10/app/ContentBanner';
 import FixtureCard from '@/components/perfect10/fixtures/FixtureCard';
-import type { Fixture } from '@/types/perfect10/fixture';
+
 import type { FixtureTeam } from '@/components/perfect10/fixtures/FixtureCard';
+import type { Fixture } from '@/types/perfect10/fixture';
 import type { Perfect10PageProps } from '@/types/perfect10';
 import type { PredictionsMap } from '@/types/perfect10/prediction';
 
@@ -27,8 +28,16 @@ export default function FixturesPage() {
         .filter(
             (fixture) =>
                 fixture.fixture_status === 'upcoming' ||
+                fixture.fixture_status === 'live_90' ||
+                fixture.fixture_status === 'live_et' ||
                 fixture.fixture_status === 'finished',
         );
+
+    const liveFixtures = displayFixtures.filter(
+        (fixture) =>
+            fixture.fixture_status === 'live_90' ||
+            fixture.fixture_status === 'live_et',
+    );
 
     const upcomingFixtures = displayFixtures
         .filter((fixture) => fixture.fixture_status === 'upcoming')
@@ -39,7 +48,11 @@ export default function FixturesPage() {
     );
 
     const previewFixtures = (
-        upcomingFixtures.length > 0 ? upcomingFixtures : finishedFixtures
+        liveFixtures.length > 0
+            ? liveFixtures
+            : upcomingFixtures.length > 0
+              ? upcomingFixtures
+              : finishedFixtures
     ).slice(0, 10);
 
     return (
@@ -55,6 +68,7 @@ export default function FixturesPage() {
                             key={fixture.fixture_id}
                             fixture={fixture}
                             formatCode={flavour.format_code}
+                            flavourCode={flavour.flavour_code}
                             teamsMap={teamsMap}
                             prediction={
                                 predictionsMap[fixture.fixture_id] ?? null
