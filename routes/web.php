@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Perfect10\ClubsController;
 use App\Http\Controllers\Perfect10\DashboardController;
+use App\Http\Controllers\Perfect10\FixtureLeaderboardController;
 use App\Http\Controllers\Perfect10\FixturesController;
 use App\Http\Controllers\Perfect10\GameweekController;
 use App\Http\Controllers\Perfect10\LeaderboardController;
@@ -47,6 +48,13 @@ Route::prefix('{flavour}')->group(function () {
 
     Route::get('/fixtures', [FixturesController::class, 'index'])
         ->name('fixtures');
+
+    Route::get(
+        '/fixtures/{fixture}/leaderboard',
+        [FixtureLeaderboardController::class, 'show']
+    )
+        ->whereNumber('fixture')
+        ->name('fixtures.leaderboard');
 
     Route::get('/gameweek', [GameweekController::class, 'index'])
         ->name('gameweek');

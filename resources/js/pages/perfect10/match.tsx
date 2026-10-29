@@ -6,6 +6,7 @@ import MatchFixtureCard from '@/components/perfect10/matches/MatchFixtureCard';
 import FormContainer, {
     type MatchForm,
 } from '@/components/perfect10/matches/FormContainer';
+import FixtureLeaderboard from '@/components/perfect10/fixtures/FixtureLeaderboard';
 import LeagueTableSnapshot from '@/components/perfect10/tables/LeagueTableSnapshot';
 import TeamComparison from '@/components/perfect10/teamComparison/TeamComparison';
 import SubmitSlideUp from '@/components/perfect10/predictions/SubmitSlideUp';
@@ -20,7 +21,9 @@ import type { Gameweek } from '@/types/perfect10/gameweek';
 import type { PredictionsMap } from '@/types/perfect10/prediction';
 import type { TeamComparisonData } from '@/types/perfect10/team-comparison';
 
+import useFixtureLeaderboard from '@/hooks/perfect10/useFixtureLeaderboard';
 import usePredictionDrafts from '@/hooks/perfect10/usePredictionDrafts';
+import { canShowFixtureLeaderboard } from '@/utils/perfect10/fixture-leaderboard';
 
 type MatchPageProps = Perfect10PageProps & {
     activeGameweek: Gameweek;
@@ -94,6 +97,26 @@ export default function MatchPage() {
         perfect10Profile !== null &&
         predictionWindowOpen &&
         validChangedPredictions.length > 0;
+
+    /*
+     * Fixture Leaderboard is available only for
+     * live and finished fixtures.
+     *
+     * The hook fetches automatically when enabled.
+     */
+    const leaderboardEligible = canShowFixtureLeaderboard(
+        fixture.fixture_status,
+    );
+
+    const {
+        data: fixtureLeaderboard,
+        loading: fixtureLeaderboardLoading,
+        error: fixtureLeaderboardError,
+    } = useFixtureLeaderboard({
+        fixtureId: fixture.fixture_id,
+        flavourCode: flavour.flavour_code,
+        enabled: leaderboardEligible,
+    });
 
     const matchUrl = (fixtureId: number) =>
         `/${flavour.flavour_code.trim().toLowerCase()}/matches/${fixtureId}`;
@@ -218,6 +241,25 @@ export default function MatchPage() {
                                 />
                             </div>
                         )}
+
+                    {leaderboardEligible && (
+                        <div className="statsSection">
+                            <div className="statsSectionTitle">
+                                Fixture Leaderboard
+                            </div>
+
+                            {fixtureLeaderboardError ? (
+                                <div role="alert">
+                                    {fixtureLeaderboardError}
+                                </div>
+                            ) : (
+                                <FixtureLeaderboard
+                                    data={fixtureLeaderboard}
+                                    loading={fixtureLeaderboardLoading}
+                                />
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <SubmitSlideUp
