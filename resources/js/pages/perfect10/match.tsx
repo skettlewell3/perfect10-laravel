@@ -210,6 +210,21 @@ export default function MatchPage() {
                         }
                     />
 
+                    {leaderboardEligible && (
+                        <div className="statsSection">
+                            {fixtureLeaderboardError ? (
+                                <div role="alert">
+                                    {fixtureLeaderboardError}
+                                </div>
+                            ) : (
+                                <FixtureLeaderboard
+                                    data={fixtureLeaderboard}
+                                    loading={fixtureLeaderboardLoading}
+                                />
+                            )}
+                        </div>
+                    )}
+
                     <div className="statsSection">
                         <div className="statsSectionTitle">Form</div>
 
@@ -241,25 +256,6 @@ export default function MatchPage() {
                                 />
                             </div>
                         )}
-
-                    {leaderboardEligible && (
-                        <div className="statsSection">
-                            <div className="statsSectionTitle">
-                                Fixture Leaderboard
-                            </div>
-
-                            {fixtureLeaderboardError ? (
-                                <div role="alert">
-                                    {fixtureLeaderboardError}
-                                </div>
-                            ) : (
-                                <FixtureLeaderboard
-                                    data={fixtureLeaderboard}
-                                    loading={fixtureLeaderboardLoading}
-                                />
-                            )}
-                        </div>
-                    )}
                 </div>
 
                 <SubmitSlideUp

@@ -10,6 +10,8 @@ import FixturesFilters, {
     type FixtureStatusFilter,
 } from '@/components/perfect10/fixtures/FixturesFilters';
 
+import useFixtureLiveUpdates from '@/hooks/perfect10/useFixtureLiveUpdates';
+
 import type { FixtureTeam } from '@/components/perfect10/fixtures/FixtureCard';
 import type { Fixture } from '@/types/perfect10/fixture';
 import type { Perfect10PageProps } from '@/types/perfect10';
@@ -29,18 +31,35 @@ const defaultFilters: FixtureFiltersState = {
     predictionsOpenOnly: false,
 };
 
+const getDefaultFilters = (fixtures: Fixture[]): FixtureFiltersState => {
+    const hasLiveFixtures = fixtures.some(
+        (fixture) =>
+            fixture.fixture_status === 'live_90' ||
+            fixture.fixture_status === 'live_et',
+    );
+
+    return {
+        ...defaultFilters,
+        status: hasLiveFixtures ? 'live' : 'upcoming',
+    };
+};
+
 export default function FixturesPage() {
     const { flavour, fixtures, teamsMap, predictionsMap } =
         usePage<FixturesPageProps>().props;
 
-    const [filters, setFilters] = useState<FixtureFiltersState>(defaultFilters);
+    const liveFixtures = useFixtureLiveUpdates(fixtures, flavour.flavour_code);
+
+    const [filters, setFilters] = useState<FixtureFiltersState>(() =>
+        getDefaultFilters(fixtures),
+    );
 
     const [sortPreset, setSortPreset] = useState<FixtureSortPreset>('default');
 
     const stageOptions = useMemo<FixtureFilterOption[]>(() => {
         const stages = new Map<number, string>();
 
-        for (const fixture of fixtures) {
+        for (const fixture of liveFixtures) {
             if (!stages.has(fixture.stage_id)) {
                 stages.set(fixture.stage_id, fixture.stage_name);
             }
@@ -49,12 +68,12 @@ export default function FixturesPage() {
         return [...stages.entries()]
             .map(([value, label]) => ({ value, label }))
             .sort((a, b) => a.value - b.value);
-    }, [fixtures]);
+    }, [liveFixtures]);
 
     const groupOptions = useMemo<FixtureFilterOption[]>(() => {
         const groups = new Set<string>();
 
-        for (const fixture of fixtures) {
+        for (const fixture of liveFixtures) {
             if (fixture.group_letter) {
                 groups.add(fixture.group_letter);
             }
@@ -64,7 +83,7 @@ export default function FixturesPage() {
             value: group,
             label: `Group ${group}`,
         }));
-    }, [fixtures]);
+    }, [liveFixtures]);
 
     /*
      * Team options use full team names.
@@ -75,7 +94,7 @@ export default function FixturesPage() {
     const teamOptions = useMemo<FixtureFilterOption[]>(() => {
         const availableTeams = new Map<number, string>();
 
-        for (const fixture of fixtures) {
+        for (const fixture of liveFixtures) {
             const statusMatches =
                 filters.status === 'all' ||
                 (filters.status === 'live'
@@ -122,7 +141,7 @@ export default function FixturesPage() {
             .map(([value, label]) => ({ value, label }))
             .sort((a, b) => a.label.localeCompare(b.label));
     }, [
-        fixtures,
+        liveFixtures,
         filters.status,
         filters.stageId,
         filters.groupLetter,
@@ -130,7 +149,7 @@ export default function FixturesPage() {
     ]);
 
     const filteredFixtures = useMemo(() => {
-        const matching = fixtures.filter((fixture) => {
+        const matching = liveFixtures.filter((fixture) => {
             if (filters.status !== 'all') {
                 if (filters.status === 'live') {
                     if (
@@ -191,7 +210,7 @@ export default function FixturesPage() {
         });
 
         return matching;
-    }, [fixtures, filters, sortPreset]);
+    }, [liveFixtures, filters, sortPreset]);
 
     const setStatusFilter = (status: FixtureStatusFilter) => {
         setFilters((previous) => ({ ...previous, status }));
@@ -239,7 +258,7 @@ export default function FixturesPage() {
     };
 
     const resetFilters = () => {
-        setFilters({ ...defaultFilters });
+        setFilters(getDefaultFilters(liveFixtures));
         setSortPreset('default');
     };
 
@@ -251,7 +270,7 @@ export default function FixturesPage() {
                 <ContentBanner title="Fixtures" />
 
                 <FixturesFilters
-                    fixtures={fixtures}
+                    fixtures={liveFixtures}
                     filters={filters}
                     sortPreset={sortPreset}
                     stages={stageOptions}

@@ -2244,7 +2244,7 @@ input[type='number'] {
 .fixtureBreakdownRow.perfect10 .fixtureBreakdownCell,
 .fixtureBreakdownRow.perfect10 .fixtureBreakdownValue {
     color: white;
-    background: var(--green);
+    background: var(--gold);
     border-color: transparent;
 }
 

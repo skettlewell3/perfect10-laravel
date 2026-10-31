@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Perfect10\ClubsController;
 use App\Http\Controllers\Perfect10\DashboardController;
-use App\Http\Controllers\Perfect10\FixtureLeaderboardController;
 use App\Http\Controllers\Perfect10\FixturesController;
+use App\Http\Controllers\Perfect10\FixtureLeaderboardController;
+use App\Http\Controllers\Perfect10\FixtureLiveDataController;
+use App\Http\Controllers\Perfect10\FixturePredictionLiveDataController;
 use App\Http\Controllers\Perfect10\GameweekController;
 use App\Http\Controllers\Perfect10\LeaderboardController;
 use App\Http\Controllers\Perfect10\MatchController;
@@ -55,6 +57,22 @@ Route::prefix('{flavour}')->group(function () {
     )
         ->whereNumber('fixture')
         ->name('fixtures.leaderboard');
+    
+    Route::get(
+        '/fixtures/{fixture}/data',
+        [FixtureLiveDataController::class, 'show']
+    )
+        ->whereNumber('fixture')
+        ->name('fixtures.live-data');
+    
+    
+    Route::get(
+        '/fixtures/{fixture}/prediction-data',
+        [FixturePredictionLiveDataController::class, 'show']
+    )
+        ->whereNumber('fixture')
+        ->name('fixtures.prediction-data');
+
 
     Route::get('/gameweek', [GameweekController::class, 'index'])
         ->name('gameweek');

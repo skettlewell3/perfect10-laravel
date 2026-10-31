@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 
@@ -14,6 +15,8 @@ import type { Gameweek } from '@/types/perfect10/gameweek';
 import type { PredictionsMap } from '@/types/perfect10/prediction';
 
 import usePredictionDrafts from '@/hooks/perfect10/usePredictionDrafts';
+import useFixtureLiveUpdates from '@/hooks/perfect10/useFixtureLiveUpdates';
+import usePredictionScoreLiveUpdates from '@/hooks/perfect10/usePredictionScoreLiveUpdates';
 
 type GameweekPageProps = Perfect10PageProps & {
     activeGameweek: Gameweek | null;
@@ -37,10 +40,20 @@ export default function GameweekPage() {
     const [notification, setNotification] =
         useState<PredictionNotificationData | null>(null);
 
+    const liveFixtures = useFixtureLiveUpdates(
+        fixtures,
+        flavour.flavour_code,
+    );
+
+    const livePredictionsMap = usePredictionScoreLiveUpdates(
+        predictionsMap,
+        flavour.flavour_code,
+    );
+
     const groupedFixtures = useMemo(() => {
         const groups = new Map<string, Fixture[]>();
 
-        const sortedFixtures = [...fixtures].sort(
+        const sortedFixtures = [...liveFixtures].sort(
             (a, b) =>
                 new Date(a.kickoff_at).getTime() -
                 new Date(b.kickoff_at).getTime(),
@@ -55,7 +68,7 @@ export default function GameweekPage() {
         }
 
         return Array.from(groups.entries());
-    }, [fixtures]);
+    }, [liveFixtures]);
 
     const now = Date.now();
 
@@ -161,7 +174,7 @@ export default function GameweekPage() {
                                     flavourCode={flavour.flavour_code}
                                     fixtures={group}
                                     teamsMap={teamsMap}
-                                    predictionsMap={predictionsMap}
+                                    predictionsMap={livePredictionsMap}
                                     predictionOpenAt={
                                         activeGameweek.prediction_open_at
                                     }
