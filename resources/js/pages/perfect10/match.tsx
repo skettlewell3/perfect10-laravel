@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 
@@ -7,6 +8,7 @@ import FormContainer, {
     type MatchForm,
 } from '@/components/perfect10/matches/FormContainer';
 import FixtureLeaderboard from '@/components/perfect10/fixtures/FixtureLeaderboard';
+import FixtureScoreBreakdown from '@/components/perfect10/fixtures/FixtureScoreBreakdown';
 import LeagueTableSnapshot from '@/components/perfect10/tables/LeagueTableSnapshot';
 import TeamComparison from '@/components/perfect10/teamComparison/TeamComparison';
 import SubmitSlideUp from '@/components/perfect10/predictions/SubmitSlideUp';
@@ -21,8 +23,11 @@ import type { Gameweek } from '@/types/perfect10/gameweek';
 import type { PredictionsMap } from '@/types/perfect10/prediction';
 import type { TeamComparisonData } from '@/types/perfect10/team-comparison';
 
+import useFixtureLiveUpdates from '@/hooks/perfect10/useFixtureLiveUpdates';
 import useFixtureLeaderboard from '@/hooks/perfect10/useFixtureLeaderboard';
+import usePredictionScoreLiveUpdates from '@/hooks/perfect10/usePredictionScoreLiveUpdates';
 import usePredictionDrafts from '@/hooks/perfect10/usePredictionDrafts';
+
 import { canShowFixtureLeaderboard } from '@/utils/perfect10/fixture-leaderboard';
 
 type MatchPageProps = Perfect10PageProps & {
@@ -64,6 +69,35 @@ export default function MatchPage() {
     const [notification, setNotification] =
         useState<PredictionNotificationData | null>(null);
 
+    /*
+     * Memoise the single-fixture array so the live-update hook
+     * receives a stable collection between renders.
+     */
+    const matchFixtures = useMemo(
+        () => [fixture],
+        [fixture],
+    );
+
+    const liveFixtures = useFixtureLiveUpdates(
+        matchFixtures,
+        flavour.flavour_code,
+    );
+
+    const liveFixture = liveFixtures[0] ?? fixture;
+
+    /*
+     * Refresh the current user's prediction scoring when
+     * a result_updated notification is received.
+     */
+    const livePredictionsMap = usePredictionScoreLiveUpdates(
+        predictionsMap,
+        flavour.flavour_code,
+    );
+
+    const livePrediction =
+        livePredictionsMap[fixture.fixture_id] ?? null;
+
+
     const predictionWindowOpen =
         activeGameweek.status === 'active' &&
         activeGameweek.prediction_open_at !== null &&
@@ -71,6 +105,9 @@ export default function MatchPage() {
         Date.now() >= new Date(activeGameweek.prediction_open_at).getTime() &&
         Date.now() < new Date(activeGameweek.prediction_close_at).getTime();
 
+    /*
+     * Keep prediction drafts independent from live scoring.
+     */
     const {
         drafts,
         updateDraft,
@@ -99,13 +136,11 @@ export default function MatchPage() {
         validChangedPredictions.length > 0;
 
     /*
-     * Fixture Leaderboard is available only for
-     * live and finished fixtures.
-     *
-     * The hook fetches automatically when enabled.
+     * Use the LIVE fixture status, not the initial
+     * status provided by Inertia.
      */
     const leaderboardEligible = canShowFixtureLeaderboard(
-        fixture.fixture_status,
+        liveFixture.fixture_status,
     );
 
     const {
@@ -187,7 +222,7 @@ export default function MatchPage() {
 
             <div className="pageShell">
                 <MatchContentBanner
-                    currentFixture={fixture}
+                    currentFixture={liveFixture}
                     previousFixtureId={navigation.previousFixtureId}
                     nextFixtureId={navigation.nextFixtureId}
                     onNavigate={goToFixture}
@@ -196,8 +231,8 @@ export default function MatchPage() {
 
                 <div className="scrollArea activeStageScroll">
                     <MatchFixtureCard
-                        fixture={fixture}
-                        prediction={predictionsMap[fixture.fixture_id] ?? null}
+                        fixture={liveFixture}
+                        prediction={livePrediction}
                         draft={drafts[fixture.fixture_id] ?? null}
                         teamsMap={teamsMap}
                         actualTable={actualTable}
@@ -209,6 +244,12 @@ export default function MatchPage() {
                                 : undefined
                         }
                     />
+
+                    {!predictionWindowOpen && livePrediction !== null && (
+                        <div className="statsSection">
+                            <FixtureScoreBreakdown prediction={livePrediction} />
+                        </div>
+                    )}
 
                     {leaderboardEligible && (
                         <div className="statsSection">
@@ -232,13 +273,13 @@ export default function MatchPage() {
 
                         <FormContainer
                             form={form}
-                            currentFixture={fixture}
+                            currentFixture={liveFixture}
                             teamsMap={formTeamsMap}
                         />
                     </div>
 
-                    {fixture.home_team_id !== null &&
-                        fixture.away_team_id !== null && (
+                    {liveFixture.home_team_id !== null &&
+                        liveFixture.away_team_id !== null && (
                             <div className="statsSection">
                                 <div className="statsSectionTitle text-right">
                                     Team Comparison
@@ -247,12 +288,12 @@ export default function MatchPage() {
                                 <TeamComparison
                                     data={comparison}
                                     teams={{
-                                        team1: fixture.home_team_id,
-                                        team2: fixture.away_team_id,
+                                        team1: liveFixture.home_team_id,
+                                        team2: liveFixture.away_team_id,
                                     }}
                                     teamsMap={comparisonTeamsMap}
-                                    team1ShortCode={fixture.home_short_code}
-                                    team2ShortCode={fixture.away_short_code}
+                                    team1ShortCode={liveFixture.home_short_code}
+                                    team2ShortCode={liveFixture.away_short_code}
                                 />
                             </div>
                         )}

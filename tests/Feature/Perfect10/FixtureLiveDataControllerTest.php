@@ -49,7 +49,7 @@ beforeEach(function () {
  */
 function setupFixtureLiveDataCampaign(int $campaignId = 2): void
 {
-    $campaign = new Campaign();
+    $campaign = new Campaign;
 
     $campaign->setAttribute(
         $campaign->getKeyName(),

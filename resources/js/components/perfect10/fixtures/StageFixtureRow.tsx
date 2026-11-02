@@ -179,9 +179,9 @@ export default function StageFixtureRow({
                             />
                         </div>
                     ) : hasStarted ? (
-                        <div className="homeScore">{homeScore ?? '–'}</div>
+                        <div className="stageActualScore">{homeScore ?? '–'}</div>
                     ) : showPrediction ? (
-                        <div className="homePred">
+                        <div className="stageSavedPrediction">
                             {prediction?.pred_home_goals}
                         </div>
                     ) : (
@@ -208,9 +208,9 @@ export default function StageFixtureRow({
                             />
                         </div>
                     ) : hasStarted ? (
-                        <div className="awayScore">{awayScore ?? '–'}</div>
+                        <div className="stageActualScore">{awayScore ?? '–'}</div>
                     ) : showPrediction ? (
-                        <div className="awayPredLoc">
+                        <div className="stageSavedPrediction">
                             {prediction?.pred_away_goals}
                         </div>
                     ) : (

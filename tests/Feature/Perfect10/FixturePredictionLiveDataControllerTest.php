@@ -57,7 +57,7 @@ function setupPredictionLiveDataContext(
     int $campaignId = 2,
     ?string $profileId = PREDICTION_LIVE_TEST_PROFILE
 ): void {
-    $campaign = new Campaign();
+    $campaign = new Campaign;
 
     $campaign->setAttribute(
         $campaign->getKeyName(),
@@ -372,12 +372,12 @@ test('rejects a zero fixture ID', function () {
     $currentProfile = Mockery::mock(
         CurrentProfileService::class
     );
-    
+
     $currentProfile
         ->shouldReceive('profile')
         ->zeroOrMoreTimes()
         ->andReturn(null);
-    
+
     $currentProfile->shouldNotReceive('profileId');
 
     app()->instance(

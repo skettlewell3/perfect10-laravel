@@ -136,13 +136,9 @@ export default function MatchFixtureRow({
         });
     };
 
-    const displayedHome = hasStarted
-        ? (homeScore ?? '–')
-        : (prediction?.pred_home_goals ?? '–');
+    const displayedHome = hasStarted ? (homeScore ?? '–') : '';
 
-    const displayedAway = hasStarted
-        ? (awayScore ?? '–')
-        : (prediction?.pred_away_goals ?? '–');
+    const displayedAway = hasStarted ? (awayScore ?? '–') : '';
 
     return (
         <fieldset className="modalFieldset match">
