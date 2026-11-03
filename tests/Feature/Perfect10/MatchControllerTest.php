@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Models\Perfect10\Flavour;
@@ -9,6 +10,8 @@ use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\PredictionContextService;
 use App\Services\Perfect10\TeamComparisonContextService;
 use App\Services\Perfect10\TeamContextService;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -43,6 +46,8 @@ beforeEach(function () {
 });
 
 /**
+ * Fixtures belonging to the active gameweek.
+ *
  * @return list<array<string, mixed>>
  */
 function matchControllerFixtures(): array
@@ -91,6 +96,14 @@ function matchControllerFixtures(): array
 }
 
 /**
+ * All fixtures in the selected campaign.
+ *
+ * Includes:
+ * - A historical gameweek fixture.
+ * - Three active gameweek fixtures.
+ * - A future gameweek fixture.
+ * - Two rearranged fixtures without gameweeks.
+ *
  * @return list<array<string, mixed>>
  */
 function matchControllerAllFixtures(): array
@@ -126,6 +139,32 @@ function matchControllerAllFixtures(): array
             'away_team_name' => 'Nottingham Forest',
             'away_short_code' => 'NFO',
         ],
+        [
+            'fixture_id' => 600,
+            'stage_id' => 19,
+            'gameweek_id' => null,
+            'kickoff_at' => '2026-11-10 19:45:00',
+            'fixture_status' => 'upcoming',
+            'home_team_id' => 1,
+            'home_team_name' => 'Arsenal',
+            'home_short_code' => 'ARS',
+            'away_team_id' => 8,
+            'away_team_name' => 'Everton',
+            'away_short_code' => 'EVE',
+        ],
+        [
+            'fixture_id' => 601,
+            'stage_id' => 19,
+            'gameweek_id' => null,
+            'kickoff_at' => '2026-11-11 19:45:00',
+            'fixture_status' => 'upcoming',
+            'home_team_id' => 2,
+            'home_team_name' => 'Chelsea',
+            'home_short_code' => 'CHE',
+            'away_team_id' => 6,
+            'away_team_name' => 'Brentford',
+            'away_short_code' => 'BRE',
+        ],
     ];
 }
 
@@ -152,8 +191,6 @@ function matchControllerForm(): array
 }
 
 /**
- * Representative results from the comparison RPC.
- *
  * @return list<array<string, mixed>>
  */
 function matchControllerComparison(): array
@@ -175,6 +212,42 @@ function matchControllerComparison(): array
     ];
 }
 
+/**
+ * Create the gameweeks belonging to the selected campaign.
+ */
+function matchControllerGameweeks(
+    bool $hasActiveGameweek = true
+): EloquentCollection {
+    return new EloquentCollection([
+        new Gameweek([
+            'gameweek_id' => 7,
+            'campaign_id' => 100,
+            'stage_id' => 16,
+            'gameweek_number' => 7,
+            'status' => 'finished',
+        ]),
+        new Gameweek([
+            'gameweek_id' => 8,
+            'campaign_id' => 100,
+            'stage_id' => 17,
+            'gameweek_number' => 8,
+            'status' => $hasActiveGameweek ? 'active' : 'finished',
+            'prediction_open_at' => '2026-10-16 12:00:00',
+            'prediction_close_at' => '2026-10-23 18:30:00',
+        ]),
+        new Gameweek([
+            'gameweek_id' => 9,
+            'campaign_id' => 100,
+            'stage_id' => 18,
+            'gameweek_number' => 9,
+            'status' => 'upcoming',
+        ]),
+    ]);
+}
+
+/**
+ * Configure the selected flavour and request context.
+ */
 function setupMatchControllerContext(
     string $formatCode = 'GWK',
     bool $hasActiveGameweek = true
@@ -198,41 +271,16 @@ function setupMatchControllerContext(
         ->once()
         ->andReturn($selected);
 
+    /*
+     * PFX formats must be rejected before requesting
+     * GWK-specific context or fixture data.
+     */
     if ($formatCode !== 'GWK') {
+        $context->shouldNotReceive('flavour');
+        $context->shouldNotReceive('fixtures');
+        $context->shouldNotReceive('gameweeks');
         $context->shouldNotReceive('activeGameweek');
         $context->shouldNotReceive('fixturesForStage');
-        $context->shouldNotReceive('fixtures');
-        $context->shouldNotReceive('flavour');
-
-        app()->instance(
-            Perfect10RequestContext::class,
-            $context
-        );
-
-        return null;
-    }
-
-    $gameweek = $hasActiveGameweek
-        ? new Gameweek([
-            'gameweek_id' => 8,
-            'campaign_id' => 100,
-            'stage_id' => 17,
-            'gameweek_number' => 8,
-            'status' => 'active',
-            'prediction_open_at' => '2026-10-16 12:00:00',
-            'prediction_close_at' => '2026-10-23 18:30:00',
-        ])
-        : null;
-
-    $context
-        ->shouldReceive('activeGameweek')
-        ->once()
-        ->andReturn($gameweek);
-
-    if (! $hasActiveGameweek) {
-        $context->shouldNotReceive('fixturesForStage');
-        $context->shouldNotReceive('fixtures');
-        $context->shouldNotReceive('flavour');
 
         app()->instance(
             Perfect10RequestContext::class,
@@ -247,21 +295,37 @@ function setupMatchControllerContext(
         'flavour_code' => 'EPL',
     ]);
 
+    $gameweeks = matchControllerGameweeks(
+        $hasActiveGameweek
+    );
+
+    $activeGameweek = $hasActiveGameweek
+        ? $gameweeks->first(
+            fn (Gameweek $gameweek): bool => $gameweek->status === 'active'
+        )
+        : null;
+
     $context
         ->shouldReceive('flavour')
         ->once()
         ->andReturn($flavour);
 
     $context
-        ->shouldReceive('fixturesForStage')
+        ->shouldReceive('fixtures')
         ->once()
-        ->with(17)
-        ->andReturn(matchControllerFixtures());
+        ->andReturn(matchControllerAllFixtures());
 
     $context
-        ->shouldReceive('fixtures')
-        ->zeroOrMoreTimes()
-        ->andReturn(matchControllerAllFixtures());
+        ->shouldReceive('activeGameweek')
+        ->between(0, 1)
+        ->andReturn($activeGameweek);
+
+    $context
+        ->shouldReceive('gameweeks')
+        ->between(0, 1)
+        ->andReturn($gameweeks);
+
+    $context->shouldNotReceive('fixturesForStage');
 
     app()->instance(
         Perfect10RequestContext::class,
@@ -271,8 +335,184 @@ function setupMatchControllerContext(
     return $flavour;
 }
 
-function setupMatchControllerServices(Flavour $flavour): void
+/**
+ * Retrieve a fixture from the test campaign.
+ *
+ * @return array<string, mixed>
+ */
+function matchControllerFixture(int $fixtureId): array
 {
+    $fixture = collect(matchControllerAllFixtures())
+        ->first(
+            fn (array $row): bool => (int) $row['fixture_id'] === $fixtureId
+        );
+
+    if ($fixture === null) {
+        throw new RuntimeException(
+            "Test fixture {$fixtureId} does not exist."
+        );
+    }
+
+    return $fixture;
+}
+
+/**
+ * Return a navigation group for a selected fixture.
+ *
+ * @return list<array<string, mixed>>
+ */
+function matchControllerNavigationFixtures(int $fixtureId): array
+{
+    $currentFixture = matchControllerFixture($fixtureId);
+
+    $gameweekId = $currentFixture['gameweek_id'];
+    $stageId = $currentFixture['stage_id'];
+
+    return collect(matchControllerAllFixtures())
+        ->filter(function (array $fixture) use (
+            $gameweekId,
+            $stageId
+        ): bool {
+            if ($gameweekId !== null) {
+                return $fixture['gameweek_id'] !== null
+                    && (int) $fixture['gameweek_id'] === (int) $gameweekId;
+            }
+
+            return $fixture['gameweek_id'] === null
+                && (int) $fixture['stage_id'] === (int) $stageId;
+        })
+        ->sortBy([
+            ['kickoff_at', 'asc'],
+            ['fixture_id', 'asc'],
+        ])
+        ->values()
+        ->all();
+}
+
+/**
+ * Return representative team presentation data.
+ */
+function matchControllerTeamsMap(array $fixtures): Collection
+{
+    $teams = [
+        1 => ['team_name' => 'Arsenal', 'color_1' => '#ff0000'],
+        2 => ['team_name' => 'Chelsea', 'color_1' => '#0000ff'],
+        3 => ['team_name' => 'Ipswich', 'color_1' => '#1234ff'],
+        4 => ['team_name' => 'Nottingham Forest', 'color_1' => '#ff0000'],
+        5 => ['team_name' => 'Hull', 'color_1' => '#ff9900'],
+        6 => ['team_name' => 'Brentford', 'color_1' => '#dd0000'],
+        7 => ['team_name' => 'Fulham', 'color_1' => '#ffffff'],
+        8 => ['team_name' => 'Everton', 'color_1' => '#0000aa'],
+    ];
+
+    $teamIds = collect($fixtures)
+        ->flatMap(fn (array $fixture): array => [
+            $fixture['home_team_id'],
+            $fixture['away_team_id'],
+        ])
+        ->filter(fn ($id): bool => $id !== null)
+        ->unique()
+        ->values();
+
+    return $teamIds->mapWithKeys(
+        function ($teamId) use ($teams): array {
+            $id = (int) $teamId;
+
+            return [
+                $id => [
+                    'team_id' => $id,
+                    'team_name' => $teams[$id]['team_name'],
+                    'flag_code' => null,
+                    'color_1' => $teams[$id]['color_1'],
+                    'color_2' => '#ffffff',
+                    'color_3' => null,
+                ],
+            ];
+        }
+    );
+}
+
+/**
+ * Return representative league table data.
+ */
+function matchControllerActualTable(): Collection
+{
+    return collect([
+        [
+            'team_id' => 1,
+            'team_name' => 'Arsenal',
+            'pos' => 2,
+            'points' => 20,
+        ],
+        [
+            'team_id' => 2,
+            'team_name' => 'Chelsea',
+            'pos' => 5,
+            'points' => 15,
+        ],
+        [
+            'team_id' => 3,
+            'team_name' => 'Ipswich',
+            'pos' => 10,
+            'points' => 9,
+        ],
+        [
+            'team_id' => 4,
+            'team_name' => 'Nottingham Forest',
+            'pos' => 19,
+            'points' => 5,
+        ],
+        [
+            'team_id' => 5,
+            'team_name' => 'Hull',
+            'pos' => 9,
+            'points' => 10,
+        ],
+        [
+            'team_id' => 6,
+            'team_name' => 'Brentford',
+            'pos' => 6,
+            'points' => 12,
+        ],
+        [
+            'team_id' => 7,
+            'team_name' => 'Fulham',
+            'pos' => 8,
+            'points' => 13,
+        ],
+        [
+            'team_id' => 8,
+            'team_name' => 'Everton',
+            'pos' => 12,
+            'points' => 8,
+        ],
+    ]);
+}
+
+/**
+ * Set up the dependencies required to render any selected match.
+ *
+ * The fixture ID controls the expected navigation group,
+ * form context and team comparison arguments.
+ */
+function setupMatchControllerServices(
+    Flavour $flavour,
+    int $fixtureId,
+    bool $includeFormData = false
+): void {
+    $currentFixture = matchControllerFixture($fixtureId);
+
+    $navigationFixtures = matchControllerNavigationFixtures(
+        $fixtureId
+    );
+
+    $allFixtures = matchControllerAllFixtures();
+
+    /*
+     * Predictions are returned for the selected flavour.
+     * The controller must then restrict them to the
+     * selected fixture's navigation group.
+     */
     $predictionService = Mockery::mock(
         PredictionContextService::class
     );
@@ -282,6 +522,11 @@ function setupMatchControllerServices(Flavour $flavour): void
         ->once()
         ->with($flavour, null)
         ->andReturn([
+            400 => [
+                'fixture_id' => 400,
+                'pred_home_goals' => 2,
+                'pred_away_goals' => 1,
+            ],
             492 => [
                 'fixture_id' => 492,
                 'pred_home_goals' => 2,
@@ -297,10 +542,10 @@ function setupMatchControllerServices(Flavour $flavour): void
                 'pred_home_goals' => 0,
                 'pred_away_goals' => 0,
             ],
-            400 => [
-                'fixture_id' => 400,
-                'pred_home_goals' => 2,
-                'pred_away_goals' => 1,
+            600 => [
+                'fixture_id' => 600,
+                'pred_home_goals' => 1,
+                'pred_away_goals' => 2,
             ],
         ]);
 
@@ -309,6 +554,22 @@ function setupMatchControllerServices(Flavour $flavour): void
         $predictionService
     );
 
+    /*
+     * Form Guide.
+     */
+    $form = $includeFormData
+        ? matchControllerForm()
+        : [
+            'home' => [
+                'past' => [],
+                'future' => [],
+            ],
+            'away' => [
+                'past' => [],
+                'future' => [],
+            ],
+        ];
+
     $formService = Mockery::mock(
         MatchFormContextService::class
     );
@@ -316,15 +577,29 @@ function setupMatchControllerServices(Flavour $flavour): void
     $formService
         ->shouldReceive('forMatch')
         ->once()
-        ->with(
-            matchControllerAllFixtures(),
-            matchControllerFixtures()[1]
-        )
-        ->andReturn(matchControllerForm());
+        ->with($allFixtures, $currentFixture)
+        ->andReturn($form);
 
     app()->instance(
         MatchFormContextService::class,
         $formService
+    );
+
+    /*
+     * Teams for navigation fixtures, form fixtures
+     * and the full comparison dataset.
+     */
+    $formFixtures = [
+        ...$form['home']['past'],
+        ...$form['home']['future'],
+        ...$form['away']['past'],
+        ...$form['away']['future'],
+    ];
+
+    $formFixtures = array_values(
+        collect($formFixtures)
+            ->unique('fixture_id')
+            ->all()
     );
 
     $teamService = Mockery::mock(
@@ -334,133 +609,35 @@ function setupMatchControllerServices(Flavour $flavour): void
     $teamService
         ->shouldReceive('teamsMapForFixtures')
         ->once()
-        ->with(matchControllerFixtures())
-        ->andReturn(collect([
-            1 => [
-                'team_id' => 1,
-                'team_name' => 'Arsenal',
-                'flag_code' => null,
-                'color_1' => '#ff0000',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-            2 => [
-                'team_id' => 2,
-                'team_name' => 'Chelsea',
-                'flag_code' => null,
-                'color_1' => '#0000ff',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-            3 => [
-                'team_id' => 3,
-                'team_name' => 'Ipswich',
-                'flag_code' => null,
-                'color_1' => '#1234ff',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-            4 => [
-                'team_id' => 4,
-                'team_name' => 'Nottingham Forest',
-                'flag_code' => null,
-                'color_1' => '#ff0000',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-            5 => [
-                'team_id' => 5,
-                'team_name' => 'Hull',
-                'flag_code' => null,
-                'color_1' => '#ff9900',
-                'color_2' => '#000000',
-                'color_3' => null,
-            ],
-            6 => [
-                'team_id' => 6,
-                'team_name' => 'Brentford',
-                'flag_code' => null,
-                'color_1' => '#dd0000',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-        ]));
+        ->with($navigationFixtures)
+        ->andReturn(
+            matchControllerTeamsMap($navigationFixtures)
+        );
 
     $teamService
         ->shouldReceive('teamsMapForFixtures')
         ->once()
-        ->with([
-            matchControllerAllFixtures()[0],
-            matchControllerAllFixtures()[4],
-        ])
-        ->andReturn(collect([
-            3 => [
-                'team_id' => 3,
-                'team_name' => 'Ipswich',
-                'flag_code' => null,
-                'color_1' => '#1234ff',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-            4 => [
-                'team_id' => 4,
-                'team_name' => 'Nottingham Forest',
-                'flag_code' => null,
-                'color_1' => '#ff0000',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-            7 => [
-                'team_id' => 7,
-                'team_name' => 'Fulham',
-                'flag_code' => null,
-                'color_1' => '#ffffff',
-                'color_2' => '#000000',
-                'color_3' => null,
-            ],
-            8 => [
-                'team_id' => 8,
-                'team_name' => 'Everton',
-                'flag_code' => null,
-                'color_1' => '#0000aa',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-        ]));
+        ->with($formFixtures)
+        ->andReturn(
+            matchControllerTeamsMap($formFixtures)
+        );
 
     $teamService
         ->shouldReceive('teamsMapForFixtures')
         ->once()
-        ->with(matchControllerAllFixtures())
-        ->andReturn(collect([
-            3 => [
-                'team_id' => 3,
-                'team_name' => 'Ipswich',
-                'color_1' => '#1234ff',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-            4 => [
-                'team_id' => 4,
-                'team_name' => 'Nottingham Forest',
-                'color_1' => '#ff0000',
-                'color_2' => '#ffffff',
-                'color_3' => null,
-            ],
-            7 => [
-                'team_id' => 7,
-                'team_name' => 'Fulham',
-                'color_1' => '#ffffff',
-                'color_2' => '#000000',
-                'color_3' => null,
-            ],
-        ]));
+        ->with($allFixtures)
+        ->andReturn(
+            matchControllerTeamsMap($allFixtures)
+        );
 
     app()->instance(
         TeamContextService::class,
         $teamService
     );
 
+    /*
+     * Actual league table.
+     */
     $leagueTableService = Mockery::mock(
         LeagueTableContextService::class
     );
@@ -469,50 +646,16 @@ function setupMatchControllerServices(Flavour $flavour): void
         ->shouldReceive('actualTable')
         ->once()
         ->with(1)
-        ->andReturn(collect([
-            [
-                'team_id' => 1,
-                'team_name' => 'Arsenal',
-                'pos' => 2,
-                'points' => 20,
-            ],
-            [
-                'team_id' => 2,
-                'team_name' => 'Chelsea',
-                'pos' => 5,
-                'points' => 15,
-            ],
-            [
-                'team_id' => 3,
-                'team_name' => 'Ipswich',
-                'pos' => 10,
-                'points' => 9,
-            ],
-            [
-                'team_id' => 4,
-                'team_name' => 'Nottingham Forest',
-                'pos' => 19,
-                'points' => 5,
-            ],
-            [
-                'team_id' => 5,
-                'team_name' => 'Hull',
-                'pos' => 9,
-                'points' => 10,
-            ],
-            [
-                'team_id' => 6,
-                'team_name' => 'Brentford',
-                'pos' => 6,
-                'points' => 12,
-            ],
-        ]));
+        ->andReturn(matchControllerActualTable());
 
     app()->instance(
         LeagueTableContextService::class,
         $leagueTableService
     );
 
+    /*
+     * Team Comparison.
+     */
     $comparisonService = Mockery::mock(
         TeamComparisonContextService::class
     );
@@ -520,8 +663,16 @@ function setupMatchControllerServices(Flavour $flavour): void
     $comparisonService
         ->shouldReceive('compare')
         ->once()
-        ->with(1, 3, 4)
-        ->andReturn(matchControllerComparison());
+        ->with(
+            1,
+            (int) $currentFixture['home_team_id'],
+            (int) $currentFixture['away_team_id']
+        )
+        ->andReturn(
+            $includeFormData
+                ? matchControllerComparison()
+                : []
+        );
 
     app()->instance(
         TeamComparisonContextService::class,
@@ -532,7 +683,11 @@ function setupMatchControllerServices(Flavour $flavour): void
 test('match details returns the selected fixture with predictions teams league positions and form', function () {
     $flavour = setupMatchControllerContext();
 
-    setupMatchControllerServices($flavour);
+    setupMatchControllerServices(
+        $flavour,
+        493,
+        true
+    );
 
     $response = $this->get(
         route('matches.show', [
@@ -549,6 +704,8 @@ test('match details returns the selected fixture with predictions teams league p
             ->where('flavour.flavour_code', 'EPL')
             ->where('activeGameweek.gameweek_id', 8)
             ->where('activeGameweek.gameweek_number', 8)
+            ->where('selectedGameweek.gameweek_id', 8)
+            ->where('selectedGameweek.gameweek_number', 8)
             ->where('fixture.fixture_id', 493)
             ->where('fixture.home_team_name', 'Ipswich')
             ->where('fixture.away_team_name', 'Nottingham Forest')
@@ -561,6 +718,7 @@ test('match details returns the selected fixture with predictions teams league p
             ->where('predictionsMap.493.pred_home_goals', 1)
             ->where('predictionsMap.494.pred_away_goals', 0)
             ->missing('predictionsMap.400')
+            ->missing('predictionsMap.600')
             ->has('teamsMap', 6)
             ->where('teamsMap.3.team_name', 'Ipswich')
             ->where('teamsMap.4.team_name', 'Nottingham Forest')
@@ -593,32 +751,10 @@ test('match navigation uses the correct previous and next fixture IDs', function
 ) {
     $flavour = setupMatchControllerContext();
 
-    $formService = Mockery::mock(
-        MatchFormContextService::class
+    setupMatchControllerServices(
+        $flavour,
+        $fixtureId
     );
-
-    $formService
-        ->shouldReceive('forMatch')
-        ->once()
-        ->with(
-            matchControllerAllFixtures(),
-            Mockery::on(
-                fn (array $fixture): bool => (
-                    (int) $fixture['fixture_id'] === $fixtureId
-                )
-            )
-        )
-        ->andReturn([
-            'home' => ['past' => [], 'future' => []],
-            'away' => ['past' => [], 'future' => []],
-        ]);
-
-    app()->instance(
-        MatchFormContextService::class,
-        $formService
-    );
-
-    setupMatchControllerServicesForNavigation($flavour, $fixtureId);
 
     $response = $this->get(
         route('matches.show', [
@@ -637,6 +773,7 @@ test('match navigation uses the correct previous and next fixture IDs', function
         $page
             ->component('perfect10/match')
             ->where('fixture.fixture_id', $fixtureId)
+            ->where('selectedGameweek.gameweek_number', 8)
             ->where('navigation.previousFixtureId', $previousId)
             ->where('navigation.nextFixtureId', $nextId)
             ->etc();
@@ -647,96 +784,168 @@ test('match navigation uses the correct previous and next fixture IDs', function
     'last fixture' => [494, 493, null],
 ]);
 
-/**
- * Setup shared non-form dependencies for navigation tests.
- */
-function setupMatchControllerServicesForNavigation(Flavour $flavour, int $fixtureId): void
-{
-    $predictions = Mockery::mock(
-        PredictionContextService::class
+test('historical gameweek fixture remains accessible', function () {
+    $flavour = setupMatchControllerContext();
+
+    setupMatchControllerServices(
+        $flavour,
+        400
     );
 
-    $predictions
-        ->shouldReceive('predictionsForFlavour')
-        ->once()
-        ->with($flavour, null)
-        ->andReturn([]);
-
-    app()->instance(
-        PredictionContextService::class,
-        $predictions
+    $response = $this->get(
+        route('matches.show', [
+            'flavour' => 'epl',
+            'fixture' => 400,
+        ])
     );
 
-    $teams = Mockery::mock(
-        TeamContextService::class
+    $response->assertOk();
+
+    $response->assertInertia(function (Assert $page) {
+        $page
+            ->component('perfect10/match')
+            ->where('activeGameweek.gameweek_number', 8)
+            ->where('selectedGameweek.gameweek_number', 7)
+            ->where('selectedGameweek.status', 'finished')
+            ->where('fixture.fixture_id', 400)
+            ->has('fixtures', 1)
+            ->has('predictionsMap', 1)
+            ->where('predictionsMap.400.pred_home_goals', 2)
+            ->where('navigation.previousFixtureId', null)
+            ->where('navigation.nextFixtureId', null)
+            ->etc();
+    });
+});
+
+test('future gameweek fixture remains accessible', function () {
+    $flavour = setupMatchControllerContext();
+
+    setupMatchControllerServices(
+        $flavour,
+        550
     );
 
-    $teams
-        ->shouldReceive('teamsMapForFixtures')
-        ->once()
-        ->with(matchControllerFixtures())
-        ->andReturn(collect([]));
-
-    $teams
-        ->shouldReceive('teamsMapForFixtures')
-        ->once()
-        ->with([])
-        ->andReturn(collect([]));
-
-    $teams
-        ->shouldReceive('teamsMapForFixtures')
-        ->once()
-        ->with(matchControllerAllFixtures())
-        ->andReturn(collect([]));
-
-    app()->instance(
-        TeamContextService::class,
-        $teams
+    $response = $this->get(
+        route('matches.show', [
+            'flavour' => 'epl',
+            'fixture' => 550,
+        ])
     );
 
-    $leagueTable = Mockery::mock(
-        LeagueTableContextService::class
+    $response->assertOk();
+
+    $response->assertInertia(function (Assert $page) {
+        $page
+            ->component('perfect10/match')
+            ->where('activeGameweek.gameweek_number', 8)
+            ->where('selectedGameweek.gameweek_number', 9)
+            ->where('selectedGameweek.status', 'upcoming')
+            ->where('fixture.fixture_id', 550)
+            ->has('fixtures', 1)
+            ->has('predictionsMap', 0)
+            ->where('navigation.previousFixtureId', null)
+            ->where('navigation.nextFixtureId', null)
+            ->etc();
+    });
+});
+
+test('match details remains accessible when no gameweek is active', function () {
+    $flavour = setupMatchControllerContext(
+        'GWK',
+        false
     );
 
-    $leagueTable
-        ->shouldReceive('actualTable')
-        ->once()
-        ->with(1)
-        ->andReturn(collect([]));
-
-    app()->instance(
-        LeagueTableContextService::class,
-        $leagueTable
+    setupMatchControllerServices(
+        $flavour,
+        493
     );
 
-    $fixture = collect(matchControllerFixtures())
-        ->first(fn (array $row): bool => (int) $row['fixture_id'] === $fixtureId);
-
-    if ($fixture === null) {
-        throw new RuntimeException('Navigation test fixture not found.');
-    }
-
-    $comparisonService = Mockery::mock(
-        TeamComparisonContextService::class
+    $response = $this->get(
+        route('matches.show', [
+            'flavour' => 'epl',
+            'fixture' => 493,
+        ])
     );
 
-    $comparisonService
-        ->shouldReceive('compare')
-        ->once()
-        ->with(
-            1,
-            (int) $fixture['home_team_id'],
-            (int) $fixture['away_team_id']
-        )
-        ->andReturn([]);
+    $response->assertOk();
 
-    app()->instance(
-        TeamComparisonContextService::class,
-        $comparisonService
+    $response->assertInertia(function (Assert $page) {
+        $page
+            ->component('perfect10/match')
+            ->where('activeGameweek', null)
+            ->where('selectedGameweek.gameweek_number', 8)
+            ->where('selectedGameweek.status', 'finished')
+            ->where('fixture.fixture_id', 493)
+            ->has('fixtures', 3)
+            ->etc();
+    });
+});
+
+test('rearranged fixtures without gameweeks remain accessible', function () {
+    $flavour = setupMatchControllerContext();
+
+    setupMatchControllerServices(
+        $flavour,
+        600
     );
-}
 
-test('fixture outside the active stage returns not found', function () {
+    $response = $this->get(
+        route('matches.show', [
+            'flavour' => 'epl',
+            'fixture' => 600,
+        ])
+    );
+
+    $response->assertOk();
+
+    $response->assertInertia(function (Assert $page) {
+        $page
+            ->component('perfect10/match')
+            ->where('activeGameweek.gameweek_number', 8)
+            ->where('selectedGameweek', null)
+            ->where('fixture.fixture_id', 600)
+            ->where('fixture.gameweek_id', null)
+            ->has('fixtures', 2)
+            ->where('fixtures.0.fixture_id', 600)
+            ->where('fixtures.1.fixture_id', 601)
+            ->has('predictionsMap', 1)
+            ->where('predictionsMap.600.pred_home_goals', 1)
+            ->where('navigation.previousFixtureId', null)
+            ->where('navigation.nextFixtureId', 601)
+            ->etc();
+    });
+});
+
+test('rearranged fixture navigation remains within its standalone stage', function () {
+    $flavour = setupMatchControllerContext();
+
+    setupMatchControllerServices(
+        $flavour,
+        601
+    );
+
+    $response = $this->get(
+        route('matches.show', [
+            'flavour' => 'epl',
+            'fixture' => 601,
+        ])
+    );
+
+    $response->assertOk();
+
+    $response->assertInertia(function (Assert $page) {
+        $page
+            ->component('perfect10/match')
+            ->where('selectedGameweek', null)
+            ->where('fixture.fixture_id', 601)
+            ->has('fixtures', 2)
+            ->where('navigation.previousFixtureId', 600)
+            ->where('navigation.nextFixtureId', null)
+            ->etc();
+    });
+});
+
+test('fixture outside the selected campaign returns not found', function () {
     setupMatchControllerContext();
 
     $comparisonService = Mockery::mock(
@@ -760,13 +969,11 @@ test('fixture outside the active stage returns not found', function () {
     $response->assertNotFound();
 });
 
-test('match details returns not found when no active gameweek exists', function () {
-    setupMatchControllerContext('GWK', false);
-
+test('zero fixture IDs are rejected', function () {
     $response = $this->get(
         route('matches.show', [
             'flavour' => 'epl',
-            'fixture' => 493,
+            'fixture' => 0,
         ])
     );
 
@@ -787,7 +994,9 @@ test('per fixture flavours cannot access GWK match details', function () {
 });
 
 test('non numeric fixture IDs are rejected by the route', function () {
-    $response = $this->get('/epl/matches/not-a-fixture');
+    $response = $this->get(
+        '/epl/matches/not-a-fixture'
+    );
 
     $response->assertNotFound();
 });

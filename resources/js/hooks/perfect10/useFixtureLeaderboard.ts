@@ -8,6 +8,13 @@ type Props = {
     enabled: boolean;
 };
 
+type FixtureLeaderboardResponse = {
+    fixture_id: number;
+    leaderboard: FixtureLeaderboardData;
+};
+
+const REFRESH_DEBOUNCE_MS = 300;
+
 export default function useFixtureLeaderboard({
     fixtureId,
     flavourCode,
@@ -20,9 +27,15 @@ export default function useFixtureLeaderboard({
     useEffect(() => {
         if (!enabled) return;
 
-        const controller = new AbortController();
+        let timer: ReturnType<typeof setTimeout> | null = null;
+        let controller: AbortController | null = null;
 
         const loadLeaderboard = async () => {
+            controller?.abort();
+
+            const requestController = new AbortController();
+            controller = requestController;
+
             setLoading(true);
             setError(null);
 
@@ -32,39 +45,84 @@ export default function useFixtureLeaderboard({
                 )}/fixtures/${fixtureId}/leaderboard`;
 
                 const response = await fetch(url, {
-                    signal: controller.signal,
+                    signal: requestController.signal,
+                    credentials: 'same-origin',
+                    cache: 'no-store',
                     headers: {
                         Accept: 'application/json',
                     },
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load fixture leaderboard.');
+                    throw new Error(
+                        `Failed to load fixture leaderboard: HTTP ${response.status}`,
+                    );
                 }
 
-                const result: {
-                    fixture_id: number;
-                    leaderboard: FixtureLeaderboardData;
-                } = await response.json();
+                const result =
+                    (await response.json()) as FixtureLeaderboardResponse;
 
-                if (!controller.signal.aborted) {
+                if (
+                    !requestController.signal.aborted &&
+                    result.fixture_id === fixtureId
+                ) {
                     setData(result.leaderboard);
                 }
-            } catch {
-                if (!controller.signal.aborted) {
+            } catch (fetchError) {
+                if (!requestController.signal.aborted) {
+                    console.error(
+                        '[Perfect10 Realtime] Leaderboard refresh failed:',
+                        fetchError,
+                    );
+
                     setError('Unable to load leaderboard.');
                 }
             } finally {
-                if (!controller.signal.aborted) {
+                if (!requestController.signal.aborted) {
                     setLoading(false);
+                }
+
+                if (controller === requestController) {
+                    controller = null;
                 }
             }
         };
 
+        const onResultUpdated = (event: Event) => {
+            const updatedFixtureId = (event as CustomEvent<number>).detail;
+
+            if (updatedFixtureId !== fixtureId) {
+                return;
+            }
+
+            if (timer !== null) {
+                clearTimeout(timer);
+            }
+
+            timer = setTimeout(() => {
+                timer = null;
+                void loadLeaderboard();
+            }, REFRESH_DEBOUNCE_MS);
+        };
+
+        window.addEventListener(
+            'perfect10:fixture-result-updated',
+            onResultUpdated,
+        );
+
         void loadLeaderboard();
 
         return () => {
-            controller.abort();
+            window.removeEventListener(
+                'perfect10:fixture-result-updated',
+                onResultUpdated,
+            );
+
+            if (timer !== null) {
+                clearTimeout(timer);
+            }
+
+            controller?.abort();
         };
     }, [enabled, fixtureId, flavourCode]);
 

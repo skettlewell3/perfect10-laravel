@@ -76,7 +76,11 @@ export default function StageFixtureRow({
 }: StageFixtureRowProps) {
     const hasScoring = prediction?.points_total != null;
 
-    const [expanded, setExpanded] = useState(hasScoring);
+    const [expandedOverride, setExpandedOverride] = useState<boolean | null>(
+        null,
+    );
+
+    const expanded = expandedOverride ?? hasScoring;
 
     const homeTeam =
         fixture.home_team_id !== null
@@ -175,9 +179,11 @@ export default function StageFixtureRow({
                             />
                         </div>
                     ) : hasStarted ? (
-                        <div className="homeScore">{homeScore ?? '–'}</div>
+                        <div className="stageActualScore">
+                            {homeScore ?? '–'}
+                        </div>
                     ) : showPrediction ? (
-                        <div className="homePred">
+                        <div className="stageSavedPrediction">
                             {prediction?.pred_home_goals}
                         </div>
                     ) : (
@@ -204,9 +210,11 @@ export default function StageFixtureRow({
                             />
                         </div>
                     ) : hasStarted ? (
-                        <div className="awayScore">{awayScore ?? '–'}</div>
+                        <div className="stageActualScore">
+                            {awayScore ?? '–'}
+                        </div>
                     ) : showPrediction ? (
-                        <div className="awayPredLoc">
+                        <div className="stageSavedPrediction">
                             {prediction?.pred_away_goals}
                         </div>
                     ) : (
@@ -222,7 +230,7 @@ export default function StageFixtureRow({
                     {hasScoring && (
                         <FixtureExpandButton
                             isExpanded={expanded}
-                            onClick={() => setExpanded((previous) => !previous)}
+                            onClick={() => setExpandedOverride(!expanded)}
                         />
                     )}
                 </div>

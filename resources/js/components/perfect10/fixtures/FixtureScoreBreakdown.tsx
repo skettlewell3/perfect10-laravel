@@ -27,8 +27,8 @@ function PointsCell({ points }: { points: number | null }) {
 export default function FixtureScoreBreakdown({
     prediction,
 }: FixtureScoreBreakdownProps) {
-    // A saved prediction may not have been scored yet.
-    if (!prediction || prediction.points_total === null) {
+    // Only render when the user has a saved prediction.
+    if (!prediction) {
         return null;
     }
 
@@ -121,10 +121,10 @@ export default function FixtureScoreBreakdown({
 
                 <div
                     className={`fixtureBreakdownCell fixtureBreakdownTotal pointsColumn ${
-                        totalPoints > 0 ? 'scored' : ''
+                        totalPoints !== null && totalPoints > 0 ? 'scored' : ''
                     }`}
                 >
-                    {totalPoints}
+                    {totalPoints ?? '–'}
                 </div>
             </div>
         </div>
