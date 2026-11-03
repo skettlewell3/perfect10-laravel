@@ -1,9 +1,11 @@
-import { Head, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
 
 import ContentBanner from '@/components/perfect10/app/ContentBanner';
 import LeaderboardFilters from '@/components/perfect10/leaderboard/LeaderboardFilters';
 import LeaderboardHeader from '@/components/perfect10/leaderboard/LeaderboardHeader';
 import LeaderboardRow from '@/components/perfect10/leaderboard/LeaderboardRow';
+
 import type { Perfect10PageProps } from '@/types/perfect10';
 
 interface LeaderboardRowData {
@@ -41,6 +43,40 @@ interface LeaderboardsPageProps extends Perfect10PageProps {
 export default function LeaderboardsPage() {
     const { flavour, leaderboard, leaderboardStages, filters } =
         usePage<LeaderboardsPageProps>().props;
+
+    useEffect(() => {
+        let refreshTimeout: ReturnType<typeof setTimeout> | null = null;
+
+        const handleResultUpdated = () => {
+            if (refreshTimeout !== null) {
+                clearTimeout(refreshTimeout);
+            }
+
+            refreshTimeout = setTimeout(() => {
+                refreshTimeout = null;
+
+                router.reload({
+                    only: ['leaderboard'],
+                });
+            }, 300);
+        };
+
+        window.addEventListener(
+            'perfect10:fixture-result-updated',
+            handleResultUpdated,
+        );
+
+        return () => {
+            window.removeEventListener(
+                'perfect10:fixture-result-updated',
+                handleResultUpdated,
+            );
+
+            if (refreshTimeout !== null) {
+                clearTimeout(refreshTimeout);
+            }
+        };
+    }, []);
 
     return (
         <>
