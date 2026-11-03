@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from 'react';
 
 import type {
@@ -54,8 +53,7 @@ export default function usePredictionScoreLiveUpdates(
                     );
                 }
 
-                const result =
-                    (await response.json()) as PredictionResponse;
+                const result = (await response.json()) as PredictionResponse;
 
                 if (
                     controller.signal.aborted ||

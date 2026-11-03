@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Models\Perfect10\Flavour;
@@ -6,6 +7,7 @@ use App\Services\Perfect10\CurrentProfileService;
 use App\Services\Perfect10\Perfect10RequestContext;
 use App\Services\Perfect10\PredictionContextService;
 use App\Services\Perfect10\TeamContextService;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -99,6 +101,7 @@ function setupGameweekControllerContext(
             ->andReturn($flavour);
     } else {
         $context->shouldNotReceive('flavour');
+        $context->shouldNotReceive('gameweeks');
         $context->shouldNotReceive('activeGameweek');
         $context->shouldNotReceive('fixturesForStage');
     }
@@ -111,30 +114,97 @@ function setupGameweekControllerContext(
     return [$flavour, $context];
 }
 
-test('gameweek page returns active gameweek with filtered fixtures predictions and teams', function () {
-    [$flavour, $context] = setupGameweekControllerContext($this);
-
-    $gameweek = new Gameweek([
-        'gameweek_id' => 500,
+/**
+ * Create a gameweek model without requiring a database row.
+ */
+function makeGameweekControllerTestWeek(
+    int $number,
+    string $status = 'finished'
+): Gameweek {
+    return new Gameweek([
+        'gameweek_id' => 495 + $number,
         'campaign_id' => 100,
-        'stage_id' => 50,
-        'gameweek_number' => 5,
-        'status' => 'active',
+        'stage_id' => 45 + $number,
+        'gameweek_number' => $number,
+        'status' => $status,
         'prediction_open_at' => '2026-10-18 12:00:00',
         'prediction_close_at' => '2026-10-24 12:00:00',
     ]);
+}
+
+/**
+ * Configure the collection used by the gameweek selector.
+ *
+ * @param  list<Gameweek>  $gameweeks
+ */
+function setupGameweekControllerWeeks(
+    Perfect10RequestContext $context,
+    array $gameweeks,
+    ?Gameweek $activeGameweek
+): void {
+    $context
+        ->shouldReceive('gameweeks')
+        ->once()
+        ->andReturn(new EloquentCollection($gameweeks));
 
     $context
         ->shouldReceive('activeGameweek')
         ->once()
-        ->andReturn($gameweek);
+        ->andReturn($activeGameweek);
+}
 
-    /*
-     * The active gameweek belongs to Stage 50.
-     *
-     * Perfect10RequestContext now groups all fixtures by stage_id,
-     * including gameweek fixtures.
-     */
+/**
+ * Configure empty prediction and team data for routing tests.
+ *
+ * The main controller test separately exercises the real
+ * TeamContextService with populated teams.
+ */
+function setupGameweekControllerEmptyData(
+    Flavour $flavour,
+    array $fixtures = []
+): void {
+    $predictionService = Mockery::mock(
+        PredictionContextService::class
+    );
+
+    $predictionService
+        ->shouldReceive('predictionsForFlavour')
+        ->once()
+        ->with($flavour, null)
+        ->andReturn([]);
+
+    app()->instance(
+        PredictionContextService::class,
+        $predictionService
+    );
+
+    $teamService = Mockery::mock(
+        TeamContextService::class
+    );
+
+    $teamService
+        ->shouldReceive('teamsMapForFixtures')
+        ->once()
+        ->with($fixtures)
+        ->andReturn(collect([]));
+
+    app()->instance(
+        TeamContextService::class,
+        $teamService
+    );
+}
+
+test('gameweek page returns active gameweek with filtered fixtures predictions and teams', function () {
+    [$flavour, $context] = setupGameweekControllerContext($this);
+
+    $gameweek = makeGameweekControllerTestWeek(5, 'active');
+
+    setupGameweekControllerWeeks(
+        $context,
+        [$gameweek],
+        $gameweek
+    );
+
     $fixtures = [
         [
             'fixture_id' => 101,
@@ -237,6 +307,12 @@ test('gameweek page returns active gameweek with filtered fixtures predictions a
             ->where('activeGameweek.gameweek_id', 500)
             ->where('activeGameweek.gameweek_number', 5)
             ->where('activeGameweek.status', 'active')
+            ->where('selectedGameweek.gameweek_id', 500)
+            ->where('selectedGameweek.gameweek_number', 5)
+            ->has('gameweeks', 1)
+            ->where('gameweeks.0.gameweek_id', 500)
+            ->where('gameweeks.0.gameweek_number', 5)
+            ->where('gameweeks.0.status', 'active')
             ->has('fixtures', 2)
             ->where('fixtures.0.fixture_id', 101)
             ->where('fixtures.1.fixture_id', 102)
@@ -265,27 +341,15 @@ test('per fixture flavour cannot access gameweek page', function () {
 test('gameweek page handles the absence of an active gameweek', function () {
     [$flavour, $context] = setupGameweekControllerContext($this);
 
-    $context
-        ->shouldReceive('activeGameweek')
-        ->once()
-        ->andReturn(null);
+    setupGameweekControllerWeeks(
+        $context,
+        [],
+        null
+    );
 
     $context->shouldNotReceive('fixturesForStage');
 
-    $predictionService = Mockery::mock(
-        PredictionContextService::class
-    );
-
-    $predictionService
-        ->shouldReceive('predictionsForFlavour')
-        ->once()
-        ->with($flavour, null)
-        ->andReturn([]);
-
-    app()->instance(
-        PredictionContextService::class,
-        $predictionService
-    );
+    setupGameweekControllerEmptyData($flavour);
 
     $response = $this->get(
         route('gameweek', ['flavour' => 'EPL'])
@@ -297,9 +361,213 @@ test('gameweek page handles the absence of an active gameweek', function () {
         $page
             ->component('perfect10/gameweek')
             ->where('activeGameweek', null)
+            ->where('selectedGameweek', null)
+            ->has('gameweeks', 0)
             ->has('fixtures', 0)
             ->has('predictionsMap', 0)
             ->has('teamsMap', 0)
             ->etc();
     });
+});
+
+test('historical gameweek can be selected without changing the active gameweek', function () {
+    [$flavour, $context] = setupGameweekControllerContext($this);
+
+    $historical = makeGameweekControllerTestWeek(4);
+    $active = makeGameweekControllerTestWeek(5, 'active');
+    $future = makeGameweekControllerTestWeek(6, 'upcoming');
+
+    setupGameweekControllerWeeks(
+        $context,
+        [$historical, $active, $future],
+        $active
+    );
+
+    $fixtures = [
+        [
+            'fixture_id' => 401,
+            'stage_id' => 49,
+            'gameweek_id' => 499,
+            'kickoff_at' => '2026-10-17 12:30:00',
+            'home_team_id' => 1,
+            'away_team_id' => 2,
+        ],
+    ];
+
+    $context
+        ->shouldReceive('fixturesForStage')
+        ->once()
+        ->with(49)
+        ->andReturn($fixtures);
+
+    setupGameweekControllerEmptyData($flavour, $fixtures);
+
+    $response = $this->get(
+        route('gameweek.show', [
+            'flavour' => 'EPL',
+            'week' => 4,
+        ])
+    );
+
+    $response->assertOk();
+
+    $response->assertInertia(function (Assert $page) {
+        $page
+            ->component('perfect10/gameweek')
+            ->where('activeGameweek.gameweek_number', 5)
+            ->where('selectedGameweek.gameweek_number', 4)
+            ->where('selectedGameweek.status', 'finished')
+            ->has('gameweeks', 3)
+            ->where('gameweeks.0.gameweek_number', 4)
+            ->where('gameweeks.1.gameweek_number', 5)
+            ->where('gameweeks.2.gameweek_number', 6)
+            ->has('fixtures', 1)
+            ->where('fixtures.0.fixture_id', 401)
+            ->has('predictionsMap', 0)
+            ->etc();
+    });
+});
+
+test('future gameweek can be selected without changing the active gameweek', function () {
+    [$flavour, $context] = setupGameweekControllerContext($this);
+
+    $active = makeGameweekControllerTestWeek(5, 'active');
+    $future = makeGameweekControllerTestWeek(6, 'upcoming');
+
+    setupGameweekControllerWeeks(
+        $context,
+        [$active, $future],
+        $active
+    );
+
+    $fixtures = [
+        [
+            'fixture_id' => 601,
+            'stage_id' => 51,
+            'gameweek_id' => 501,
+            'kickoff_at' => '2026-11-07 15:00:00',
+            'home_team_id' => 1,
+            'away_team_id' => 2,
+        ],
+    ];
+
+    $context
+        ->shouldReceive('fixturesForStage')
+        ->once()
+        ->with(51)
+        ->andReturn($fixtures);
+
+    setupGameweekControllerEmptyData($flavour, $fixtures);
+
+    $response = $this->get(
+        route('gameweek.show', [
+            'flavour' => 'EPL',
+            'week' => 6,
+        ])
+    );
+
+    $response->assertOk();
+
+    $response->assertInertia(function (Assert $page) {
+        $page
+            ->component('perfect10/gameweek')
+            ->where('activeGameweek.gameweek_number', 5)
+            ->where('selectedGameweek.gameweek_number', 6)
+            ->where('selectedGameweek.status', 'upcoming')
+            ->has('fixtures', 1)
+            ->where('fixtures.0.fixture_id', 601)
+            ->has('predictionsMap', 0)
+            ->etc();
+    });
+});
+
+test('a specific gameweek remains accessible when none is active', function () {
+    [$flavour, $context] = setupGameweekControllerContext($this);
+
+    $historical = makeGameweekControllerTestWeek(4);
+
+    setupGameweekControllerWeeks(
+        $context,
+        [$historical],
+        null
+    );
+
+    $context
+        ->shouldReceive('fixturesForStage')
+        ->once()
+        ->with(49)
+        ->andReturn([]);
+
+    setupGameweekControllerEmptyData($flavour);
+
+    $response = $this->get(
+        route('gameweek.show', [
+            'flavour' => 'EPL',
+            'week' => 4,
+        ])
+    );
+
+    $response->assertOk();
+
+    $response->assertInertia(function (Assert $page) {
+        $page
+            ->component('perfect10/gameweek')
+            ->where('activeGameweek', null)
+            ->where('selectedGameweek.gameweek_number', 4)
+            ->has('gameweeks', 1)
+            ->has('fixtures', 0)
+            ->etc();
+    });
+});
+
+test('a gameweek outside the selected campaign is not accessible', function () {
+    [, $context] = setupGameweekControllerContext($this);
+
+    $active = makeGameweekControllerTestWeek(5, 'active');
+
+    setupGameweekControllerWeeks(
+        $context,
+        [$active],
+        $active
+    );
+
+    $context->shouldNotReceive('fixturesForStage');
+
+    $response = $this->get(
+        route('gameweek.show', [
+            'flavour' => 'EPL',
+            'week' => 12,
+        ])
+    );
+
+    $response->assertNotFound();
+});
+
+test('zero gameweek numbers are rejected', function () {
+    [, $context] = setupGameweekControllerContext($this);
+
+    setupGameweekControllerWeeks(
+        $context,
+        [],
+        null
+    );
+
+    $context->shouldNotReceive('fixturesForStage');
+
+    $response = $this->get(
+        route('gameweek.show', [
+            'flavour' => 'EPL',
+            'week' => 0,
+        ])
+    );
+
+    $response->assertNotFound();
+});
+
+test('non numeric gameweek numbers are rejected by the route', function () {
+    $response = $this->get(
+        '/EPL/gameweek/not-a-week'
+    );
+
+    $response->assertNotFound();
 });

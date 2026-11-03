@@ -79,7 +79,7 @@ export default function StageFixtureRow({
     const [expandedOverride, setExpandedOverride] = useState<boolean | null>(
         null,
     );
-    
+
     const expanded = expandedOverride ?? hasScoring;
 
     const homeTeam =
@@ -179,7 +179,9 @@ export default function StageFixtureRow({
                             />
                         </div>
                     ) : hasStarted ? (
-                        <div className="stageActualScore">{homeScore ?? '–'}</div>
+                        <div className="stageActualScore">
+                            {homeScore ?? '–'}
+                        </div>
                     ) : showPrediction ? (
                         <div className="stageSavedPrediction">
                             {prediction?.pred_home_goals}
@@ -208,7 +210,9 @@ export default function StageFixtureRow({
                             />
                         </div>
                     ) : hasStarted ? (
-                        <div className="stageActualScore">{awayScore ?? '–'}</div>
+                        <div className="stageActualScore">
+                            {awayScore ?? '–'}
+                        </div>
                     ) : showPrediction ? (
                         <div className="stageSavedPrediction">
                             {prediction?.pred_away_goals}

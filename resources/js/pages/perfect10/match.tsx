@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 
@@ -73,10 +72,7 @@ export default function MatchPage() {
      * Memoise the single-fixture array so the live-update hook
      * receives a stable collection between renders.
      */
-    const matchFixtures = useMemo(
-        () => [fixture],
-        [fixture],
-    );
+    const matchFixtures = useMemo(() => [fixture], [fixture]);
 
     const liveFixtures = useFixtureLiveUpdates(
         matchFixtures,
@@ -94,9 +90,7 @@ export default function MatchPage() {
         flavour.flavour_code,
     );
 
-    const livePrediction =
-        livePredictionsMap[fixture.fixture_id] ?? null;
-
+    const livePrediction = livePredictionsMap[fixture.fixture_id] ?? null;
 
     const predictionWindowOpen =
         activeGameweek.status === 'active' &&
@@ -247,7 +241,9 @@ export default function MatchPage() {
 
                     {!predictionWindowOpen && livePrediction !== null && (
                         <div className="statsSection">
-                            <FixtureScoreBreakdown prediction={livePrediction} />
+                            <FixtureScoreBreakdown
+                                prediction={livePrediction}
+                            />
                         </div>
                     )}
 

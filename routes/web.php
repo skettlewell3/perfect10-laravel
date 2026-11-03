@@ -75,6 +75,10 @@ Route::prefix('{flavour}')->group(function () {
     Route::get('/gameweek', [GameweekController::class, 'index'])
         ->name('gameweek');
 
+    Route::get('/gameweek/{week}', [GameweekController::class, 'index'])
+        ->whereNumber('week')
+        ->name('gameweek.show');
+
     Route::get('/matches/{fixture}', [MatchController::class, 'show'])
         ->whereNumber('fixture')
         ->name('matches.show');

@@ -1,4 +1,3 @@
-
 import type { FixturePrediction } from '@/types/perfect10/prediction';
 
 type FixtureScoreBreakdownProps = {
