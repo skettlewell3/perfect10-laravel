@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Perfect10\Campaign;
 use App\Models\Perfect10\Competition;
 use App\Models\Perfect10\Flavour;
@@ -18,6 +19,10 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
     $this->withoutVite();
+
+    $this->withoutMiddleware(
+        HandleInertiaRequests::class
+    );
 
     if (
         DB::connection()->getDriverName() !== 'sqlite' ||

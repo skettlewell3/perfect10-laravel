@@ -3,11 +3,12 @@
 namespace App\Providers;
 
 use App\Contracts\Auth\CurrentAuthIdentity;
-use App\Services\Auth\DevCurrentAuthIdentity;
+use App\Services\Auth\SessionCurrentAuthIdentity;
 use App\Services\Perfect10\CurrentProfileService;
 use App\Services\Perfect10\FlavourContextService;
 use App\Services\Perfect10\Perfect10RequestContext;
 use Carbon\CarbonImmutable;
+use Illuminate\Foundation\DevCommands;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -19,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             CurrentAuthIdentity::class,
-            DevCurrentAuthIdentity::class
+            SessionCurrentAuthIdentity::class
         );
 
         $this->app->scoped(
@@ -38,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        if ($this->app->environment('local')) {
+            DevCommands::artisan('serve --host=localhost --port=8001', 'server');
+        }
     }
 
     protected function configureDefaults(): void
