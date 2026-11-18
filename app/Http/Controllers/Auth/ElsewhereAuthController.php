@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 class ElsewhereAuthController extends Controller
 {
@@ -155,6 +157,16 @@ class ElsewhereAuthController extends Controller
         $request->session()->regenerate();
 
         return redirect('/');
+    }
+
+    public function logout(Request $request): Response
+    {
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Inertia::location(
+            $this->baseUrl().'/auth/logout/perfect10'
+        );
     }
 
     private function baseUrl(): string

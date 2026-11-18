@@ -61,13 +61,16 @@ export default function ProfileDropdown() {
                         Rules <span className="tag">Soon!</span>
                     </button>
 
-                    <button
+                    <Link
+                        href="/auth/elsewhere/logout"
+                        method="post"
+                        as="button"
                         type="button"
-                        className="profileDropdownItem logout disabled"
-                        disabled
+                        className="profileDropdownItem logout"
+                        onClick={() => setOpen(false)}
                     >
                         Sign Out
-                    </button>
+                    </Link>
                 </div>
             )}
         </div>

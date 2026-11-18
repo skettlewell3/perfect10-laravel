@@ -40,6 +40,11 @@ Route::middleware(EnsureElsewhereAuthenticated::class)->group(function (): void 
         ]);
     });
 
+    Route::post(
+        '/auth/elsewhere/logout',
+        [ElsewhereAuthController::class, 'logout']
+    )->name('elsewhere.auth.logout');
+
     Route::get('/profile', [ProfileController::class, 'index'])
         ->name('perfect10.profile');
 
