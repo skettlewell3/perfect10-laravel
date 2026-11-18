@@ -20,7 +20,7 @@ class Perfect10ShellContextService
      *     stage: object|null
      * }
      */
-    public function profileTicker(string $requestedFlavour): array
+    public function profileTicker(): array
     {
         $emptyTicker = [
             'tickerStageLabel' => null,

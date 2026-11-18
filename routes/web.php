@@ -15,7 +15,7 @@ use App\Http\Controllers\Perfect10\ProfileController;
 use App\Http\Controllers\Perfect10\StatsController;
 use App\Http\Middleware\EnsureElsewhereAuthenticated;
 use App\Http\Middleware\EnsurePerfect10Profile;
-use App\Services\Perfect10\FlavourContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use Illuminate\Support\Facades\Route;
 
 Route::get(
@@ -31,17 +31,9 @@ Route::get(
 Route::middleware(EnsureElsewhereAuthenticated::class)->group(function (): void {
 
     Route::get('/', function (
-        FlavourContextService $flavourContext
+        Perfect10RequestContext $context
     ) {
-        $flavours = $flavourContext->availableFlavours();
-
-        abort_if(
-            $flavours->isEmpty(),
-            404,
-            'No active Perfect10 flavour is available.'
-        );
-
-        $flavour = $flavourContext->selectFlavour($flavours);
+        $flavour = $context->selectedFlavourData();
 
         return redirect()->route('dashboard', [
             'flavour' => strtolower($flavour['flavour_code']),

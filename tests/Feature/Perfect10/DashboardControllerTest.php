@@ -295,3 +295,64 @@ test('dashboard resolves the appropriate context for each prediction format', fu
     'per-fixture format' => ['WC', 'PFX'],
     'per-fixture format with trailing whitespace' => ['WC ', 'PFX'],
 ]);
+
+test('root route redirects to the selected or default flavour', function (
+    ?string $rememberedFlavour,
+    string $expectedFlavour
+) {
+    $flavours = collect([
+        [
+            'flavour_id' => 1,
+            'flavour_code' => 'EPL',
+            'is_default' => true,
+        ],
+        [
+            'flavour_id' => 2,
+            'flavour_code' => 'WC',
+            'is_default' => false,
+        ],
+    ]);
+
+    $selected = $flavours->firstWhere(
+        'flavour_code',
+        $expectedFlavour
+    );
+
+    $flavourService = Mockery::mock(
+        FlavourContextService::class
+    );
+
+    $flavourService
+        ->shouldReceive('availableFlavours')
+        ->once()
+        ->andReturn($flavours);
+
+    $flavourService
+        ->shouldReceive('selectFlavour')
+        ->once()
+        ->with($flavours, $rememberedFlavour ?? '')
+        ->andReturn($selected);
+
+    $this->app->instance(
+        FlavourContextService::class,
+        $flavourService
+    );
+
+    $session = $rememberedFlavour !== null
+        ? ['perfect10.last_flavour' => $rememberedFlavour]
+        : [];
+
+    $response = $this
+        ->withSession($session)
+        ->get('/');
+
+    $response->assertRedirect(
+        route('dashboard', [
+            'flavour' => strtolower($expectedFlavour),
+        ])
+    );
+})->with([
+    'default flavour' => [null, 'EPL'],
+    'remembered EPL' => ['EPL', 'EPL'],
+    'remembered WC' => ['WC', 'WC'],
+]);

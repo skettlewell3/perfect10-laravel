@@ -6,8 +6,7 @@ export default function ProfileIdentity() {
     const { perfect10Profile, perfect10Shell } =
         usePage<Perfect10PageProps>().props;
 
-    const globalPoints =
-        perfect10Shell?.profileTicker.global?.total_points ?? 0;
+    const globalPoints = perfect10Shell?.profileTicker.global?.total_points;
 
     return (
         <div className="profileIdentity">
@@ -15,7 +14,9 @@ export default function ProfileIdentity() {
                 {perfect10Profile?.display_name ?? ''}
             </div>
 
-            <div className="profilePoints">⭐'s: {globalPoints}</div>
+            {globalPoints != null && (
+                <div className="profilePoints">⭐'s: {globalPoints}</div>
+            )}
         </div>
     );
 }

@@ -12,16 +12,12 @@ class HandleInertiaRequests extends Middleware
     /**
      * The root template that's loaded on the first page visit.
      *
-     * @see https://inertiajs.com/server-side-setup#root-template
-     *
      * @var string
      */
     protected $rootView = 'app';
 
     /**
      * Determines the current asset version.
-     *
-     * @see https://inertiajs.com/asset-versioning
      */
     public function version(Request $request): ?string
     {
@@ -31,8 +27,6 @@ class HandleInertiaRequests extends Middleware
     /**
      * Define the props that are shared by default.
      *
-     * @see https://inertiajs.com/shared-data
-     *
      * @return array<string, mixed>
      */
     public function share(Request $request): array
@@ -41,6 +35,9 @@ class HandleInertiaRequests extends Middleware
             ->profile();
 
         $requestedFlavour = $request->route('flavour');
+
+        $hasFlavourContext = is_string($requestedFlavour)
+            || $request->routeIs('perfect10.profile');
 
         return [
             ...parent::share($request),
@@ -58,11 +55,11 @@ class HandleInertiaRequests extends Middleware
                 ]
                 : null,
 
-            'perfect10Shell' => fn () => is_string($requestedFlavour)
+            'perfect10Shell' => fn () => $hasFlavourContext
                 ? [
                     'profileTicker' => app(
                         Perfect10ShellContextService::class
-                    )->profileTicker($requestedFlavour),
+                    )->profileTicker(),
                 ]
                 : null,
         ];
