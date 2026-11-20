@@ -98,6 +98,7 @@ class ElsewhereAuthControllerTest extends TestCase
         Http::fake([
             self::ELSEWHERE_URL.'/oauth/token' => Http::response([
                 'access_token' => 'test-access-token',
+                'refresh_token' => 'test-refresh-token',
                 'token_type' => 'Bearer',
                 'expires_in' => 3600,
             ], 200),
@@ -303,6 +304,9 @@ class ElsewhereAuthControllerTest extends TestCase
         Http::fake([
             self::ELSEWHERE_URL.'/oauth/token' => Http::response([
                 'access_token' => 'test-access-token',
+                'refresh_token' => 'test-refresh-token',
+                'token_type' => 'Bearer',
+                'expires_in' => 3600,
             ], 200),
 
             self::ELSEWHERE_URL.'/api/auth/me' => Http::response([
@@ -328,6 +332,9 @@ class ElsewhereAuthControllerTest extends TestCase
         Http::fake([
             self::ELSEWHERE_URL.'/oauth/token' => Http::response([
                 'access_token' => 'test-access-token',
+                'refresh_token' => 'test-refresh-token',
+                'token_type' => 'Bearer',
+                'expires_in' => 3600,
             ], 200),
 
             self::ELSEWHERE_URL.'/api/auth/me' => Http::response([

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Perfect10\UserProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -15,7 +16,13 @@ class ElsewhereAuthController extends Controller
 {
     public function redirect(Request $request): RedirectResponse
     {
-        $request->session()->forget('elsewhere_auth_id');
+        $request->session()->forget([
+            'elsewhere_auth_id',
+            'elsewhere_oauth_access_token',
+            'elsewhere_oauth_refresh_token',
+            'elsewhere_oauth_expires_at',
+            'elsewhere_membership_verified_at',
+        ]);
         $request->session()->regenerate();
 
         $baseUrl = $this->baseUrl();
@@ -111,12 +118,28 @@ class ElsewhereAuthController extends Controller
         );
 
         $accessToken = $tokenResponse->json('access_token');
+        $refreshToken = $tokenResponse->json('refresh_token');
+        $expiresIn = $tokenResponse->json('expires_in');
 
         abort_unless(
             is_string($accessToken) &&
             $accessToken !== '',
             502,
             'Elsewhere did not return an access token.'
+        );
+
+        abort_unless(
+            is_string($refreshToken) &&
+            $refreshToken !== '',
+            502,
+            'Elsewhere did not return a refresh token.'
+        );
+
+        abort_unless(
+            is_int($expiresIn) &&
+            $expiresIn > 0,
+            502,
+            'Elsewhere did not return a valid token expiry.'
         );
 
         $identityResponse = Http::withToken($accessToken)
@@ -149,10 +172,23 @@ class ElsewhereAuthController extends Controller
             'An existing Perfect10 profile is required.'
         );
 
-        $request->session()->put(
-            'elsewhere_auth_id',
-            $authId
-        );
+        $request->session()->put([
+            'elsewhere_auth_id' => $authId,
+
+            'elsewhere_oauth_access_token' => Crypt::encryptString(
+                $accessToken
+            ),
+
+            'elsewhere_oauth_refresh_token' => Crypt::encryptString(
+                $refreshToken
+            ),
+
+            'elsewhere_oauth_expires_at' => now()
+                ->addSeconds($expiresIn)
+                ->timestamp,
+
+            'elsewhere_membership_verified_at' => now()->timestamp,
+        ]);
 
         $request->session()->regenerate();
 

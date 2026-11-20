@@ -51,14 +51,24 @@ class ElsewhereLogoutTest extends TestCase
         );
     }
 
-    public function test_guest_cannot_access_logout_endpoint(): void
+    public function test_guest_can_clear_session_and_reach_elsewhere_logout(): void
     {
-        $response = $this->post(
-            route('elsewhere.auth.logout')
+        $response = $this
+            ->withSession([
+                'perfect10.last_flavour' => 'EPL',
+            ])
+            ->withHeader('X-Inertia', 'true')
+            ->post(route('elsewhere.auth.logout'));
+
+        $response->assertStatus(409);
+
+        $response->assertHeader(
+            'X-Inertia-Location',
+            'http://127.0.0.1:8000/auth/logout/perfect10'
         );
 
-        $response->assertRedirect(
-            route('elsewhere.auth.redirect')
+        $response->assertSessionMissing(
+            'perfect10.last_flavour'
         );
     }
 }

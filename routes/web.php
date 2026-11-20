@@ -28,6 +28,11 @@ Route::get(
     [ElsewhereAuthController::class, 'callback']
 )->name('elsewhere.auth.callback');
 
+Route::post(
+    '/auth/elsewhere/logout',
+    [ElsewhereAuthController::class, 'logout']
+)->name('elsewhere.auth.logout');
+
 Route::middleware(EnsureElsewhereAuthenticated::class)->group(function (): void {
 
     Route::get('/', function (
@@ -39,11 +44,6 @@ Route::middleware(EnsureElsewhereAuthenticated::class)->group(function (): void 
             'flavour' => strtolower($flavour['flavour_code']),
         ]);
     });
-
-    Route::post(
-        '/auth/elsewhere/logout',
-        [ElsewhereAuthController::class, 'logout']
-    )->name('elsewhere.auth.logout');
 
     Route::get('/profile', [ProfileController::class, 'index'])
         ->name('perfect10.profile');
