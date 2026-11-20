@@ -289,6 +289,13 @@ test('profile route retains the last selected flavour', function (
             ->component('perfect10/profile')
             ->where('flavour.flavour_code', $flavourCode)
             ->where('flavour.format_code', $formatCode)
+            ->where('perfect10Shell.profileTicker', [
+                'tickerStageLabel' => null,
+                'global' => null,
+                'flavour' => null,
+                'campaign' => null,
+                'stage' => null,
+            ])
             ->etc()
     );
 

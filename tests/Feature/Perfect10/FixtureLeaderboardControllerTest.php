@@ -1,11 +1,16 @@
 <?php
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Services\Perfect10\FixtureLeaderboardContextService;
 use App\Services\Perfect10\Perfect10RequestContext;
 use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
     $this->withoutVite();
+
+    $this->withoutMiddleware(
+        HandleInertiaRequests::class
+    );
 
     if (
         DB::connection()->getDriverName() !== 'sqlite' ||

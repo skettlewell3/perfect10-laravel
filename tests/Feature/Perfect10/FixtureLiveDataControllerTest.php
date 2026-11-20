@@ -1,6 +1,6 @@
-
 <?php
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Perfect10\Campaign;
 use App\Services\Perfect10\Perfect10RequestContext;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Schema;
 
 beforeEach(function () {
     $this->withoutVite();
+
+    $this->withoutMiddleware(
+        HandleInertiaRequests::class
+    );
 
     if (
         DB::connection()->getDriverName() !== 'sqlite' ||

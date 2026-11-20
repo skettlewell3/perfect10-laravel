@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\ElsewhereAuthController;
 use App\Http\Controllers\Perfect10\ClubsController;
 use App\Http\Controllers\Perfect10\DashboardController;
 use App\Http\Controllers\Perfect10\FixtureLeaderboardController;
@@ -12,135 +13,147 @@ use App\Http\Controllers\Perfect10\MatchController;
 use App\Http\Controllers\Perfect10\PredictionSubmissionController;
 use App\Http\Controllers\Perfect10\ProfileController;
 use App\Http\Controllers\Perfect10\StatsController;
+use App\Http\Middleware\EnsureElsewhereAuthenticated;
 use App\Http\Middleware\EnsurePerfect10Profile;
-use App\Services\Perfect10\FlavourContextService;
+use App\Services\Perfect10\Perfect10RequestContext;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function (
-    FlavourContextService $flavourContext
-) {
-    $flavours = $flavourContext->availableFlavours();
+Route::get(
+    '/auth/elsewhere/redirect',
+    [ElsewhereAuthController::class, 'redirect']
+)->name('elsewhere.auth.redirect');
 
-    abort_if(
-        $flavours->isEmpty(),
-        404,
-        'No active Perfect10 flavour is available.'
-    );
+Route::get(
+    '/auth/elsewhere/callback',
+    [ElsewhereAuthController::class, 'callback']
+)->name('elsewhere.auth.callback');
 
-    $flavour = $flavourContext->selectFlavour($flavours);
+Route::post(
+    '/auth/elsewhere/logout',
+    [ElsewhereAuthController::class, 'logout']
+)->name('elsewhere.auth.logout');
 
-    return redirect()->route('dashboard', [
-        'flavour' => strtolower($flavour['flavour_code']),
-    ]);
-});
+Route::middleware(EnsureElsewhereAuthenticated::class)->group(function (): void {
 
-Route::get('/profile', [ProfileController::class, 'index'])
-    ->name('perfect10.profile');
+    Route::get('/', function (
+        Perfect10RequestContext $context
+    ) {
+        $flavour = $context->selectedFlavourData();
 
-Route::patch('/profile', [ProfileController::class, 'update'])
-    ->name('perfect10.profile.update');
+        return redirect()->route('dashboard', [
+            'flavour' => strtolower($flavour['flavour_code']),
+        ]);
+    });
 
-Route::post('/profile/club', [ProfileController::class, 'createClub'])
-    ->name('perfect10.profile.club.store');
+    Route::get('/profile', [ProfileController::class, 'index'])
+        ->name('perfect10.profile');
 
-Route::prefix('{flavour}')->group(function () {
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('perfect10.profile.update');
 
-    Route::get('/', [DashboardController::class, 'index'])
-        ->name('dashboard');
+    Route::post('/profile/club', [ProfileController::class, 'createClub'])
+        ->name('perfect10.profile.club.store');
 
-    Route::get('/fixtures', [FixturesController::class, 'index'])
-        ->name('fixtures');
+    Route::prefix('{flavour}')->group(function () {
 
-    Route::get(
-        '/fixtures/{fixture}/leaderboard',
-        [FixtureLeaderboardController::class, 'show']
-    )
-        ->whereNumber('fixture')
-        ->name('fixtures.leaderboard');
+        Route::get('/', [DashboardController::class, 'index'])
+            ->name('dashboard');
 
-    Route::get(
-        '/fixtures/{fixture}/data',
-        [FixtureLiveDataController::class, 'show']
-    )
-        ->whereNumber('fixture')
-        ->name('fixtures.live-data');
+        Route::get('/fixtures', [FixturesController::class, 'index'])
+            ->name('fixtures');
 
-    Route::get(
-        '/fixtures/{fixture}/prediction-data',
-        [FixturePredictionLiveDataController::class, 'show']
-    )
-        ->whereNumber('fixture')
-        ->name('fixtures.prediction-data');
+        Route::get(
+            '/fixtures/{fixture}/leaderboard',
+            [FixtureLeaderboardController::class, 'show']
+        )
+            ->whereNumber('fixture')
+            ->name('fixtures.leaderboard');
 
-    Route::get('/gameweek', [GameweekController::class, 'index'])
-        ->name('gameweek');
+        Route::get(
+            '/fixtures/{fixture}/data',
+            [FixtureLiveDataController::class, 'show']
+        )
+            ->whereNumber('fixture')
+            ->name('fixtures.live-data');
 
-    Route::get('/gameweek/{week}', [GameweekController::class, 'index'])
-        ->whereNumber('week')
-        ->name('gameweek.show');
+        Route::get(
+            '/fixtures/{fixture}/prediction-data',
+            [FixturePredictionLiveDataController::class, 'show']
+        )
+            ->whereNumber('fixture')
+            ->name('fixtures.prediction-data');
 
-    Route::get('/matches/{fixture}', [MatchController::class, 'show'])
-        ->whereNumber('fixture')
-        ->name('matches.show');
+        Route::get('/gameweek', [GameweekController::class, 'index'])
+            ->name('gameweek');
 
-    Route::post(
-        '/predictions',
-        [PredictionSubmissionController::class, 'store']
-    )
-        ->middleware(EnsurePerfect10Profile::class)
-        ->name('predictions.store');
+        Route::get('/gameweek/{week}', [GameweekController::class, 'index'])
+            ->whereNumber('week')
+            ->name('gameweek.show');
 
-    Route::get('/leaderboards', [LeaderboardController::class, 'index'])
-        ->name('leaderboards');
+        Route::get('/matches/{fixture}', [MatchController::class, 'show'])
+            ->whereNumber('fixture')
+            ->name('matches.show');
 
-    Route::get('/clubs', [ClubsController::class, 'index'])
-        ->name('clubs');
+        Route::post(
+            '/predictions',
+            [PredictionSubmissionController::class, 'store']
+        )
+            ->middleware(EnsurePerfect10Profile::class)
+            ->name('predictions.store');
 
-    Route::get('/clubs/{club}', [ClubsController::class, 'show'])
-        ->name('clubs.show');
+        Route::get('/leaderboards', [LeaderboardController::class, 'index'])
+            ->name('leaderboards');
 
-    Route::post(
-        '/clubs/{club}/invites',
-        [ClubsController::class, 'sendInvite']
-    )->name('clubs.invites.send');
+        Route::get('/clubs', [ClubsController::class, 'index'])
+            ->name('clubs');
 
-    Route::post(
-        '/clubs/invites/accept',
-        [ClubsController::class, 'acceptInvite']
-    )->name('clubs.invites.accept');
+        Route::get('/clubs/{club}', [ClubsController::class, 'show'])
+            ->name('clubs.show');
 
-    Route::post(
-        '/clubs/invites/decline',
-        [ClubsController::class, 'declineInvite']
-    )->name('clubs.invites.decline');
+        Route::post(
+            '/clubs/{club}/invites',
+            [ClubsController::class, 'sendInvite']
+        )->name('clubs.invites.send');
 
-    Route::patch(
-        '/clubs/{club}/members/role',
-        [ClubsController::class, 'updateMemberRole']
-    )->name('clubs.members.role');
+        Route::post(
+            '/clubs/invites/accept',
+            [ClubsController::class, 'acceptInvite']
+        )->name('clubs.invites.accept');
 
-    Route::delete(
-        '/clubs/{club}/members',
-        [ClubsController::class, 'removeMember']
-    )->name('clubs.members.remove');
+        Route::post(
+            '/clubs/invites/decline',
+            [ClubsController::class, 'declineInvite']
+        )->name('clubs.invites.decline');
 
-    Route::post(
-        '/clubs/{club}/ownership-transfer',
-        [ClubsController::class, 'requestOwnershipTransfer']
-    )->name('clubs.ownership-transfer.request');
+        Route::patch(
+            '/clubs/{club}/members/role',
+            [ClubsController::class, 'updateMemberRole']
+        )->name('clubs.members.role');
 
-    Route::post(
-        '/clubs/ownership-transfer/accept',
-        [ClubsController::class, 'acceptOwnershipTransfer']
-    )->name('clubs.ownership-transfer.accept');
+        Route::delete(
+            '/clubs/{club}/members',
+            [ClubsController::class, 'removeMember']
+        )->name('clubs.members.remove');
 
-    Route::post(
-        '/clubs/ownership-transfer/decline',
-        [ClubsController::class, 'declineOwnershipTransfer']
-    )->name('clubs.ownership-transfer.decline');
+        Route::post(
+            '/clubs/{club}/ownership-transfer',
+            [ClubsController::class, 'requestOwnershipTransfer']
+        )->name('clubs.ownership-transfer.request');
 
-    Route::get('/stats', [StatsController::class, 'index'])
-        ->name('stats');
+        Route::post(
+            '/clubs/ownership-transfer/accept',
+            [ClubsController::class, 'acceptOwnershipTransfer']
+        )->name('clubs.ownership-transfer.accept');
+
+        Route::post(
+            '/clubs/ownership-transfer/decline',
+            [ClubsController::class, 'declineOwnershipTransfer']
+        )->name('clubs.ownership-transfer.decline');
+
+        Route::get('/stats', [StatsController::class, 'index'])
+            ->name('stats');
+    });
+
 });
 
 require __DIR__.'/settings.php';
