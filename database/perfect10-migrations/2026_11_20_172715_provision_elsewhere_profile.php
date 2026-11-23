@@ -51,7 +51,7 @@ return new class extends Migration
                 IF EXISTS (
                     SELECT 1
                     FROM public.user_profiles AS up
-                    WHERE up.username = p_username
+                    WHERE up.username OPERATOR(public.=) p_username::public.citext
                 ) THEN
                     RAISE EXCEPTION
                         'Elsewhere username is already assigned';
